@@ -11,6 +11,7 @@
             Console.WriteLine("Sang done");
             Console.WriteLine("Hoang done");
             Console.WriteLine("Hoc done");
+            Console.WriteLine("Viet done");
 
         }
     }
