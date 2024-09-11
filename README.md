@@ -13,8 +13,8 @@
 
 | Name       | UniID | Role        | Position        | GitHub Profile                        |
 |------------|-------|-------------|-----------------|---------------------------------------|
-| **Bùi Minh Việt**   | **SE184771**| Developer   | BE      | [naksasaka](https://github.com/naksasaka)         |
-| **Phạm Văn Học**   | **SE184940**| Developer   | BE          | [hocpvse184940](https://github.com/hocpvse184940)         |
+| **Bùi Minh Việt**   | **SE184771**| Developer   | BE,FE      | [naksasaka](https://github.com/naksasaka)         |
+| **Phạm Văn Học**   | **SE184940**| Developer   | BE,FE          | [hocpvse184940](https://github.com/hocpvse184940)         |
 | **Đặng Ngọc Sáng**   | **SE184169**| Developer   | BE        | [tvmmanh](https://github.com/sangdnSE184169)         |
 | **Nguyễn Hữu Hoàng**   | **SE170060**| Developer   | BE | [hoangnhse170060](https://github.com/hoangnhse170060)         |
 | **Nguyễn Quang Khanh**   | **SE173088**| Developer   | FE | [khanhnqse](https://github.com/khanhnqse)         |
