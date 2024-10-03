@@ -10,9 +10,9 @@ namespace KMG.Repository
 {
     public class UnitOfWork
     {
-        public readonly SwpkoiFarmShopContext _context;
-        public KoiRepository _koiRepository;
-        public UnitOfWork() => _context = new SwpkoiFarmShopContext();
+        private readonly SwpkoiFarmShopContext _context;
+        private KoiRepository _koiRepository;
+        public  UnitOfWork() => _context = new SwpkoiFarmShopContext();
         public KoiRepository KoiRepository
         {
             get

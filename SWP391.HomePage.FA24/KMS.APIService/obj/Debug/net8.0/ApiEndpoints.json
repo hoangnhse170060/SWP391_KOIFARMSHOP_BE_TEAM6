@@ -21,6 +21,38 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.UserController",
+    "Method": "IsEmailAlreadyRegister",
+    "RelativePath": "api/User/IsEmailAlreadyRegister",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.UserController",
+    "Method": "IsEmailAlreadyRegister",
+    "RelativePath": "api/User/IsEmailAlreadyRegister",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.UserController",
     "Method": "Login",
     "RelativePath": "api/User/login",
     "HttpMethod": "POST",
@@ -30,6 +62,22 @@
       {
         "Name": "loginModel",
         "Type": "KMG.Repository.Models.Login",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.UserController",
+    "Method": "Register",
+    "RelativePath": "api/User/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "registerModel",
+        "Type": "KMG.Repository.Models.Register",
         "IsRequired": true
       }
     ],

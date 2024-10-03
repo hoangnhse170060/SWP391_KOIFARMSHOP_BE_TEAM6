@@ -1,5 +1,6 @@
 ﻿using KMG.Repository;
 using KMG.Repository.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KMS.APIService.Controllers
@@ -10,6 +11,7 @@ namespace KMS.APIService.Controllers
     {
         private readonly UnitOfWork _unitOfWork;
         public KoiController(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+       
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Koi>>>
             GetKoi()

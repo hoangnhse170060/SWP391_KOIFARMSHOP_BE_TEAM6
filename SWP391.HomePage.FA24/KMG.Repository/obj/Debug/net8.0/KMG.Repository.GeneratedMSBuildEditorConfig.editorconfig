@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = KMG.Repository
-build_property.ProjectDir = E:\SWP\SWP391_Team5\SWP391.HomePage.FA24\KMG.Repository\
+build_property.ProjectDir = E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
