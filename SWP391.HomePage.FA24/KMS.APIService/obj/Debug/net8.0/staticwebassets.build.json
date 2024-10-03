@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "Uqb4gyNGWYgSefjNJPJvQl/2aUTkHkvUIA/MT8Aa8OI=",
+  "Source": "KMS.APIService",
+  "BasePath": "_content/KMS.APIService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

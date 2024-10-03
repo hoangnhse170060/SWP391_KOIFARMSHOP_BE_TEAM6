@@ -1,0 +1,14 @@
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.deps.json
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.runtimeconfig.json
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.dll
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.pdb
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.csproj.AssemblyReference.cache
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.GeneratedMSBuildEditorConfig.editorconfig
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.AssemblyInfoInputs.cache
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.AssemblyInfo.cs
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.csproj.CoreCompileInputs.cache
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.dll
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\refint\KMG.Repository.dll
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.pdb
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.genruntimeconfig.cache
+E:\API_Study\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\ref\KMG.Repository.dll
