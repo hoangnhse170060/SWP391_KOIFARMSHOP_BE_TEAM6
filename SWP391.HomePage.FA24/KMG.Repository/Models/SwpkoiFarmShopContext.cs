@@ -189,16 +189,24 @@ public partial class SwpkoiFarmShopContext : DbContext
         });
 
         modelBuilder.Entity<KoiType>(entity =>
-        {
+        {   
             entity.HasKey(e => e.KoiTypeId).HasName("PK__KoiType__F26246F7B8563B8F");
 
             entity.ToTable("KoiType");
 
             entity.Property(e => e.KoiTypeId).HasColumnName("koiTypeID");
-            entity.Property(e => e.TypeName)
+            entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("typeName");
+                .HasColumnName("name");
+            entity.HasMany(kt => kt.Kois) // KoiType có nhiều Koi
+         .WithOne(k => k.KoiType) // Mỗi Koi thuộc về một KoiType
+         .HasForeignKey(k => k.KoiTypeId); // Khóa ngoại trong bảng Koi
+
+            // Thiết lập mối quan hệ với Fishes
+            entity.HasMany(kt => kt.Fish) // KoiType có nhiều Fish
+                  .WithOne(f => f.KoiType) // Mỗi Fish thuộc về một KoiType
+                  .HasForeignKey(f => f.KoiTypeId); // Khóa ngoại trong bảng Fishes
         });
 
         modelBuilder.Entity<Order>(entity =>

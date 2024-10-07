@@ -47,5 +47,17 @@ namespace KMG.Repository.Repositories
 
             return newUser;
         }
+        public async Task<bool> DeleteWithId(int userID)
+        {
+            var user = await _context.Users.FindAsync(userID);
+            if (user != null)
+            {
+                await RemoveAsync(user);
+                return true;
+            }
+            return false;
+
+
+        }
     }
 }

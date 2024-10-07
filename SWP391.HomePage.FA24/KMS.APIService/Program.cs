@@ -3,6 +3,7 @@ using KMG.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace KMS.APIService
 {
@@ -11,6 +12,11 @@ namespace KMS.APIService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                });
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigins",

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace KMG.Repository.Models;
 
 public partial class Koi
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int KoiId { get; set; }
 
     public int? KoiTypeId { get; set; }
@@ -31,13 +36,13 @@ public partial class Koi
 
     public decimal? Price { get; set; }
 
-    public byte[]? ImageKoi { get; set; }
+    public string? ImageKoi { get; set; }
 
-    public byte[]? ImageCertificate { get; set; }
-
+    public string? ImageCertificate { get; set; }
+    [JsonIgnore]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
 
     public virtual KoiType? KoiType { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<OrderKoi> OrderKois { get; set; } = new List<OrderKoi>();
 }

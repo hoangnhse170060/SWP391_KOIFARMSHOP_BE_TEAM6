@@ -9,29 +9,29 @@ using System.Threading.Tasks;
 
 namespace KMG.Repository.Repositories
 {
-    public class KoiRepository:GenericRepository<Koi>
+    public class FishRepository:GenericRepository<Fish>
     {
         private readonly SwpkoiFarmShopContext _context;
-        public KoiRepository(SwpkoiFarmShopContext context) =>_context = context;
-        public async Task<List<Koi>> GetAllKoisWithTypeAsync()
+        public FishRepository(SwpkoiFarmShopContext context) => _context = context;
+        public async Task<List<Fish>> GetAllFishWithTypeAsync()
         {
-            return await _context.Kois
+            return await _context.Fishes
                 .Include(k => k.KoiType)
-                .OrderBy(k => k.KoiId)
+                .OrderBy(k => k.FishesId)
                 .ToListAsync();
         }
-        public async Task<bool> DeleteWithId(int koiId)
+        public async Task<bool> DeleteWithId(int fishesID)
         {
-            var koi = await _context.Kois.FindAsync(koiId);
-            if (koi != null)
+            var fish = await _context.Fishes.FindAsync(fishesID);
+            if (fish != null)
             {
-                await RemoveAsync(koi);
+                await RemoveAsync(fish);
                 return true;
             }
             return false;
 
 
         }
+
     }
-    
 }

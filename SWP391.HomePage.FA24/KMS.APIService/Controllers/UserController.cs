@@ -44,9 +44,9 @@ namespace KMS.APIService.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, user.Role ?? "customer") // Giả sử vai trò của người dùng
+                    new Claim(ClaimTypes.Role, user.Role ?? "customer") 
                 }),
-                Expires = DateTime.UtcNow.AddDays(7), // Thời gian hết hạn
+                Expires = DateTime.UtcNow.AddDays(7), 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -65,13 +65,13 @@ namespace KMS.APIService.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Register registerModel)
         {
-            // Check if the model state is valid (ensuring validation annotations are respected)
+           
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Call repository method to register user
+            
             var user = await _userRepository.RegisterAsync(registerModel.UserName, registerModel.Password, registerModel.Email);
 
             if (user == null)
@@ -97,7 +97,23 @@ namespace KMS.APIService.Controllers
             }
             return Ok(new { Message = "Email is available" }); 
         }
-
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteKoi(int id)
+        {
+            try
+            {
+                var result = await _userRepository.DeleteWithId(id);
+                if (result)
+                {
+                    return Ok(new { message = "User deleted successfully." });
+                }
+                return NotFound(new { message = "User not found." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
     }
 }
