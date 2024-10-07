@@ -12,5 +12,10 @@ namespace KMG.Repository.Repositories
     public class OrderRepository : GenericRepository<Order>
     {
         public OrderRepository(SwpkoiFarmShopContext context) => _context = context;
+
+        public async Task AddAsync(Order order)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

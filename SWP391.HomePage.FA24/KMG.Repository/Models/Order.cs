@@ -42,4 +42,6 @@ public partial class Order
     public virtual ICollection<PurchaseHistory> PurchaseHistories { get; set; } = new List<PurchaseHistory>();
 
     public virtual User? User { get; set; }
+
+
 }
