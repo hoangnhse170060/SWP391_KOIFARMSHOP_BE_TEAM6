@@ -18,7 +18,7 @@ namespace KMS.APIService.Controllers
         public async Task<ActionResult<IEnumerable<Koi>>>
             GetKoi()
         {
-            var koiList = await _unitOfWork.KoiRepository.GetAllKoisWithTypeAsync();
+            var koiList = await _unitOfWork.KoiRepository.GetAllAsync();
             Console.WriteLine($"Number of Koi retrieved: {koiList.Count}");
             return Ok(koiList);
 
@@ -50,7 +50,12 @@ namespace KMS.APIService.Controllers
 
             try
             {
-
+                var koiType = await _unitOfWork.KoiTypeRepository.GetByIdAsync(koi.KoiTypeId.Value);
+                if (koiType == null)
+                {
+                    return NotFound("KoiType not found.");
+                }
+                koi.Name = koiType.Name;
                 await _unitOfWork.KoiRepository.CreateAsync(koi);
                 await _unitOfWork.KoiRepository.SaveAsync();
 

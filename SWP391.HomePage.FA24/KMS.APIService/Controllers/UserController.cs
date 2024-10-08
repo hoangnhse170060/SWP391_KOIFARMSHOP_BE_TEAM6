@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Repositories;
 using KMG.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 using KMG.Repository;
 using KMG.Repository.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -86,17 +87,7 @@ namespace KMS.APIService.Controllers
             });
         }
 
-        [AcceptVerbs("GET", "POST")]
-        [Route("IsEmailAlreadyRegister")]
-        public IActionResult IsEmailAlreadyRegister(string email)
-        {
-            var user = _userRepository.GetAll().FirstOrDefault(u => u.Email == email);
-            if (user != null)
-            {
-                return BadRequest(new { Message = "Email is already used" }); 
-            }
-            return Ok(new { Message = "Email is available" }); 
-        }
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKoi(int id)
         {
@@ -114,6 +105,31 @@ namespace KMS.APIService.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
+        {
+            if (model == null || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.NewPassword))
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            
+            var users = await _userRepository.GetAll().ToListAsync();
+            var user = users.FirstOrDefault(u => u.UserName == model.UserName);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+           
+            user.Password = model.NewPassword;
+            await _userRepository.SaveAsync();
+
+            return Ok(new { Message = "Password changed successfully." });
+        }
+
+
 
     }
 }

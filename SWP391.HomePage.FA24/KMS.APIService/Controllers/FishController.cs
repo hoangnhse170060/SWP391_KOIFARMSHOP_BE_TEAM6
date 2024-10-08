@@ -16,7 +16,7 @@ namespace KMS.APIService.Controllers
         public async Task<ActionResult<IEnumerable<Fish>>>
             GetFish()
         {
-            var fishList = await _unitOfWork.FishRepository.GetAllFishWithTypeAsync();
+            var fishList = await _unitOfWork.FishRepository.GetAllAsync();
             Console.WriteLine($"Number of Fish retrieved: {fishList.Count}");
             return Ok(fishList);
 
@@ -39,7 +39,11 @@ namespace KMS.APIService.Controllers
 
             try
             {
-
+                var koiType = await _unitOfWork.KoiTypeRepository.GetByIdAsync(fish.KoiTypeId.Value);
+                if (koiType == null)
+                {
+                    return NotFound("KoiType not found.");
+                }
                 await _unitOfWork.FishRepository.CreateAsync(fish);
                 await _unitOfWork.FishRepository.SaveAsync();
 
@@ -76,9 +80,9 @@ namespace KMS.APIService.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateKoi(int id, [FromBody] Fish fish)
+        public async Task<IActionResult> UpdateFish(int id, [FromBody] Fish fish)
         {
-            // Kiểm tra ID trong URL có khớp với ID của đối tượng Koi không
+            
             if (id != fish.FishesId)
             {
                 return BadRequest("Fish ID mismatch.");

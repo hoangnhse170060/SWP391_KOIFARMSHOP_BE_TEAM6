@@ -24,7 +24,7 @@ namespace KMG.Repository.Repositories
         }
         public async Task<User?> RegisterAsync(string username, string password, string email)
         {
-            // Check if the username or email already exists
+            
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(user => user.UserName == username || user.Email == email);
             if (existingUser != null)
@@ -59,5 +59,10 @@ namespace KMG.Repository.Repositories
 
 
         }
+        public IQueryable<User> GetAll()
+        {
+            return _context.Users; 
+        }
+
     }
 }

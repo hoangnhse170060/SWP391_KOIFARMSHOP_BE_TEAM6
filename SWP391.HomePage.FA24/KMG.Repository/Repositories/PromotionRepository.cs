@@ -12,5 +12,17 @@ namespace KMG.Repository.Repositories
     {
         private readonly SwpkoiFarmShopContext _context;
         public PromotionRepository(SwpkoiFarmShopContext context) => _context = context;
+        public async Task<bool> DeleteWithId(int promotionId)
+        {
+            var promotion = await _context.Promotions.FindAsync(promotionId);
+            if (promotion != null)
+            {
+                await RemoveAsync(promotion);
+                return true;
+            }
+            return false;
+
+
+        }
     }
 }

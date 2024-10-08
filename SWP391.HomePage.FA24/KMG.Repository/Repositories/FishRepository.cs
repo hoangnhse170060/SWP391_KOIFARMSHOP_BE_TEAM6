@@ -13,13 +13,7 @@ namespace KMG.Repository.Repositories
     {
         private readonly SwpkoiFarmShopContext _context;
         public FishRepository(SwpkoiFarmShopContext context) => _context = context;
-        public async Task<List<Fish>> GetAllFishWithTypeAsync()
-        {
-            return await _context.Fishes
-                .Include(k => k.KoiType)
-                .OrderBy(k => k.FishesId)
-                .ToListAsync();
-        }
+        
         public async Task<bool> DeleteWithId(int fishesID)
         {
             var fish = await _context.Fishes.FindAsync(fishesID);

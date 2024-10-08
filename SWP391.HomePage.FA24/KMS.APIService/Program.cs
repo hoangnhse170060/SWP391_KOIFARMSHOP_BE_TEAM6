@@ -28,16 +28,17 @@ namespace KMS.APIService
                               .AllowCredentials();
                     });
             });
-            // Add services to the container.
+           
 
             builder.Services.AddControllers();
-            // JWT Configuration
+            
             var key = Encoding.ASCII.GetBytes("xinchaocacbanminhlasang1234567890");
             builder.Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
+            })
+                .AddJwtBearer(x =>
             {
                 x.RequireHttpsMetadata = false; 
                 x.SaveToken = true;
@@ -48,7 +49,13 @@ namespace KMS.APIService
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-            });
+            })
+             .AddGoogle(googleOptions =>
+              {
+                  var configuration = builder.Configuration; 
+                  googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
+                  googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+              });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>

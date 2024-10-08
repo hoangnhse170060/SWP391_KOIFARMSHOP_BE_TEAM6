@@ -13,7 +13,7 @@ public partial class Koi
     public int KoiId { get; set; }
 
     public int? KoiTypeId { get; set; }
-
+    public string? Name {  get; set; }
     public string? Origin { get; set; }
 
     public string? Gender { get; set; }
@@ -41,7 +41,7 @@ public partial class Koi
     public string? ImageCertificate { get; set; }
     [JsonIgnore]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
-
+    [JsonIgnore]
     public virtual KoiType? KoiType { get; set; }
     [JsonIgnore]
     public virtual ICollection<OrderKoi> OrderKois { get; set; } = new List<OrderKoi>();
