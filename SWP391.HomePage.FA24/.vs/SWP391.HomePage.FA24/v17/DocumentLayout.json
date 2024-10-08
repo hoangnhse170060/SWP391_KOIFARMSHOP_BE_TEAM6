@@ -3,48 +3,56 @@
   "WorkspaceRootPath": "E:\\API_Study\\SWP391.HomePage.FA24\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\koicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\koicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\changepassword.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\changepassword.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\promotioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\promotioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\fishcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\fishcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\repositories\\promotionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\promotionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\fish.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\fish.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\repositories\\fishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\fishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\koi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\koi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\repositories\\promotionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\promotionrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\changepassword.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\changepassword.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\register.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\register.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\fishcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\fishcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\koicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\koicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\controllers\\promotioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\controllers\\promotioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\repositories\\fishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\fishrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\base\\genericrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -67,10 +75,6 @@
       "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\repositories\\koityperepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|e:\\api_study\\swp391.homepage.fa24\\kmg.repository\\models\\koi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3E45AD09-9009-4346-9132-A28BF638A581}|KMG.Repository\\KMG.Repository.csproj|solutionrelative:kmg.repository\\models\\koi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|e:\\api_study\\swp391.homepage.fa24\\kms.apiservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{04408F21-7A8E-4DC8-B25B-408613B2E3E8}|KMS.APIService\\KMS.APIService.csproj|solutionrelative:kms.apiservice\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
@@ -82,37 +86,50 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
+              "Title": "Register.cs",
+              "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Register.cs",
+              "RelativeDocumentMoniker": "KMG.Repository\\Models\\Register.cs",
+              "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Register.cs",
+              "RelativeToolTip": "KMG.Repository\\Models\\Register.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-08T20:47:18.557Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "ChangePassword.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\ChangePassword.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Models\\ChangePassword.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\ChangePassword.cs",
               "RelativeToolTip": "KMG.Repository\\Models\\ChangePassword.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAvAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-08T17:21:02.593Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 0,
               "Title": "Promotion.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Promotion.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Models\\Promotion.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Promotion.cs",
               "RelativeToolTip": "KMG.Repository\\Models\\Promotion.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-08T15:24:42.176Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "appsettings.json",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\appsettings.json",
               "RelativeDocumentMoniker": "KMS.APIService\\appsettings.json",
@@ -120,12 +137,11 @@
               "RelativeToolTip": "KMS.APIService\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-10-08T06:11:12.204Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-08T06:11:12.204Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 11,
               "Title": "PromotionController.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\PromotionController.cs",
               "RelativeDocumentMoniker": "KMS.APIService\\Controllers\\PromotionController.cs",
@@ -133,51 +149,50 @@
               "RelativeToolTip": "KMS.APIService\\Controllers\\PromotionController.cs",
               "ViewState": "AgIAAEsAAAAAAAAAAAAwwFYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T18:33:16.268Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-07T18:33:16.268Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 3,
               "Title": "PromotionRepository.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\PromotionRepository.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Repositories\\PromotionRepository.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\PromotionRepository.cs",
               "RelativeToolTip": "KMG.Repository\\Repositories\\PromotionRepository.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABUAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA8AAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-07T18:30:57.365Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "FishController.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\FishController.cs",
               "RelativeDocumentMoniker": "KMS.APIService\\Controllers\\FishController.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\FishController.cs",
               "RelativeToolTip": "KMS.APIService\\Controllers\\FishController.cs",
-              "ViewState": "AgIAAEwAAAAAAAAAAAAkwFIAAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAABUAAAAAAAAAAAAYwDQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-07T17:11:50.008Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 1,
               "Title": "Fish.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Fish.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Models\\Fish.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Fish.cs",
               "RelativeToolTip": "KMG.Repository\\Models\\Fish.cs",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAAABQAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAAABIAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-07T17:10:14.827Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "FishRepository.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\FishRepository.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Repositories\\FishRepository.cs",
@@ -185,12 +200,11 @@
               "RelativeToolTip": "KMG.Repository\\Repositories\\FishRepository.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-07T17:08:20.636Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-07T17:08:20.636Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "KoiTypeRepository.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\KoiTypeRepository.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Repositories\\KoiTypeRepository.cs",
@@ -198,25 +212,24 @@
               "RelativeToolTip": "KMG.Repository\\Repositories\\KoiTypeRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-03T15:59:59.882Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-03T15:59:59.882Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 2,
               "Title": "Koi.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Koi.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Models\\Koi.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\Koi.cs",
               "RelativeToolTip": "KMG.Repository\\Models\\Koi.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAAAcwCsAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAcwCsAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-03T15:11:23.11Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "KoiType.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Models\\KoiType.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Models\\KoiType.cs",
@@ -224,64 +237,63 @@
               "RelativeToolTip": "KMG.Repository\\Models\\KoiType.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-03T15:11:18.975Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-03T15:11:18.975Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
               "Title": "Program.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Program.cs",
               "RelativeDocumentMoniker": "KMS.APIService\\Program.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Program.cs",
               "RelativeToolTip": "KMS.APIService\\Program.cs",
-              "ViewState": "AgIAACIAAAAAAAAAAAAuwDYAAAA9AAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwBcAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-02T21:20:39.077Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 10,
               "Title": "KoiController.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\KoiController.cs",
               "RelativeDocumentMoniker": "KMS.APIService\\Controllers\\KoiController.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\KoiController.cs",
               "RelativeToolTip": "KMS.APIService\\Controllers\\KoiController.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAYwBQAAABFAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAkwDIAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-29T19:55:31.148Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "UserController.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "KMS.APIService\\Controllers\\UserController.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\UserController.cs",
               "RelativeToolTip": "KMS.APIService\\Controllers\\UserController.cs",
-              "ViewState": "AgIAAEcAAAAAAAAAAAAgwH4AAAAuAAAAAAAAAA==",
+              "ViewState": "AgIAAGoAAAAAAAAAAAAAwIMAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-29T19:53:37.009Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 7,
               "Title": "UserRepository.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\UserRepository.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Repositories\\UserRepository.cs",
               "ToolTip": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\UserRepository.cs",
               "RelativeToolTip": "KMG.Repository\\Repositories\\UserRepository.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAiwD8AAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAwwD8AAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-29T19:49:38.062Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "UnitOfWork.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\UnitOfWork.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\UnitOfWork.cs",
@@ -289,12 +301,11 @@
               "RelativeToolTip": "KMG.Repository\\UnitOfWork.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAAwCwAAABHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-25T18:09:28.793Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-25T18:09:28.793Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "KoiRepository.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Repositories\\KoiRepository.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Repositories\\KoiRepository.cs",
@@ -302,12 +313,11 @@
               "RelativeToolTip": "KMG.Repository\\Repositories\\KoiRepository.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAwA8AAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-25T18:04:31.004Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-25T18:04:31.004Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "GenericRepository.cs",
               "DocumentMoniker": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\Base\\GenericRepository.cs",
               "RelativeDocumentMoniker": "KMG.Repository\\Base\\GenericRepository.cs",
@@ -315,8 +325,7 @@
               "RelativeToolTip": "KMG.Repository\\Base\\GenericRepository.cs",
               "ViewState": "AgIAADwAAAAAAAAAAAAtwEAAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-25T17:59:29.704Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-25T17:59:29.704Z"
             }
           ]
         }

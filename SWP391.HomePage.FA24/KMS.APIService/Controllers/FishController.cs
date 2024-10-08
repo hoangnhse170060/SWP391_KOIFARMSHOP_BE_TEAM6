@@ -44,6 +44,7 @@ namespace KMS.APIService.Controllers
                 {
                     return NotFound("KoiType not found.");
                 }
+                fish.Name = koiType.Name;
                 await _unitOfWork.FishRepository.CreateAsync(fish);
                 await _unitOfWork.FishRepository.SaveAsync();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace KMG.Repository.Models;
 
@@ -17,7 +18,8 @@ public partial class Promotion
 
     public DateTime? EndDate { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
+    [JsonIgnore]
     public virtual ICollection<PurchaseHistory> PurchaseHistories { get; set; } = new List<PurchaseHistory>();
 }
