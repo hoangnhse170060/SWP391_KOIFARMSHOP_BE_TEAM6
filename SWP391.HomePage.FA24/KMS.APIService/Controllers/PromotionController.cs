@@ -23,7 +23,7 @@ namespace KMS.APIService.Controllers
             
             if (promotion == null)
             {
-                return BadRequest("Koi object is null");
+                return BadRequest("Promtotion object is null");
             }
 
             if (string.IsNullOrEmpty(promotion.PromotionName) ||
@@ -44,19 +44,13 @@ namespace KMS.APIService.Controllers
             try
             {
 
-                
+                promotion.Status = "on-going";
                 await _unitOfWork.PromotionRepository.CreateAsync(promotion);
                 await _unitOfWork.PromotionRepository.SaveAsync();
 
 
                 return CreatedAtAction(nameof(GetPromotion), new { id = promotion.PromotionId }, promotion);
                 
-            }
-            catch (DbUpdateException dbEx)
-            {
-
-                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
-                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
             }
             catch (Exception ex)
             {
@@ -67,19 +61,16 @@ namespace KMS.APIService.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePromotion(int id)
         {
-            try
+            var fish = await _unitOfWork.PromotionRepository.GetByIdAsync(id);
+            if (fish == null)
             {
-                var result = await _unitOfWork.PromotionRepository.DeleteWithId(id);
-                if (result)
-                {
-                    return Ok(new { message = "Promotion deleted successfully." });
-                }
-                return NotFound(new { message = "Promotion not found." });
+                return NotFound("Promotion not found.");
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+
+            fish.Status = "ended";
+            await _unitOfWork.PromotionRepository.SaveAsync();
+
+            return Ok(new { message = "Promotion marked as deleted." });
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePromotion(int id, [FromBody] Promotion promotion)
@@ -89,7 +80,10 @@ namespace KMS.APIService.Controllers
             {
                 return BadRequest("Promotion ID mismatch.");
             }
-
+            if (promotion.EndDate <= promotion.StartDate)
+            {
+                return BadRequest("EndDate must be greater than StartDate.");
+            }
             try
             {
 

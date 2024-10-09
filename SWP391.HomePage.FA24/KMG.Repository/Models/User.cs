@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace KMG.Repository.Models;
 
@@ -20,14 +21,14 @@ public partial class User
     public DateOnly? RegisterDate { get; set; }
 
     public int? TotalPoints { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
-
+    [JsonIgnore]
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-
+    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
+    [JsonIgnore]
     public virtual ICollection<Point> Points { get; set; } = new List<Point>();
-
+    [JsonIgnore]
     public virtual ICollection<PurchaseHistory> PurchaseHistories { get; set; } = new List<PurchaseHistory>();
 }

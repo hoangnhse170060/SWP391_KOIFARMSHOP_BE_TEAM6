@@ -23,7 +23,15 @@ namespace KMS.APIService.Controllers
             _userRepository = new UserRepository(unitOfWork.KoiRepository._context);
             _secretKey = "xinchaocacbanminhlasang1234567890";
         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<User>>>
+            GetUser()
+        {
+            var UserList = await _userRepository.GetAllAsync();
+            Console.WriteLine($"Number of Koi retrieved: {UserList.Count}");
+            return Ok(UserList);
 
+        }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login loginModel)
         {
@@ -89,38 +97,26 @@ namespace KMS.APIService.Controllers
 
         
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteKoi(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            try
-            {
-                var result = await _userRepository.DeleteWithId(id);
-                if (result)
+            
+                var result = await _userRepository.GetByIdAsync(id);
+                if (result==null)
                 {
-                    return Ok(new { message = "User deleted successfully." });
+                    return NotFound(new { message = "User not found." });
                 }
-                return NotFound(new { message = "User not found." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            result.Status = "locked";
+            await _userRepository.SaveAsync();
+            return Ok(new { message = "User is locked" });
+
         }
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
         {
-            if (model == null || string.IsNullOrEmpty(model.UserName) ||
-                string.IsNullOrEmpty(model.NewPassword) ||
-                string.IsNullOrEmpty(model.ConfirmPassword))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid request data.");
+                return BadRequest(ModelState);
             }
-
-         
-            if (model.NewPassword != model.ConfirmPassword)
-            {
-                return BadRequest("The new password and confirm password do not match.");
-            }
-
             var users = await _userRepository.GetAll().ToListAsync();
             var user = users.FirstOrDefault(u => u.UserName == model.UserName);
 
@@ -135,9 +131,6 @@ namespace KMS.APIService.Controllers
 
             return Ok(new { Message = "Password changed successfully." });
         }
-
-
-
 
     }
 }

@@ -34,6 +34,7 @@ public partial class Koi
 
     public string? AwardCertificates { get; set; }
 
+    public string? Status { get; set; }
     public decimal? Price { get; set; }
 
     public string? ImageKoi { get; set; }

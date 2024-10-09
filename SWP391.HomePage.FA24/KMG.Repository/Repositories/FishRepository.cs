@@ -14,18 +14,7 @@ namespace KMG.Repository.Repositories
         private readonly SwpkoiFarmShopContext _context;
         public FishRepository(SwpkoiFarmShopContext context) => _context = context;
         
-        public async Task<bool> DeleteWithId(int fishesID)
-        {
-            var fish = await _context.Fishes.FindAsync(fishesID);
-            if (fish != null)
-            {
-                await RemoveAsync(fish);
-                return true;
-            }
-            return false;
-
-
-        }
+       
 
     }
 }

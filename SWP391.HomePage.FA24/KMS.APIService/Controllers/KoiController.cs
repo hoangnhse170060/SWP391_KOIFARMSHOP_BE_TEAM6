@@ -36,13 +36,13 @@ namespace KMS.APIService.Controllers
         [HttpPost]
         public async Task<ActionResult<Koi>> CreateKoi([FromBody] Koi koi)
         {
-            // Kiểm tra xem đối tượng koi có null không
+            
             if (koi == null)
             {
                 return BadRequest("Koi object is null");
             }
 
-            // Kiểm tra các thuộc tính bắt buộc
+            
             if (string.IsNullOrEmpty(koi.Origin) || koi.KoiTypeId == null || koi.Age == null || koi.Size == null)
             {
                 return BadRequest("Missing required fields.");
@@ -55,6 +55,7 @@ namespace KMS.APIService.Controllers
                 {
                     return NotFound("KoiType not found.");
                 }
+                koi.Status = "available";
                 koi.Name = koiType.Name;
                 await _unitOfWork.KoiRepository.CreateAsync(koi);
                 await _unitOfWork.KoiRepository.SaveAsync();
@@ -77,19 +78,37 @@ namespace KMS.APIService.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKoi(int id)
         {
-            try
+            var koi = await _unitOfWork.KoiRepository.GetByIdAsync(id);
+            if (koi == null)
             {
-                var result = await _unitOfWork.KoiRepository.DeleteWithId(id);
-                if (result)
-                {
-                    return Ok(new { message = "Koi deleted successfully." });
-                }
-                return NotFound(new { message = "Koi not found." });
+                return NotFound("Koi not found.");
             }
-            catch (Exception ex)
+            if (koi.Status == "unavailable")
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest("Koi is unavailable already");
             }
+            koi.Status = "unavailable";
+            await _unitOfWork.KoiRepository.SaveAsync();
+
+            return Ok(new { message = "Koi marked as deleted." });
+        }
+        [HttpPut("restore/{id}")]
+        public async Task<IActionResult> RestoreKoi(int id)
+        {
+
+            var koi = await _unitOfWork.KoiRepository.GetByIdAsync(id);
+            if (koi == null)
+            {
+                return NotFound("Koi not found.");
+            }
+            if (koi.Status != "unavailable")
+            {
+                return BadRequest("Koi is not unavailable.");
+            }
+            koi.Status = "available";
+            await _unitOfWork.KoiRepository.SaveAsync();
+
+            return Ok(new { message = "Fish marked as available." });
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateKoi(int id, [FromBody] Koi koi)
