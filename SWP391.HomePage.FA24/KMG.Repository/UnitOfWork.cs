@@ -28,23 +28,11 @@ namespace KMG.Repository
             get
             {
                 return _orderRepository ??= new OrderRepository(_context);
-               
+
             }
         }
-
-        public void Complete()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task SaveAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            throw new NotImplementedException();
-        }
+   
+ 
+      
     }
 }

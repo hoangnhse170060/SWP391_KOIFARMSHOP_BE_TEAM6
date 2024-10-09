@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\SWP391.HomePage.FA24",
+    "\\SWP391.HomePage.FA24\\KMS.APIService",
+    "\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers"
   ],
-  "SelectedNode": "\\Helloworld.sln",
+  "SelectedNode": "\\SWP391.HomePage.FA24\\KMS.APIService\\Controllers\\OrderController.cs",
   "PreviewInSolutionExplorer": false
 }
