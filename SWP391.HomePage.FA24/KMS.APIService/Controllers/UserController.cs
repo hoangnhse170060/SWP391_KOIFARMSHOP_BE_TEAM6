@@ -32,6 +32,21 @@ namespace KMS.APIService.Controllers
             return Ok(UserList);
 
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            
+            return Ok(user);
+        }
+
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login loginModel)
         {
