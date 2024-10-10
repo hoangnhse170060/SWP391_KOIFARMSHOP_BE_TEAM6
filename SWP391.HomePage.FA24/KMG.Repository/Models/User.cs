@@ -17,10 +17,14 @@ public partial class User
     public string? Role { get; set; }
 
     public string? Status { get; set; }
+    public string? Address { get; set; }
+    public string? PhoneNumber { get; set; }
 
     public DateOnly? RegisterDate { get; set; }
 
     public int? TotalPoints { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
     [JsonIgnore]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
     [JsonIgnore]

@@ -38,6 +38,8 @@ namespace KMG.Repository.Repositories
                 Email = email,
                 Role = "customer", 
                 Status = "active", 
+                PhoneNumber=null,
+                Address = null,
                 RegisterDate = DateOnly.FromDateTime(DateTime.Now),
                 TotalPoints = 0 
             };

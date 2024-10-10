@@ -21,7 +21,8 @@ public partial class Koi
     public int? Age { get; set; }
 
     public decimal? Size { get; set; }
-
+    [MaxLength(10)]
+    [RegularExpression("purebred|F1 hybrid", ErrorMessage = "Invalid breed. Must be 'purebred' or 'F1 hybrid'.")]
     public string? Breed { get; set; }
 
     public string? Personality { get; set; }
@@ -40,6 +41,9 @@ public partial class Koi
     public string? ImageKoi { get; set; }
 
     public string? ImageCertificate { get; set; }
+    public string? Description { get; set; }
+    public string? DetailDescription { get; set; } 
+    public string? AdditionImage { get; set; }
     [JsonIgnore]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
     [JsonIgnore]

@@ -28,7 +28,7 @@ namespace KMS.APIService.Controllers
             GetUser()
         {
             var UserList = await _userRepository.GetAllAsync();
-            Console.WriteLine($"Number of Koi retrieved: {UserList.Count}");
+            Console.WriteLine($"Number of User retrieved: {UserList.Count}");
             return Ok(UserList);
 
         }
@@ -145,6 +145,44 @@ namespace KMS.APIService.Controllers
             await _userRepository.SaveAsync();
 
             return Ok(new { Message = "Password changed successfully." });
+        }
+        [HttpPut("updateProfile{id}")]
+        public async Task<IActionResult> UpdateProfile(int id ,[FromBody] UpdateProfile model)
+        {
+           
+
+            var user = await _userRepository.GetByIdAsync(id); 
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Cập nhật thông tin người dùng chỉ khi model có giá trị không null
+            if (!string.IsNullOrEmpty(model.UserName))
+            {
+                user.UserName = model.UserName;
+            }
+
+            if (!string.IsNullOrEmpty(model.Email))
+            {
+                user.Email = model.Email;
+            }
+
+            if (!string.IsNullOrEmpty(model.PhoneNumber))
+            {
+                user.PhoneNumber = model.PhoneNumber;
+            }
+
+            if (!string.IsNullOrEmpty(model.Address))
+            {
+                user.Address = model.Address;
+            }
+
+            // Lưu thay đổi
+            await _userRepository.SaveAsync();
+
+            return Ok(new { Message = "Profile updated successfully.", User = user });
         }
 
     }

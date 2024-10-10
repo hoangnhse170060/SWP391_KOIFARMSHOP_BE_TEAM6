@@ -44,7 +44,7 @@ namespace KMS.APIService.Controllers
             try
             {
 
-                promotion.Status = "on-going";
+                promotion.Status = true ;
                 await _unitOfWork.PromotionRepository.CreateAsync(promotion);
                 await _unitOfWork.PromotionRepository.SaveAsync();
 
@@ -67,7 +67,7 @@ namespace KMS.APIService.Controllers
                 return NotFound("Promotion not found.");
             }
 
-            fish.Status = "ended";
+            fish.Status = false ;
             await _unitOfWork.PromotionRepository.SaveAsync();
 
             return Ok(new { message = "Promotion marked as deleted." });
