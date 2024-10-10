@@ -14,7 +14,7 @@ namespace KMG.Repository.Models
         [Required(ErrorMessage = "Khom nhap pass doi kieu gi em oi ")]
         public string NewPassword { get; set; }
         [Required(ErrorMessage = "Confirm Password can't be blank ")]
-        [Compare("Password", ErrorMessage = "Confirm Password and Password do not match !!")]
+        [Compare("NewPassword", ErrorMessage = "Confirm Password and Password do not match !!")]
         public string ConfirmPassword { get; set; }
     }
 }
