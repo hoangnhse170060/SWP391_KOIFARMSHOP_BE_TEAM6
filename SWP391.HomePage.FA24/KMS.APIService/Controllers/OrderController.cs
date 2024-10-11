@@ -23,58 +23,39 @@ namespace KMS.APIService.Controllers
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
-
+        //Show all Order
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
             var orders = await _unitOfWork.OrderRepository.GetAllAsync();
             return Ok(orders);
         }
-
-
+        //Create Order 
         [HttpPost]
         public async Task<ActionResult<Koi>> CreateOrder([FromBody] Order order)
         {
-            // Kiểm tra xem đối tượng koi có null không
             if (order == null)
             {
                 return BadRequest("Koi object is null");
             }
-
-            //// Kiểm tra các thuộc tính bắt buộc
-            //if (string.IsNullOrEmpty(koi.Origin) || koi.KoiTypeId == null || koi.Age == null || koi.Size == null)
-            //{
-            //    return BadRequest("Missing required fields.");
-            //}
-
             try
             {
-                //var o = await _unitOfWork.OrderRepository.GetByIdAsync(order.OrderId);
-                //if (koiType == null)
-                //{
-                //    return NotFound("Order not found.");
-                //}
-                //koi.Name = koiType.Name;
                 await _unitOfWork.OrderRepository.CreateAsync(order);
                 await _unitOfWork.OrderRepository.SaveAsync();
-
-
                 return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
             }
             catch (DbUpdateException dbEx)
             {
-
                 var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
                 return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
             }
             catch (Exception ex)
             {
-
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-
+        //UpdateOrder
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
         {
@@ -82,12 +63,10 @@ namespace KMS.APIService.Controllers
             {
                 return BadRequest("Order ID mismatch.");
             }
-
             try
             {
                 await _unitOfWork.OrderRepository.UpdateAsync(order);
                 await _unitOfWork.OrderRepository.SaveAsync();
-
                 return Ok("Order has been successfully updated.");
             }
             catch (DbUpdateConcurrencyException)
@@ -100,35 +79,36 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        [HttpDelete("{id}")]
+
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.DeleteWithId(id);
-                if (result)
+                var orderToDelete = await _unitOfWork.OrderRepository.GetByIdAsync(id);
+
+                if (orderToDelete == null)
                 {
-                    return Ok(new { message = "Order deleted successfully." });
-                }
-                return NotFound(new { message = "Order not found." });
-            }
-            catch (DbUpdateException dbEx)
-            {
-                Console.WriteLine($"Ngoại lệ cập nhật cơ sở dữ liệu: {dbEx.Message}");
-                if (dbEx.InnerException != null)
-                {
-                    Console.WriteLine($"Ngoại lệ bên trong: {dbEx.InnerException.Message}");
+                    return NotFound($"Order with Id = {id} not found");
                 }
 
-                return BadRequest(new { message = "Có vấn đề khi xóa đơn hàng do ràng buộc cơ sở dữ liệu." });
+                // Delete the order
+                _unitOfWork.OrderRepository.Remove(orderToDelete);
+                await _unitOfWork.OrderRepository.SaveAsync();  // Persist changes in the database
+
+                return NoContent();  // Return a NoContent status when deletion is successful
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ngoại lệ: {ex.Message}");
-                return BadRequest(new { message = "Đã xảy ra lỗi khi xóa đơn hàng." });
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error deleting order: {ex.Message}");
             }
-
         }
 
+
     }
+
+
+
 }
+

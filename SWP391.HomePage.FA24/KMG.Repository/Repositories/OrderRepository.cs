@@ -16,22 +16,11 @@ namespace KMG.Repository.Repositories
         public OrderRepository(SwpkoiFarmShopContext context) => _context = context;
 
 
-        public async Task<bool> DeleteWithId(int orderId)
-        {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order != null)
-            {
-                _context.Orders.Remove(order);  // Đảm bảo thực thể được xóa khỏi tập hợp đúng
-                await _context.SaveChangesAsync();  // Phải gọi hàm này để lưu thay đổi vào cơ sở dữ liệu
-                return true;
             }
-            return false;
         }
 
 
-    }
 
 
 
-}
 
