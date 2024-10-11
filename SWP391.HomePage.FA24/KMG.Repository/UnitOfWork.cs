@@ -12,6 +12,7 @@ namespace KMG.Repository
     {
         private readonly SwpkoiFarmShopContext _context;
         private KoiRepository _koiRepository;
+        private OrderRepository _orderRepository;
         public  UnitOfWork() => _context = new SwpkoiFarmShopContext();
         public KoiRepository KoiRepository
         {
@@ -20,5 +21,18 @@ namespace KMG.Repository
                 return _koiRepository ??= new KoiRepository(_context);
             }
         }
+
+
+        public OrderRepository OrderRepository
+        {
+            get
+            {
+                return _orderRepository ??= new OrderRepository(_context);
+
+            }
+        }
+   
+ 
+      
     }
 }
