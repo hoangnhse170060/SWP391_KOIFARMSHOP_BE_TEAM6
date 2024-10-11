@@ -41,6 +41,9 @@ namespace KMG.Repository.Base
             return true;
         }
 
+      
+
+
         public T GetById(int id)
         {
             return _context.Set<T>().Find(id);

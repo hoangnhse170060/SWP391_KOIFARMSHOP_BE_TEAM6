@@ -11,10 +11,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("dcb4c8d1-d951-4022-8700-9214f572b1d9")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("KMS.APIService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bca0d6d51d538016c0b1da9b8cf99dfc79753afc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f07bcbcd7844da6d0b96134dca95a22dd49d323f")]
 [assembly: System.Reflection.AssemblyProductAttribute("KMS.APIService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KMS.APIService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

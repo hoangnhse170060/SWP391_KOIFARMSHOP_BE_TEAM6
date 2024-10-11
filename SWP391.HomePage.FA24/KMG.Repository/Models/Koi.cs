@@ -5,6 +5,8 @@ namespace KMG.Repository.Models;
 
 public partial class Koi
 {
+    public int? Quantity;
+
     public int KoiId { get; set; }
 
     public int? KoiTypeId { get; set; }
@@ -40,4 +42,5 @@ public partial class Koi
     public virtual KoiType? KoiType { get; set; }
 
     public virtual ICollection<OrderKoi> OrderKois { get; set; } = new List<OrderKoi>();
+    public string Status { get; set; }
 }
