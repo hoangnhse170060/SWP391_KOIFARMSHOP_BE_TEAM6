@@ -77,7 +77,7 @@ namespace KMS.APIService.Controllers
             await _unitOfWork.OrderKoiRepository.RemoveAsync(orderKoi);
             await _unitOfWork.OrderKoiRepository.SaveAsync();
 
-            return NoContent(); // Trả về 204 No Content
+            return NoContent();
         }
     }
 }
