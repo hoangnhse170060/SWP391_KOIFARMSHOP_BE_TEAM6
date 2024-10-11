@@ -16,19 +16,13 @@ namespace KMG.Repository.Models
         [ForeignKey("User")]
         public int UserID { get; set; } 
 
-        [Required]
-        [MaxLength(int.MaxValue)]
-        public string Street { get; set; }
+        
 
         [MaxLength(int.MaxValue)] 
-        public string City { get; set; } 
-
-        [MaxLength(int.MaxValue)] 
-        public string AddressLine { get; set; } 
+        public string address { get; set; } 
 
         [Required]
         [MaxLength(10)] 
-        [RegularExpression("home|work|other", ErrorMessage = "Invalid address type. Must be 'home', 'work', or 'other'.")]
         public string AddressType { get; set; } 
 
         public bool IsDefault { get; set; } = false; 

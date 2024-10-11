@@ -15,12 +15,16 @@ namespace KMS.APIService.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        
+        private readonly AddressRepository _addressRepository;
         private readonly UserRepository _userRepository;
         private readonly string _secretKey;
 
         public UserController(UnitOfWork unitOfWork)
         {
-            _userRepository = new UserRepository(unitOfWork.KoiRepository._context);
+            _userRepository = new UserRepository(unitOfWork.UserRepository._context);
+            _addressRepository = new AddressRepository(unitOfWork.AddressRepository._context);
+
             _secretKey = "xinchaocacbanminhlasang1234567890";
         }
         [HttpGet]
@@ -147,18 +151,17 @@ namespace KMS.APIService.Controllers
             return Ok(new { Message = "Password changed successfully." });
         }
         [HttpPut("updateProfile{id}")]
-        public async Task<IActionResult> UpdateProfile(int id ,[FromBody] UpdateProfile model)
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile model)
         {
-           
 
-            var user = await _userRepository.GetByIdAsync(id); 
+
+            var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
-            // Cập nhật thông tin người dùng chỉ khi model có giá trị không null
             if (!string.IsNullOrEmpty(model.UserName))
             {
                 user.UserName = model.UserName;
@@ -176,11 +179,31 @@ namespace KMS.APIService.Controllers
 
             if (!string.IsNullOrEmpty(model.Address))
             {
+                var existingAddresses = await _addressRepository.GetAll()
+             .Where(a => a.UserID == id).ToListAsync();
+
+                foreach (var addr in existingAddresses)
+                {
+                    addr.IsDefault = false;
+                    await _addressRepository.UpdateAsync(addr);
+                }
+
+
+                var newAddress = new Address
+                {
+                    UserID = id,
+                    address = model.Address,
+                    AddressType = "home",
+                    IsDefault = true
+                };
+
+                await _addressRepository.CreateAsync(newAddress);
                 user.Address = model.Address;
             }
 
-            // Lưu thay đổi
+            await _userRepository.UpdateAsync(user);
             await _userRepository.SaveAsync();
+            await _addressRepository.SaveAsync();
 
             return Ok(new { Message = "Profile updated successfully.", User = user });
         }

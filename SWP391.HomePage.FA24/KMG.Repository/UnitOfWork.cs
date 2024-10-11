@@ -15,7 +15,16 @@ namespace KMG.Repository
         private KoiTypeRepository _koiTypeRepository;
         private FishRepository _fishRepository;
         private PromotionRepository _promotionRepository;
+        private AddressRepository _addressRepository;
+        private UserRepository _userRepository;
         public  UnitOfWork() => _context = new SwpkoiFarmShopContext();
+        public UserRepository UserRepository
+        {
+            get
+            {
+                return _userRepository ??= new UserRepository(_context);
+            }
+        }
         public KoiRepository KoiRepository
         {
             get
@@ -43,6 +52,13 @@ namespace KMG.Repository
             get
             {
                 return _promotionRepository ??= new PromotionRepository(_context);
+            }
+        }
+        public AddressRepository AddressRepository
+        {
+            get
+            {
+                return _addressRepository ??= new AddressRepository(_context);
             }
         }
     }

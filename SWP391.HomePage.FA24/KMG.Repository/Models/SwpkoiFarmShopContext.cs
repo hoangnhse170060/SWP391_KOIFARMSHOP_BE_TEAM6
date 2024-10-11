@@ -39,6 +39,7 @@ public partial class SwpkoiFarmShopContext : DbContext
     public virtual DbSet<PurchaseHistory> PurchaseHistories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Address> Address { get; set; } 
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
