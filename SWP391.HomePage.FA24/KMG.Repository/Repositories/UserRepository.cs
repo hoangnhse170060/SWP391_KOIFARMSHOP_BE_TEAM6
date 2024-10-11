@@ -49,11 +49,10 @@ namespace KMG.Repository.Repositories
 
             return newUser;
         }
-      
         public IQueryable<User> GetAll()
         {
-            return _context.Users; 
+            return _context.Users;
         }
-
+       
     }
 }

@@ -16,6 +16,8 @@ namespace KMG.Repository.Models;
         public decimal? Price { get; set; }
 
         public string? ImageFishes { get; set; }
+        public string? Description { get; set; }
+        public string? DetailDescription { get; set; }
 
     [JsonIgnore]
         public virtual KoiType? KoiType { get; set; }

@@ -17,6 +17,7 @@ namespace KMG.Repository
         private PromotionRepository _promotionRepository;
         private AddressRepository _addressRepository;
         private UserRepository _userRepository;
+        private FeedbackRepository _feedbackRepository;
         public  UnitOfWork() => _context = new SwpkoiFarmShopContext();
         public UserRepository UserRepository
         {
@@ -59,6 +60,13 @@ namespace KMG.Repository
             get
             {
                 return _addressRepository ??= new AddressRepository(_context);
+            }
+        }
+        public FeedbackRepository FeedbackRepository
+        {
+            get
+            {
+                return _feedbackRepository ??= new FeedbackRepository(_context);
             }
         }
     }

@@ -8,6 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 
 namespace KMS.APIService.Controllers
 {
@@ -207,6 +210,37 @@ namespace KMS.APIService.Controllers
 
             return Ok(new { Message = "Profile updated successfully.", User = user });
         }
+        [HttpGet("getAddressesByUserId/{userId}")]
+        public async Task<IActionResult> GetAddressesByUserId(int userId)
+        {
+           
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+           
+            var addresses = await _addressRepository.GetAll()
+                .Where(a => a.UserID == userId)
+                .Select(a => new
+                {
+                    AddressID = a.AddressID,
+                    Address = a.address,
+                    AddressType = a.AddressType,
+                    IsDefault = a.IsDefault
+                }).ToListAsync();
+
+           
+            if (addresses == null || !addresses.Any())
+            {
+                return NotFound("No addresses found for this user.");
+            }
+
+            return Ok(addresses);
+        }
+        
+
 
     }
 }

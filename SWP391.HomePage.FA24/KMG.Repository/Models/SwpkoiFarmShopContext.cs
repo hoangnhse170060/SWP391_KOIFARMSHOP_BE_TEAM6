@@ -105,8 +105,6 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.Property(e => e.FishesId).HasColumnName("fishesID");
             entity.Property(e => e.KoiId).HasColumnName("koiID");
             entity.Property(e => e.OrderId).HasColumnName("orderID");
-            entity.Property(e => e.OrderIdFishes).HasColumnName("orderID_fishes");
-            entity.Property(e => e.OrderIdKoi).HasColumnName("orderID_koi");
             entity.Property(e => e.Rating).HasColumnName("rating");
             entity.Property(e => e.UserId).HasColumnName("userID");
 
