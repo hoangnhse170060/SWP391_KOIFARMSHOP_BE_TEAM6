@@ -103,6 +103,104 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "KMS.APIService.Controllers.OrderFishesController",
+    "Method": "GetOrders",
+    "RelativePath": "api/OrderFishes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.OrderFish, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderFishesController",
+    "Method": "AddFishesToOrder",
+    "RelativePath": "api/OrderFishes",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderFish",
+        "Type": "KMG.Repository.Models.OrderFish",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderFishesController",
+    "Method": "UpdateOrderFishes",
+    "RelativePath": "api/OrderFishes/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "orderFish",
+        "Type": "KMG.Repository.Models.OrderFish",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderFishesController",
+    "Method": "DeleteKoiFromOrder",
+    "RelativePath": "api/OrderFishes/{orderId}/{FishesId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "FishesId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
+    "Method": "GetOrders",
+    "RelativePath": "api/OrderKoi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.OrderKoi, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
     "Method": "AddKoiToOrder",
     "RelativePath": "api/OrderKoi",
@@ -116,17 +214,49 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
+    "Method": "UpdateOrderKoi",
+    "RelativePath": "api/OrderKoi/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "orderKoi",
         "Type": "KMG.Repository.Models.OrderKoi",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
+        "IsRequired": true
       }
-    ]
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
+    "Method": "DeleteKoiFromOrder",
+    "RelativePath": "api/OrderKoi/{orderId}/{koiId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "koiId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "KMS.APIService.Controllers.UserController",
