@@ -129,68 +129,6 @@
     ]
   },
   {
-    "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
-    "Method": "GetAllOrderKoi",
-    "RelativePath": "api/OrderKoi",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.OrderKoi, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
-    "Method": "GetOrderKoiById",
-    "RelativePath": "api/OrderKoi/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "KMG.Repository.Models.OrderKoi",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
-    "Method": "DeleteOrderKoi",
-    "RelativePath": "api/OrderKoi/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "KMS.APIService.Controllers.UserController",
     "Method": "IsEmailAlreadyRegister",
     "RelativePath": "api/User/IsEmailAlreadyRegister",
