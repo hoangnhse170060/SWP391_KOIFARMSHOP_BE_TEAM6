@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {}
+    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {}
   },
   "projects": {
-    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "projectName": "KMG.Repository",
-        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
-        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
+        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -113,14 +113,14 @@
         }
       }
     },
-    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {
+    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
         "projectName": "KMS.APIService",
-        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
-        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\obj\\",
+        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -138,8 +138,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
-                "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj"
+              "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+                "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj"
               }
             }
           }
