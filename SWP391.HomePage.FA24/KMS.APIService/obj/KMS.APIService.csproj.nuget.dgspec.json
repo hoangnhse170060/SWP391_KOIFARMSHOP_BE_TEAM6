@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {}
+    "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {}
   },
   "projects": {
-    "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+    "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectUniqueName": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "projectName": "KMG.Repository",
-        "projectPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "packagesPath": "C:\\Users\\sang\\.nuget\\packages\\",
-        "outputPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
+        "outputPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -117,14 +117,14 @@
         }
       }
     },
-    "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {
+    "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+        "projectUniqueName": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
         "projectName": "KMS.APIService",
-        "projectPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+        "projectPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
         "packagesPath": "C:\\Users\\sang\\.nuget\\packages\\",
-        "outputPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMS.APIService\\obj\\",
+        "outputPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMS.APIService\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -146,8 +146,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
-                "projectPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj"
+              "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+                "projectPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj"
               }
             }
           }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {}
+    "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {}
   },
   "projects": {
-    "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+    "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectUniqueName": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "projectName": "KMG.Repository",
-        "projectPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "packagesPath": "C:\\Users\\sang\\.nuget\\packages\\",
-        "outputPath": "E:\\API_Study\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
+        "outputPath": "E:\\SWP\\SWP391_Team5\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
