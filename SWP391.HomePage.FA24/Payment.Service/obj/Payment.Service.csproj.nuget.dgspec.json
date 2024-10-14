@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {}
+    "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {}
   },
   "projects": {
-    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {
+    "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
+        "projectUniqueName": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
         "projectName": "Payment.Service",
-        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
+        "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
-        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\obj\\",
+        "outputPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -29,8 +29,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
-                "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj"
+              "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
+                "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj"
               }
             }
           }
@@ -75,14 +75,14 @@
         }
       }
     },
-    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
+    "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
+        "projectUniqueName": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
         "projectName": "Payment.Ultils",
-        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
+        "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
-        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\obj\\",
+        "outputPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",

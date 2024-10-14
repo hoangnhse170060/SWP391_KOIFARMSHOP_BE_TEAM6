@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Payment.Ultils")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+16bdd28155bd25998a652f26018d1227aaf18f84")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7d116b0f114f27e5874447933c9dccd369574a85")]
 [assembly: System.Reflection.AssemblyProductAttribute("Payment.Ultils")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Payment.Ultils")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

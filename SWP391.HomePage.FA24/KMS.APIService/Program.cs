@@ -75,8 +75,7 @@ namespace KMS.APIService
             var app = builder.Build();
 
 
-            builder.Services.Configure<MomoConfig>(
-                builder.Configuration.GetSection(MomoConfig.ConfigName));
+          
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
