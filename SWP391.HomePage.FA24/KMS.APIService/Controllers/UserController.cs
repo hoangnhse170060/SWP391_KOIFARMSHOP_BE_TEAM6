@@ -231,7 +231,7 @@ namespace KMS.APIService.Controllers
                     IsDefault = a.IsDefault
                 }).ToListAsync();
 
-           
+            
             if (addresses == null || !addresses.Any())
             {
                 return NotFound("No addresses found for this user.");
@@ -239,7 +239,68 @@ namespace KMS.APIService.Controllers
 
             return Ok(addresses);
         }
-        
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] string idToken)
+        {
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls13;
+            var googleTokenValidationUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + idToken;
+
+            using (var httpClient = new HttpClient())
+            {
+                var response = await httpClient.GetAsync(googleTokenValidationUrl);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return BadRequest("Invalid Google token.");
+                }
+
+                var googleResponse = await response.Content.ReadFromJsonAsync<GoogleTokenInfo>();
+                if (googleResponse == null || string.IsNullOrEmpty(googleResponse.Email))
+                {
+                    return BadRequest("Google token validation failed.");
+                }
+
+                // Tạo người dùng mới hoặc tìm người dùng cũ với email từ Google
+                var registeredUser = await _userRepository.RegisterGoogle(googleResponse.Name, googleResponse.Email);
+
+                if (registeredUser == null)
+                {
+                    registeredUser = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.Email == googleResponse.Email);
+                }
+
+                
+                var claims = new List<Claim>
+        {
+                new Claim(ClaimTypes.Name, googleResponse.Name),
+                new Claim(ClaimTypes.Email, googleResponse.Email),
+                new Claim(ClaimTypes.NameIdentifier, registeredUser?.UserId.ToString())
+        };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(
+                    issuer: "yourapp",
+                    audience: "yourapp",
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: creds);
+
+                return Ok(new
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    User = registeredUser
+                });
+            }
+        }
+
+       
+
+
+
+
+
+
+
 
 
     }

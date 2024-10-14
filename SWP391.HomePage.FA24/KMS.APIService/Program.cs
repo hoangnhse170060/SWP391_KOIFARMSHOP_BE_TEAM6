@@ -23,7 +23,7 @@ namespace KMS.APIService
                 options.AddPolicy("AllowSpecificOrigins",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:5173") 
+                        policy.WithOrigins("http://localhost:3000") 
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials();
@@ -56,6 +56,7 @@ namespace KMS.APIService
                   var configuration = builder.Configuration; 
                   googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
                   googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+                  googleOptions.SaveTokens = true;
               });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

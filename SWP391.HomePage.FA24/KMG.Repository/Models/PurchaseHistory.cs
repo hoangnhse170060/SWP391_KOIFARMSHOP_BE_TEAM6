@@ -18,7 +18,7 @@ public partial class PurchaseHistory
     public decimal? FinalMoney { get; set; }
 
     public string? OrderStatus { get; set; }
-
+        
     public string? PaymentMethod { get; set; }
 
     public DateOnly? ShippingDate { get; set; }
