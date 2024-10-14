@@ -15,7 +15,21 @@ namespace KMG.Repository
         private OrderRepository _orderRepository;
         private OrderKoiRepository _orderKoiRepository;
         private OrderFishesRepository _orderFishesRepository;
+        private KoiTypeRepository _koiTypeRepository;
+        private FishRepository _fishRepository;
+        private PromotionRepository _promotionRepository;
+        private AddressRepository _addressRepository;
+        private UserRepository _userRepository;
+        private FeedbackRepository _feedbackRepository;
+        private PurchaseHistoryRepository _purcharHistory;
         public UnitOfWork() => _context = new SwpkoiFarmShopContext();
+        public UserRepository UserRepository
+        {
+            get
+            {
+                return _userRepository ??= new UserRepository(_context);
+            }
+        }
         public KoiRepository KoiRepository
         {
             get
@@ -48,6 +62,48 @@ namespace KMG.Repository
             get
             {
                 return _orderFishesRepository ??= new OrderFishesRepository(_context);
+            }
+        }
+        public KoiTypeRepository KoiTypeRepository
+        {
+            get
+            {
+                return _koiTypeRepository ??= new KoiTypeRepository(_context);
+            }
+        }
+        public FishRepository FishRepository
+        {
+            get
+            {
+                return _fishRepository ??= new FishRepository(_context);
+            }
+        }
+        public PromotionRepository PromotionRepository
+        {
+            get
+            {
+                return _promotionRepository ??= new PromotionRepository(_context);
+            }
+        }
+        public AddressRepository AddressRepository
+        {
+            get
+            {
+                return _addressRepository ??= new AddressRepository(_context);
+            }
+        }
+        public FeedbackRepository FeedbackRepository
+        {
+            get
+            {
+                return _feedbackRepository ??= new FeedbackRepository(_context);
+            }
+        }
+        public PurchaseHistoryRepository PurchaseHistoryRepository
+        {
+            get
+            {
+                return _purcharHistory ??= new PurchaseHistoryRepository(_context);
             }
         }
     }

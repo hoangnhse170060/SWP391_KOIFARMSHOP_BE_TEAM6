@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Repositories;
 using KMG.Repository.Base;
+using Microsoft.EntityFrameworkCore;
 using KMG.Repository;
 using KMG.Repository.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 
 namespace KMS.APIService.Controllers
 {
@@ -14,14 +18,41 @@ namespace KMS.APIService.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+
+        private readonly AddressRepository _addressRepository;
         private readonly UserRepository _userRepository;
         private readonly string _secretKey;
 
         public UserController(UnitOfWork unitOfWork)
         {
-            _userRepository = new UserRepository(unitOfWork.KoiRepository._context);
+            _userRepository = new UserRepository(unitOfWork.UserRepository._context);
+            _addressRepository = new AddressRepository(unitOfWork.AddressRepository._context);
+
             _secretKey = "xinchaocacbanminhlasang1234567890";
         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<User>>>
+            GetUser()
+        {
+            var UserList = await _userRepository.GetAllAsync();
+            Console.WriteLine($"Number of User retrieved: {UserList.Count}");
+            return Ok(UserList);
+
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+
+            return Ok(user);
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login loginModel)
@@ -44,9 +75,9 @@ namespace KMS.APIService.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, user.Role ?? "customer") // Giả sử vai trò của người dùng
+                    new Claim(ClaimTypes.Role, user.Role ?? "customer")
                 }),
-                Expires = DateTime.UtcNow.AddDays(7), // Thời gian hết hạn
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -65,13 +96,13 @@ namespace KMS.APIService.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Register registerModel)
         {
-            // Check if the model state is valid (ensuring validation annotations are respected)
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Call repository method to register user
+
             var user = await _userRepository.RegisterAsync(registerModel.UserName, registerModel.Password, registerModel.Email);
 
             if (user == null)
@@ -86,17 +117,190 @@ namespace KMS.APIService.Controllers
             });
         }
 
-        [AcceptVerbs("GET", "POST")]
-        [Route("IsEmailAlreadyRegister")]
-        public IActionResult IsEmailAlreadyRegister(string email)
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = _userRepository.GetAll().FirstOrDefault(u => u.Email == email);
-            if (user != null)
+
+            var result = await _userRepository.GetByIdAsync(id);
+            if (result == null)
             {
-                return BadRequest(new { Message = "Email is already used" }); 
+                return NotFound(new { message = "User not found." });
             }
-            return Ok(new { Message = "Email is available" }); 
+            result.Status = "locked";
+            await _userRepository.SaveAsync();
+            return Ok(new { message = "User is locked" });
+
         }
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var users = await _userRepository.GetAll().ToListAsync();
+            var user = users.FirstOrDefault(u => u.UserName == model.UserName);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+
+            user.Password = model.NewPassword;
+            await _userRepository.SaveAsync();
+
+            return Ok(new { Message = "Password changed successfully." });
+        }
+        [HttpPut("updateProfile{id}")]
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile model)
+        {
+
+
+            var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (!string.IsNullOrEmpty(model.UserName))
+            {
+                user.UserName = model.UserName;
+            }
+
+            if (!string.IsNullOrEmpty(model.Email))
+            {
+                user.Email = model.Email;
+            }
+
+            if (!string.IsNullOrEmpty(model.PhoneNumber))
+            {
+                user.PhoneNumber = model.PhoneNumber;
+            }
+
+            if (!string.IsNullOrEmpty(model.Address))
+            {
+                var existingAddresses = await _addressRepository.GetAll()
+             .Where(a => a.UserID == id).ToListAsync();
+
+                foreach (var addr in existingAddresses)
+                {
+                    addr.IsDefault = false;
+                    await _addressRepository.UpdateAsync(addr);
+                }
+
+
+                var newAddress = new Address
+                {
+                    UserID = id,
+                    address = model.Address,
+                    AddressType = "home",
+                    IsDefault = true
+                };
+
+                await _addressRepository.CreateAsync(newAddress);
+                user.Address = model.Address;
+            }
+
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveAsync();
+            await _addressRepository.SaveAsync();
+
+            return Ok(new { Message = "Profile updated successfully.", User = user });
+        }
+        [HttpGet("getAddressesByUserId/{userId}")]
+        public async Task<IActionResult> GetAddressesByUserId(int userId)
+        {
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+
+            var addresses = await _addressRepository.GetAll()
+                .Where(a => a.UserID == userId)
+                .Select(a => new
+                {
+                    AddressID = a.AddressID,
+                    Address = a.address,
+                    AddressType = a.AddressType,
+                    IsDefault = a.IsDefault
+                }).ToListAsync();
+
+
+            if (addresses == null || !addresses.Any())
+            {
+                return NotFound("No addresses found for this user.");
+            }
+
+            return Ok(addresses);
+        }
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] string idToken)
+        {
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls13;
+            var googleTokenValidationUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + idToken;
+
+            using (var httpClient = new HttpClient())
+            {
+                var response = await httpClient.GetAsync(googleTokenValidationUrl);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return BadRequest("Invalid Google token.");
+                }
+
+                var googleResponse = await response.Content.ReadFromJsonAsync<GoogleTokenInfo>();
+                if (googleResponse == null || string.IsNullOrEmpty(googleResponse.Email))
+                {
+                    return BadRequest("Google token validation failed.");
+                }
+
+                // Tạo người dùng mới hoặc tìm người dùng cũ với email từ Google
+                var registeredUser = await _userRepository.RegisterGoogle(googleResponse.Name, googleResponse.Email);
+
+                if (registeredUser == null)
+                {
+                    registeredUser = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.Email == googleResponse.Email);
+                }
+
+
+                var claims = new List<Claim>
+        {
+                new Claim(ClaimTypes.Name, googleResponse.Name),
+                new Claim(ClaimTypes.Email, googleResponse.Email),
+                new Claim(ClaimTypes.NameIdentifier, registeredUser?.UserId.ToString())
+        };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(
+                    issuer: "yourapp",
+                    audience: "yourapp",
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(30),
+                    signingCredentials: creds);
+
+                return Ok(new
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    User = registeredUser
+                });
+            }
+        }
+
+
+
+
+
+
+
+
+
 
 
     }

@@ -11,11 +11,7 @@ public partial class Feedback
 
     public int? OrderId { get; set; }
 
-    public int? OrderIdKoi { get; set; }
-
     public int? KoiId { get; set; }
-
-    public int? OrderIdFishes { get; set; }
 
     public int? FishesId { get; set; }
 
