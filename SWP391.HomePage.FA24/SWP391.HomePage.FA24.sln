@@ -5,7 +5,11 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KMG.Repository", "KMG.Repository\KMG.Repository.csproj", "{3E45AD09-9009-4346-9132-A28BF638A581}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KMS.APIService", "KMS.APIService\KMS.APIService.csproj", "{04408F21-7A8E-4DC8-B25B-408613B2E3E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KMS.APIService", "KMS.APIService\KMS.APIService.csproj", "{04408F21-7A8E-4DC8-B25B-408613B2E3E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.Service", "Payment.Service\Payment.Service.csproj", "{B443BF6F-445F-48A7-A3B7-54BC9F419A36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payment.Ultils", "Payment.Ultils\Payment.Ultils.csproj", "{A8B61A28-00E7-44F9-BDA9-3E02A7AD5EF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{04408F21-7A8E-4DC8-B25B-408613B2E3E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04408F21-7A8E-4DC8-B25B-408613B2E3E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04408F21-7A8E-4DC8-B25B-408613B2E3E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B443BF6F-445F-48A7-A3B7-54BC9F419A36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B443BF6F-445F-48A7-A3B7-54BC9F419A36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B443BF6F-445F-48A7-A3B7-54BC9F419A36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B443BF6F-445F-48A7-A3B7-54BC9F419A36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8B61A28-00E7-44F9-BDA9-3E02A7AD5EF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8B61A28-00E7-44F9-BDA9-3E02A7AD5EF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8B61A28-00E7-44F9-BDA9-3E02A7AD5EF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8B61A28-00E7-44F9-BDA9-3E02A7AD5EF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

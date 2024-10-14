@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KMG.Repository\KMG.Repository.csproj" />
+    <ProjectReference Include="..\Payment.Service\Payment.Service.csproj" />
   </ItemGroup>
 
 </Project>
