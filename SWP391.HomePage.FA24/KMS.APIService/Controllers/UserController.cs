@@ -292,16 +292,5 @@ namespace KMS.APIService.Controllers
                 });
             }
         }
-
-       
-
-
-
-
-
-
-
-
-
     }
 }

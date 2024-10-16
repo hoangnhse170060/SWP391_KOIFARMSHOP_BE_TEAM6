@@ -19,6 +19,9 @@ namespace KMG.Repository
         private UserRepository _userRepository;
         private FeedbackRepository _feedbackRepository;
         private PurchaseHistoryRepository _purcharHistory;
+        private OrderRepository _orderRepository;
+        public OrderKoiRepository _orderKoiRepository;
+        public OrderFishRepository _orderFishRepository;
         public  UnitOfWork() => _context = new SwpkoiFarmShopContext();
         public UserRepository UserRepository
         {
@@ -75,6 +78,27 @@ namespace KMG.Repository
             get
             {
                 return _purcharHistory ??= new PurchaseHistoryRepository(_context);
+            }
+        }
+        public OrderRepository OrderRepository
+        {
+            get
+            {
+                return _orderRepository ??= new OrderRepository(_context);
+            }
+        }
+        public OrderKoiRepository OrderKoiRepository
+        {
+            get
+            {
+                return _orderKoiRepository ??= new OrderKoiRepository(_context);
+            }
+        }
+        public OrderFishRepository OrderFishRepository
+        {
+            get
+            {
+                return _orderFishRepository ??= new OrderFishRepository(_context);
             }
         }
     }
