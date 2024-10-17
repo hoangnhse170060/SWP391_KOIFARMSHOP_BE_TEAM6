@@ -4,6 +4,7 @@ using KMG.Repository.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using KMG.Repository.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KMS.APIService.Controllers
 {
@@ -55,9 +56,20 @@ namespace KMS.APIService.Controllers
 
             return Ok(feedbacks);
         }
-        [HttpPost("add")]
-        public async Task<IActionResult> AddFeedback(int userId, int orderId, int rating, string content, int? koiId = null, int? fishesId = null)
-        {
+      
+        
+        [HttpPost("add/{orderId}")]
+        [Authorize(Roles = "customer")]
+        public async Task<IActionResult> AddFeedback(int orderId, int rating, string content, int? koiId = null, int? fishesId = null)
+        {   
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User is not authenticated.");
+            }
+
+            int userId = int.Parse(userIdClaim.Value); 
+
            
             var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
             if (order == null || order.OrderStatus != "completed")
@@ -72,6 +84,7 @@ namespace KMS.APIService.Controllers
                 return BadRequest("User not found.");
             }
 
+           
             if (koiId != null)
             {
                 var koiExistsInOrder = await _unitOfWork.OrderKoiRepository.GetAll()
@@ -83,7 +96,7 @@ namespace KMS.APIService.Controllers
                 }
             }
 
-            
+           
             if (fishesId != null)
             {
                 var fishesExistsInOrder = await _unitOfWork.OrderFishRepository.GetAll()
@@ -95,24 +108,25 @@ namespace KMS.APIService.Controllers
                 }
             }
 
-            // Tạo đối tượng Feedback mới
+            
             var feedback = new Feedback
             {
-                UserId = userId,
-                OrderId = orderId,
-                KoiId = koiId, // Gán giá trị KoiId nếu có
-                FishesId = fishesId, // Gán giá trị FishesId nếu có
+                UserId = userId,    
+                OrderId = orderId,  
+                KoiId = koiId,     
+                FishesId = fishesId, 
                 Rating = rating,
                 Content = content,
-                FeedbackDate = DateOnly.FromDateTime(DateTime.Now)
+                FeedbackDate = DateOnly.FromDateTime(DateTime.Now)  
             };
 
-            // Thêm Feedback vào cơ sở dữ liệu
+            
             await _unitOfWork.FeedbackRepository.CreateAsync(feedback);
-            await _unitOfWork.FeedbackRepository.SaveAsync(); // Lưu thay đổi vào DB
+            await _unitOfWork.FeedbackRepository.SaveAsync(); 
 
             return Ok("Feedback has been added successfully.");
         }
+
 
     }
 }

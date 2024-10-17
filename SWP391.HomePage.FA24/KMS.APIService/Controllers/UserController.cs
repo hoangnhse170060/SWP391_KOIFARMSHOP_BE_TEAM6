@@ -75,7 +75,8 @@ namespace KMS.APIService.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, user.Role ?? "customer") 
+                    new Claim(ClaimTypes.Role, user.Role ?? "customer"), 
+                    new Claim("Id", user.UserId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7), 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
