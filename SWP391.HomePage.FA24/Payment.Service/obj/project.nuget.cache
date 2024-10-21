@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "x5bha8ec2hY=",
+  "dgSpecHash": "Pz+BxfGdYBU=",
   "success": true,
-  "projectFilePath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
+  "projectFilePath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hoang\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
   ],

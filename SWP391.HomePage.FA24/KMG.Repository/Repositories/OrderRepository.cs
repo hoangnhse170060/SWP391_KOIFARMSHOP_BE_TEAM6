@@ -16,8 +16,19 @@ namespace KMG.Repository.Repositories
         public OrderRepository(SwpkoiFarmShopContext context) => _context = context;
 
 
-            }
+        public async Task<Order> GetOrderWithDetailsAsync(int id)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderKois)  // Load các OrderKois liên quan
+                .ThenInclude(ok => ok.Koi)  // Load thông tin Koi của OrderKoi
+                .Include(o => o.OrderFishes)  // Load các OrderFishes liên quan
+                .ThenInclude(of => of.Fishes)  // Load thông tin Fish của OrderFish
+                .FirstOrDefaultAsync(o => o.OrderId == id);
         }
+
+
+    }
+}
 
 
 

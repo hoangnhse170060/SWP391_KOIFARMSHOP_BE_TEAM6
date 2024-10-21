@@ -23,6 +23,60 @@ namespace KMS.APIService.Controllers
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<object>> GetOrderById(int id)
+        {
+            try
+            {
+                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(id);
+
+                if (order == null)
+                {
+                    return NotFound($"Order with Id = {id} not found.");
+                }
+
+                // Chuẩn bị dữ liệu trả về
+                var result = new
+                {
+                    order.OrderId,
+                    order.UserId,
+                    order.OrderDate,
+                    order.TotalMoney,
+                    order.FinalMoney,
+                    order.OrderStatus,
+                    order.PaymentMethod,
+                    Fishes = order.OrderFishes.Select(f => new
+                    {
+                        f.FishesId,
+                        f.Quantity,
+                        f.Fishes.Name,
+                        f.Fishes.Status,
+                        f.Fishes.Price,
+                        f.Fishes.ImageFishes
+                    }),
+                    Kois = order.OrderKois.Select(k => new
+                    {
+                        k.KoiId,
+                        k.Quantity,
+                        k.Koi.Name,
+                        k.Koi.Gender,
+                        k.Koi.Price,
+                        k.Koi.Size,
+                        k.Koi.ImageKoi
+                    })
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving order by ID.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
         //Show all Order
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
