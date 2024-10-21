@@ -99,7 +99,6 @@ namespace KMS.APIService.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateFish(int id, [FromBody] Fish fish)
         {
-            
             if (id != fish.FishesId)
             {
                 return BadRequest("Fish ID mismatch.");
@@ -107,15 +106,14 @@ namespace KMS.APIService.Controllers
 
             try
             {
-               
-                await _unitOfWork.FishRepository.UpdateAsync(fish);
-                await _unitOfWork.FishRepository.SaveAsync(); 
 
-                return Ok("Koi has been successfully updated.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return NotFound("The fish does not exist.");
+                var result = await _unitOfWork.FishRepository.UpdateFishAsync(id, fish);
+                if (!result)
+                {
+                    return NotFound("The fish does not exist.");
+                }
+
+                return Ok("Fish has been successfully updated.");
             }
             catch (Exception ex)
             {

@@ -68,6 +68,10 @@ namespace KMS.APIService.Controllers
             {
                 return Unauthorized("Invalid username or password.");
             }
+            if (user.Status == "locked")
+            {
+                return Unauthorized("This account has been locked.");
+            }
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -155,6 +159,24 @@ namespace KMS.APIService.Controllers
             return Ok(new { message = "User is locked" });
 
         }
+        [HttpPut("restore/{id}")]
+        public async Task<IActionResult> RestoreUser(int id)
+        {
+
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            if (user.Status != "locked")
+            {
+                return BadRequest("User is already active men .");
+            }
+            user.Status = "active";
+            await _userRepository.SaveAsync();
+
+            return Ok(new { message = "User is now active." });
+        }
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
         {
@@ -169,13 +191,16 @@ namespace KMS.APIService.Controllers
             {
                 return NotFound("User not found.");
             }
-
-           
+            if (user.Password != model.CurrentPassword)
+            {
+                return BadRequest("Current password is incorrect.");
+            }
             user.Password = model.NewPassword;
             await _userRepository.SaveAsync();
 
             return Ok(new { Message = "Password changed successfully." });
         }
+
         [HttpPut("updateProfile{id}")]
         public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile model)
         {
@@ -281,8 +306,6 @@ namespace KMS.APIService.Controllers
                 {
                     return BadRequest("Google token validation failed.");
                 }
-
-                // Tạo người dùng mới hoặc tìm người dùng cũ với email từ Google
                 var registeredUser = await _userRepository.RegisterGoogle(googleResponse.Name, googleResponse.Email);
 
                 if (registeredUser == null)

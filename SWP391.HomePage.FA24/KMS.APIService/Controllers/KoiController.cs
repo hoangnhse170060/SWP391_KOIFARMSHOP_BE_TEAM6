@@ -27,9 +27,6 @@ namespace KMS.APIService.Controllers
         public async Task<ActionResult<IEnumerable<KoiType>>> GetKoiTypes()
         {
             var koiTypes = await _unitOfWork.KoiTypeRepository.GetKoiTypesAsync();
-
-
-
             return Ok(koiTypes);
         }
 
@@ -113,7 +110,6 @@ namespace KMS.APIService.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateKoi(int id, [FromBody] Koi koi)
         {
-            
             if (id != koi.KoiId)
             {
                 return BadRequest("Koi ID mismatch.");
@@ -121,21 +117,23 @@ namespace KMS.APIService.Controllers
 
             try
             {
-               
-                await _unitOfWork.KoiRepository.UpdateAsync(koi);
-                await _unitOfWork.KoiRepository.SaveAsync(); 
+                
+                var result = await _unitOfWork.KoiRepository.UpdateKoiAsync(id, koi);
+                if (!result)
+                {
+                    return NotFound("The koi does not exist.");
+                }
 
                 return Ok("Koi has been successfully updated.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return NotFound("The koi does not exist.");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+
+
 
 
 
