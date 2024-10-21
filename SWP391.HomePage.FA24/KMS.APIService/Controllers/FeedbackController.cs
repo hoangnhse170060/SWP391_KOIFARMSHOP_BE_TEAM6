@@ -14,6 +14,31 @@ namespace KMS.APIService.Controllers
     {
         private readonly UnitOfWork _unitOfWork;
         public FeedbackController(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Feedback>>>
+            GetKoi()
+        {
+            var feedbackList = await _unitOfWork.FeedbackRepository .GetAllAsync();
+            Console.WriteLine($"Number of feedback retrieved: {feedbackList.Count}");
+            return Ok(feedbackList);
+
+        }
+        [HttpDelete("delete/{feedbackId}")]
+        public async Task<IActionResult> DeleteFeedback(int feedbackId)
+        {
+            
+            var feedback = await _unitOfWork.FeedbackRepository.GetByIdAsync(feedbackId);
+
+            if (feedback == null)
+            {
+                return NotFound("Feedback not found.");
+            }
+            await _unitOfWork.FeedbackRepository.RemoveAsync(feedback);
+            await _unitOfWork.FeedbackRepository.SaveAsync();
+
+            return Ok("Feedback deleted successfully.");
+        }
+
         [HttpGet("getFeedbackbyKoiid/{koiID}")]
         public async Task<IActionResult> GetFeedbackByKoiId(int koiID)
         {

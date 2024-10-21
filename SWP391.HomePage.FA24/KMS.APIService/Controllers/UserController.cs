@@ -117,8 +117,30 @@ namespace KMS.APIService.Controllers
                 User = user
             });
         }
+        [HttpPost("registerForStaff")]
+        public async Task<IActionResult> RegisterStaff([FromBody] Register registerModel)
+        {
 
-        
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var user = await _userRepository.RegisterStaffAsync(registerModel.UserName, registerModel.Password, registerModel.Email);
+
+            if (user == null)
+            {
+                return BadRequest("Username or Email already exists.");
+            }
+
+            return Ok(new
+            {
+                Message = "Registration successful",
+                User = user
+            });
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
