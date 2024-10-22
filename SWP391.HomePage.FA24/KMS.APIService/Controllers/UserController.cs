@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
+using System.Text.RegularExpressions;
 
 namespace KMS.APIService.Controllers
 {
@@ -227,7 +228,10 @@ namespace KMS.APIService.Controllers
             {
                 user.PhoneNumber = model.PhoneNumber;
             }
-
+            if (!Regex.IsMatch(model.PhoneNumber, @"^\d{10}$"))
+            {
+                return BadRequest("Phone number must be 10 digits.");
+            }
             if (!string.IsNullOrEmpty(model.Address))
             {
                 var existingAddresses = await _addressRepository.GetAll()
