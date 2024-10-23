@@ -29,6 +29,7 @@ namespace KMG.Repository.Repositories
             existingFish.Quantity = fish.Quantity ?? existingFish.Quantity;
             existingFish.Status = !string.IsNullOrEmpty(fish.Status) ? fish.Status : existingFish.Status;
             existingFish.Price = fish.Price ?? existingFish.Price;
+            existingFish.QuantityInstock = fish.QuantityInstock != 0 ? fish.QuantityInstock : existingFish.QuantityInstock;
             existingFish.ImageFishes = !string.IsNullOrEmpty(fish.ImageFishes) ? fish.ImageFishes : existingFish.ImageFishes;
             existingFish.Description = !string.IsNullOrEmpty(fish.Description) ? fish.Description : existingFish.Description;
             existingFish.DetailDescription = !string.IsNullOrEmpty(fish  .DetailDescription) ? fish.DetailDescription : existingFish.DetailDescription;

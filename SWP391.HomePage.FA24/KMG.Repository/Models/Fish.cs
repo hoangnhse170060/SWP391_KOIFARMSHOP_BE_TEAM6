@@ -14,6 +14,7 @@ public partial class Fish
     public string? Name { get; set; }
     public string? Status { get; set; }
     public decimal? Price { get; set; }
+    public int QuantityInstock { get; set; }
     public string? ImageFishes { get; set; }
     public string? Description { get; set; }
     public string? DetailDescription { get; set; }

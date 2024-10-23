@@ -42,6 +42,7 @@ namespace KMG.Repository.Repositories
             existingKoi.AwardCertificates = !string.IsNullOrEmpty(koi.AwardCertificates) ? koi.AwardCertificates : existingKoi.AwardCertificates;
             existingKoi.Status = !string.IsNullOrEmpty(koi.Status) ? koi.Status : existingKoi.Status;
             existingKoi.Price = koi.Price ?? existingKoi.Price;
+            existingKoi.QuantityInstock = koi.QuantityInstock != 0 ? koi.QuantityInstock : existingKoi.QuantityInstock;
             existingKoi.ImageKoi = !string.IsNullOrEmpty(koi.ImageKoi) ? koi.ImageKoi : existingKoi.ImageKoi;
             existingKoi.ImageCertificate = !string.IsNullOrEmpty(koi.ImageCertificate) ? koi.ImageCertificate : existingKoi.ImageCertificate;
             existingKoi.Description = !string.IsNullOrEmpty(koi.Description) ? koi.Description : existingKoi.Description;
