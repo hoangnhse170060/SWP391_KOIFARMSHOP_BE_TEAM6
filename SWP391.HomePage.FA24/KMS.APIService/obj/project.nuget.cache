@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "AWnxPxgtPtg=",
+  "dgSpecHash": "Q0RjA4F9vVs=",
   "success": true,
-  "projectFilePath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+  "projectFilePath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hoang\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Hoang\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

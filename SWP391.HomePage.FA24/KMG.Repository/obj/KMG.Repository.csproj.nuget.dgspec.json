@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {}
+    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {}
   },
   "projects": {
-    "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+    "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectUniqueName": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "projectName": "KMG.Repository",
-        "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+        "projectPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
-        "outputPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
+        "outputPath": "D:\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
