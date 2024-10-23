@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace KMG.Repository.Repositories
 {
-    public class KoiRepository : GenericRepository<Koi>
+    public class FishRepository : GenericRepository<Fish>
     {
         private readonly SwpkoiFarmShopContext _context;
-        public KoiRepository(SwpkoiFarmShopContext context) => _context = context;
+        public FishRepository(SwpkoiFarmShopContext context) => _context = context;
+
 
 
     }
-
 }

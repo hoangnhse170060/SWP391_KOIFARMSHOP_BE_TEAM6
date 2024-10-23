@@ -13,11 +13,19 @@
   "project": {
     "version": "1.0.0",
     "restore": {
+<<<<<<< HEAD
       "projectUniqueName": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
       "projectName": "Payment.Ultils",
       "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
       "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
       "outputPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\obj\\",
+=======
+      "projectUniqueName": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
+      "projectName": "Payment.Ultils",
+      "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
+      "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\obj\\",
+>>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",

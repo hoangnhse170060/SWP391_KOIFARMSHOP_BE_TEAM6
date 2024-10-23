@@ -3,6 +3,7 @@ using KMG.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace KMS.APIService
 {
@@ -11,38 +12,52 @@ namespace KMS.APIService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                });
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigins",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:5173") 
+                        policy.WithOrigins("http://localhost:3000")
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials();
                     });
             });
-            // Add services to the container.
+
 
             builder.Services.AddControllers();
-            // JWT Configuration
+
             var key = Encoding.ASCII.GetBytes("xinchaocacbanminhlasang1234567890");
             builder.Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false; 
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+            })
+                .AddJwtBearer(x =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                })
+             .AddGoogle(googleOptions =>
+             {
+                 var configuration = builder.Configuration;
+                 googleOptions.ClientId = configuration["Authentication:Google:ClientId"];
+                 googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"];
+                 googleOptions.SaveTokens = true;
+             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -74,8 +89,11 @@ namespace KMS.APIService
             builder.Services.AddScoped<UnitOfWork>();
             var app = builder.Build();
 
+<<<<<<< HEAD
 
           
+=======
+>>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -86,7 +104,7 @@ namespace KMS.APIService
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
 
             app.MapControllers();
 

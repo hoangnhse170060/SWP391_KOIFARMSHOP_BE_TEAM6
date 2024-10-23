@@ -1,6 +1,7 @@
 {
   "format": 1,
   "restore": {
+<<<<<<< HEAD
     "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {}
   },
   "projects": {
@@ -12,6 +13,19 @@
         "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
         "outputPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\obj\\",
+=======
+    "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
+        "projectName": "Payment.Service",
+        "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\Payment.Service.csproj",
+        "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Service\\obj\\",
+>>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -29,8 +43,13 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+<<<<<<< HEAD
               "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
                 "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj"
+=======
+              "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
+                "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj"
+>>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
               }
             }
           }
@@ -75,6 +94,7 @@
         }
       }
     },
+<<<<<<< HEAD
     "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -83,6 +103,16 @@
         "projectPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
         "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
         "outputPath": "D:\\SWP391.KoiFarmShop\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\obj\\",
+=======
+    "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
+        "projectName": "Payment.Ultils",
+        "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\Payment.Ultils.csproj",
+        "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\Payment.Ultils\\obj\\",
+>>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",

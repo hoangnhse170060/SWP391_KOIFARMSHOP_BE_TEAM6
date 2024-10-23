@@ -39,6 +39,7 @@ public partial class SwpkoiFarmShopContext : DbContext
     public virtual DbSet<PurchaseHistory> PurchaseHistories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Address> Address { get; set; }
     public static string GetConnectionString(string connectionStringName)
     {
         var config = new ConfigurationBuilder()
@@ -104,8 +105,6 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.Property(e => e.FishesId).HasColumnName("fishesID");
             entity.Property(e => e.KoiId).HasColumnName("koiID");
             entity.Property(e => e.OrderId).HasColumnName("orderID");
-            entity.Property(e => e.OrderIdFishes).HasColumnName("orderID_fishes");
-            entity.Property(e => e.OrderIdKoi).HasColumnName("orderID_koi");
             entity.Property(e => e.Rating).HasColumnName("rating");
             entity.Property(e => e.UserId).HasColumnName("userID");
 
@@ -195,10 +194,18 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.ToTable("KoiType");
 
             entity.Property(e => e.KoiTypeId).HasColumnName("koiTypeID");
-            entity.Property(e => e.TypeName)
+            entity.Property(e => e.Name)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("typeName");
+                .HasColumnName("name");
+            entity.HasMany(kt => kt.Kois) // KoiType có nhiều Koi
+         .WithOne(k => k.KoiType) // Mỗi Koi thuộc về một KoiType
+         .HasForeignKey(k => k.KoiTypeId); // Khóa ngoại trong bảng Koi
+
+            // Thiết lập mối quan hệ với Fishes
+            entity.HasMany(kt => kt.Fish) // KoiType có nhiều Fish
+                  .WithOne(f => f.KoiType) // Mỗi Fish thuộc về một KoiType
+                  .HasForeignKey(f => f.KoiTypeId); // Khóa ngoại trong bảng Fishes
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -206,10 +213,10 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.HasKey(e => e.OrderId).HasName("PK__Order__0809337D442730E9");
 
             entity.ToTable("Order", tb =>
-                {
-                    tb.HasTrigger("CalculateDiscountOnPromotion");
-                    tb.HasTrigger("UpdateTotalPoints");
-                });
+            {
+                tb.HasTrigger("CalculateDiscountOnPromotion");
+                tb.HasTrigger("UpdateTotalPoints");
+            });
 
             entity.Property(e => e.OrderId).HasColumnName("orderID");
             entity.Property(e => e.DeliveryStatus)

@@ -24,22 +24,24 @@ namespace KMG.Repository.Repositories
         }
         public async Task<User?> RegisterAsync(string username, string password, string email)
         {
-            // Check if the username or email already exists
+
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(user => user.UserName == username || user.Email == email);
             if (existingUser != null)
-                return null; 
+                return null;
 
-            
+
             var newUser = new User
             {
                 UserName = username,
                 Password = password,
                 Email = email,
-                Role = "customer", 
-                Status = "active", 
+                Role = "customer",
+                Status = "active",
+                PhoneNumber = null,
+                Address = null,
                 RegisterDate = DateOnly.FromDateTime(DateTime.Now),
-                TotalPoints = 0 
+                TotalPoints = 0
             };
 
             _context.Users.Add(newUser);
@@ -47,5 +49,37 @@ namespace KMG.Repository.Repositories
 
             return newUser;
         }
+        public IQueryable<User> GetAll()
+        {
+            return _context.Users;
+        }
+        public async Task<User?> RegisterGoogle(string username, string email)
+        {
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(user => user.UserName == username || user.Email == email);
+
+            if (existingUser != null)
+                return null;
+
+            var newUser = new User
+            {
+                UserName = username ?? email,
+                Email = email,
+                Password = Guid.NewGuid().ToString(),
+                Role = "customer",
+                Status = "Active",
+                PhoneNumber = null,
+                Address = null,
+                RegisterDate = DateOnly.FromDateTime(DateTime.Now),
+                TotalPoints = 0
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            return newUser;
+        }
+
+
     }
 }
