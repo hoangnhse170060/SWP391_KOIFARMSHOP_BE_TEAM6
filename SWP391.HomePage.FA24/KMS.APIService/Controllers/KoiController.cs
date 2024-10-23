@@ -23,6 +23,19 @@ namespace KMS.APIService.Controllers
             return Ok(koiList);
 
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetKoiById(int id)
+        {
+
+            var koi = await _unitOfWork.KoiRepository.GetByIdAsync(id);
+            if (koi == null)
+            {
+                return NotFound(new { message = "Koi not found." });
+            }
+
+
+            return Ok(koi);
+        }
         [HttpGet("koitypes")]
         public async Task<ActionResult<IEnumerable<KoiType>>> GetKoiTypes()
         {

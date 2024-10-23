@@ -22,7 +22,19 @@ namespace KMS.APIService.Controllers
             return Ok(fishList);
 
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFishById(int id)
+        {
 
+            var fish = await _unitOfWork.FishRepository.GetByIdAsync(id);
+            if (fish == null)
+            {
+                return NotFound(new { message = "Fish not found." });
+            }
+
+
+            return Ok(fish);
+        }
         [HttpPost]
         public async Task<ActionResult<Fish>> CreateFish([FromBody] Fish fish)
         {
