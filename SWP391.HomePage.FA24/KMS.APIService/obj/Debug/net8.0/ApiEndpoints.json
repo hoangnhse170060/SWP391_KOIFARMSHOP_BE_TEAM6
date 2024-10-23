@@ -259,7 +259,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.Order, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -313,22 +313,6 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.OrderController",
-    "Method": "DeleteOrder",
-    "RelativePath": "api/Order/{orderId}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "orderId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.OrderController",
     "Method": "DeleteItemFromOrder",
     "RelativePath": "api/Order/{orderId}/{itemType}/{itemId}",
     "HttpMethod": "DELETE",
@@ -347,6 +331,22 @@
       },
       {
         "Name": "itemId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderController",
+    "Method": "CancelOrder",
+    "RelativePath": "api/Order/{orderId}/cancel-order",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -383,6 +383,27 @@
       },
       {
         "Name": "newPaymentMethod",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderController",
+    "Method": "UpdateOrderStatus",
+    "RelativePath": "api/Order/{orderId}/update-status",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "newStatus",
         "Type": "System.String",
         "IsRequired": false
       }

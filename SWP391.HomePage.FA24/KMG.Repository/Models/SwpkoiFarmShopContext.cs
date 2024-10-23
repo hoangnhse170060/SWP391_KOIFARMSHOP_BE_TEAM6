@@ -254,7 +254,25 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Order__userID__1FCDBCEB");
-        });
+
+
+
+                    modelBuilder.Entity<Order>()
+                        .HasMany(o => o.OrderFishes)
+                        .WithOne(f => f.Order)
+                        .HasForeignKey(f => f.OrderId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    modelBuilder.Entity<Order>()
+                        .HasMany(o => o.OrderKois)
+                        .WithOne(k => k.Order)
+                        .HasForeignKey(k => k.OrderId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    base.OnModelCreating(modelBuilder);
+    
+
+});
 
         modelBuilder.Entity<OrderFish>(entity =>
         {

@@ -2,6 +2,7 @@
 using KMG.Repository.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,43 @@ namespace KMG.Repository.Repositories
         {
             return await _context.Orders.FirstOrDefaultAsync(predicate);
         }
+
+
+        public async Task<IEnumerable<Feedback>> GetAllAsync(Expression<Func<Feedback, bool>> predicate)
+        {
+            return await _context.Feedbacks.Where(predicate).ToListAsync();
+        }
+
+        public void RemoveRange(IEnumerable<Feedback> entities)
+        {
+            _context.Feedbacks.RemoveRange(entities);
+        }
+
+        public async Task<List<Order>> GetOrdersWithDetailsAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.OrderFishes)
+                    .ThenInclude(of => of.Fishes)
+                .Include(o => o.OrderKois)
+                    .ThenInclude(ok => ok.Koi)
+                .ToListAsync();
+        }
+
+        public async Task<List<Order>> GetAllAsync(
+    Func<IQueryable<Order>, IIncludableQueryable<Order, object>>? include = null)
+        {
+            IQueryable<Order> query = _context.Orders;
+
+            if (include != null)
+            {
+                query = include(query);
+            }
+
+            return await query.ToListAsync();
+        }
+
+
+
 
     }
 }

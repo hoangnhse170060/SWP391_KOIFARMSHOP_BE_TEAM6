@@ -1,4 +1,4 @@
-
+﻿
 using KMG.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +28,18 @@ namespace KMS.APIService
                               .AllowAnyMethod()
                               .AllowCredentials();
                     });
+            });
+
+
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireStaffOrAdmin", policy =>
+                    policy.RequireRole("admin", "staff")); // Đảm bảo role trùng với các role trong JWT token
+
+
+                options.AddPolicy("RequireCustomer", policy =>
+                         policy.RequireRole("customer"));
             });
 
 
