@@ -77,14 +77,56 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
-        //Show all Order
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<object>>> GetOrders()
         {
-            var orders = await _unitOfWork.OrderRepository.GetAllAsync();
-            return Ok(orders);
+            try
+            {
+                // Truy vấn tất cả các đơn hàng bao gồm OrderFishes và OrderKois
+                var orders = await _unitOfWork.OrderRepository.GetAllWithIncludesAsync();
+
+                // Chuẩn bị dữ liệu trả về
+                var result = orders.Select(order => new
+                {
+                    order.OrderId,
+                    order.UserId,
+                    order.OrderDate,
+                    order.TotalMoney,
+                    order.FinalMoney,
+                    order.OrderStatus,
+                    order.PaymentMethod,
+                    Fishes = order.OrderFishes.Select(f => new
+                    {
+                        f.FishesId,
+                        f.Quantity,
+                        f.Fishes.Name,
+                        f.Fishes.Status,
+                        f.Fishes.Price,
+                        f.Fishes.ImageFishes
+                    }).ToList(),
+                    Kois = order.OrderKois.Select(k => new
+                    {
+                        k.KoiId,
+                        k.Quantity,
+                        k.Koi.Name,
+                        k.Koi.Gender,
+                        k.Koi.Price,
+                        k.Koi.Size,
+                        k.Koi.ImageKoi
+                    }).ToList()
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving orders.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+
+
 
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)

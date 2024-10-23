@@ -357,10 +357,6 @@ D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\obj\Debug
 D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\obj\Debug\net8.0\KMS.APIService.pdb
 D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\obj\Debug\net8.0\KMS.APIService.genruntimeconfig.cache
 D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\obj\Debug\net8.0\ref\KMS.APIService.dll
-D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\Payment.Service.dll
-D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\Payment.Ultils.dll
-D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\Payment.Service.pdb
-D:\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\Payment.Ultils.pdb
 C:\Users\Hoang\OneDrive\Máy tính\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\Hoang\OneDrive\Máy tính\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\appsettings.json
 C:\Users\Hoang\OneDrive\Máy tính\SWP\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMS.APIService\bin\Debug\net8.0\KMS.APIService.exe
