@@ -89,11 +89,6 @@ namespace KMS.APIService
             builder.Services.AddScoped<UnitOfWork>();
             var app = builder.Build();
 
-<<<<<<< HEAD
-
-          
-=======
->>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

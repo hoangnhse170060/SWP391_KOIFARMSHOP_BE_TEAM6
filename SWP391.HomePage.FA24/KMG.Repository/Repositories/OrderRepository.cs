@@ -2,9 +2,11 @@
 using KMG.Repository.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +28,22 @@ namespace KMG.Repository.Repositories
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+
+
+        public void Delete(Order entity)
+        {
+            _context.Orders.Remove(entity);
+        }
+
+
+        public async Task<Order> FirstOrDefaultAsync(Expression<Func<Order, bool>> predicate)
+        {
+            return await _context.Orders.FirstOrDefaultAsync(predicate);
+        }
 
     }
 }

@@ -31,5 +31,18 @@ namespace KMG.Repository.Repositories
                 .Where(ok => ok.OrderId == orderId)
                 .ToListAsync();
         }
+
+        public void Delete(OrderKoi entity)
+        {
+            _context.OrderKois.Remove(entity);
+        }
+
+        public async Task<IEnumerable<OrderKoi>> GetByOrderIdAsync(int orderId)
+        {
+            return await _context.OrderKois
+                .Where(ok => ok.OrderId == orderId)
+                .ToListAsync();
+        }
+
     }
 }

@@ -285,7 +285,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "KMG.Repository.Models.Koi",
+        "Type": "KMG.Repository.Models.Order",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -485,19 +485,14 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.OrderKoiController",
-    "Method": "DeleteKoiFromOrder",
-    "RelativePath": "api/OrderKoi/{orderId}/{koiId}",
+    "Method": "DeleteOrder",
+    "RelativePath": "api/OrderKoi/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "orderId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "koiId",
+        "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -754,8 +749,6 @@
       }
     ],
     "ReturnTypes": []
-<<<<<<< HEAD
-=======
   },
   {
     "ContainingType": "KMS.APIService.Controllers.UserController",
@@ -777,6 +770,5 @@
       }
     ],
     "ReturnTypes": []
->>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
   }
 ]

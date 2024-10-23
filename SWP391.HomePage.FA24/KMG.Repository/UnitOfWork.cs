@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Models;
 using KMG.Repository.Repositories;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,6 +106,17 @@ namespace KMG.Repository
             {
                 return _purcharHistory ??= new PurchaseHistoryRepository(_context);
             }
+        }
+
+
+        public async Task<int> SaveAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
     }
 }

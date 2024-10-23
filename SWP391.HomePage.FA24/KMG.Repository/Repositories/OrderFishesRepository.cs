@@ -22,6 +22,18 @@ namespace KMG.Repository.Repositories
             }
 
 
+        public void Delete(OrderFish entity)
+        {
+            _context.OrderFishes.Remove(entity);
         }
+
+        public async Task<IEnumerable<OrderFish>> GetByOrderIdAsync(int orderId)
+        {
+            return await _context.OrderFishes
+                .Where(of => of.OrderId == orderId)
+                .ToListAsync();
+        }
+
     }
+}
 

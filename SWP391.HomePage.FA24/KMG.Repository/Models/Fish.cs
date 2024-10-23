@@ -6,6 +6,8 @@ namespace KMG.Repository.Models;
 
 public partial class Fish
 {
+    public int? quantityInStock { get; set; }
+
     public int FishesId { get; set; }
 
     public int? Quantity { get; set; }
@@ -13,7 +15,7 @@ public partial class Fish
     public int? KoiTypeId { get; set; }
     public string? Name { get; set; }
     public string? Status { get; set; }
-    public decimal? Price { get; set; }
+    public decimal? Price { get; set; } 
 
     public string? ImageFishes { get; set; }
     public string? Description { get; set; }

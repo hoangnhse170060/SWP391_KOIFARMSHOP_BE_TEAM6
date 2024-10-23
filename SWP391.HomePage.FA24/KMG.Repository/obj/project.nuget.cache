@@ -1,10 +1,6 @@
 {
   "version": 2,
-<<<<<<< HEAD
-  "dgSpecHash": "7XWeoLRho3c=",
-=======
   "dgSpecHash": "QvcYV+0erbE=",
->>>>>>> 715b018977f01f756f4645e144fc7ed9dc248b75
   "success": true,
   "projectFilePath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\SWP\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
   "expectedPackageFiles": [

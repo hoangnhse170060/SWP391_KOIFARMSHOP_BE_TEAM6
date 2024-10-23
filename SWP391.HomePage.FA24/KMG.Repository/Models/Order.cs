@@ -13,7 +13,7 @@ public partial class Order
 
     public DateOnly? OrderDate { get; set; }
 
-    public decimal? TotalMoney { get; set; }
+    public decimal TotalMoney { get; set; }
 
     public decimal? DiscountMoney { get; set; }
 

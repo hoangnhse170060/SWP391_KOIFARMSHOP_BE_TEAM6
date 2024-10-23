@@ -8,6 +8,8 @@ namespace KMG.Repository.Models;
 
 public partial class Koi
 {
+    public int? quantityInStock {get;set;}
+
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int KoiId { get; set; }
@@ -50,4 +52,5 @@ public partial class Koi
     public virtual KoiType? KoiType { get; set; }
     [JsonIgnore]
     public virtual ICollection<OrderKoi> OrderKois { get; set; } = new List<OrderKoi>();
+  
 }

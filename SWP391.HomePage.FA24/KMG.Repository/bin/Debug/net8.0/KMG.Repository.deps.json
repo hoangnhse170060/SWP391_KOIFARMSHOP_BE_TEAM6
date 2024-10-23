@@ -18,7 +18,6 @@
           "Microsoft.EntityFrameworkCore.Tools": "8.0.5",
           "Microsoft.Extensions.Configuration": "8.0.0",
           "Microsoft.Extensions.Configuration.Json": "8.0.0",
-          "Newtonsoft.Json": "13.0.3",
           "System.IdentityModel.Tokens.Jwt": "8.1.0"
         },
         "runtime": {

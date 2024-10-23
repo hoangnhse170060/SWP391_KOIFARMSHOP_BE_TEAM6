@@ -8,6 +8,7 @@ using KMG.Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KMS.APIService.Controllers
 {
@@ -84,18 +85,102 @@ namespace KMS.APIService.Controllers
             var orders = await _unitOfWork.OrderRepository.GetAllAsync();
             return Ok(orders);
         }
-        //Create Order 
+
         [HttpPost]
-        public async Task<ActionResult<Koi>> CreateOrder([FromBody] Order order)
+        public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
         {
             if (order == null)
             {
-                return BadRequest("Koi object is null");
+                return BadRequest("Order object is null.");
             }
+
+            // Kiểm tra: Phải chọn hoặc OrderFishes hoặc OrderKois, không được để trống cả hai.
+            if ((order.OrderFishes == null || !order.OrderFishes.Any()) &&
+                (order.OrderKois == null || !order.OrderKois.Any()))
+            {
+                return BadRequest("You must choose either Order Fishes or Order Kois.");
+            }
+
+
+            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+
             try
             {
+                decimal totalMoney = 0;
+
+                // **Xử lý OrderKois**
+                if (order.OrderKois != null && order.OrderKois.Any())
+                {
+                    foreach (var orderKoi in order.OrderKois)
+                    {
+                        var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+                        if (koiEntity == null)
+                        {
+                            return NotFound($"Koi with ID = {orderKoi.KoiId} not found.");
+                        }
+
+                        // Kiểm tra số lượng trong kho có đủ không
+                        if (koiEntity.quantityInStock < orderKoi.Quantity)
+                        {
+                            return BadRequest($"Not enough stock for Koi ID = {orderKoi.KoiId}. " +
+                                              $"Requested: {orderKoi.Quantity}, Available: {koiEntity.quantityInStock}");
+                        }
+
+                        // Trừ số lượng Koi trong kho
+                        koiEntity.quantityInStock -= orderKoi.Quantity;
+
+                        // Tính tổng tiền từ Koi với chuyển đổi rõ ràng
+                        totalMoney += koiEntity.Price.GetValueOrDefault(0) * (orderKoi.Quantity ?? 0);
+                        // Cập nhật vào cơ sở dữ liệu
+                        _unitOfWork.KoiRepository.Update(koiEntity);
+                    }
+                }
+
+                // **Xử lý OrderFishes (nếu có)**
+                if (order.OrderFishes != null && order.OrderFishes.Any())
+                {
+                    foreach (var orderFish in order.OrderFishes)
+                    {
+                        var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+                        if (fishEntity == null)
+                        {
+                            return NotFound($"Fish with ID = {orderFish.FishesId} not found.");
+                        }
+
+                        if (fishEntity.quantityInStock < orderFish.Quantity)
+                        {
+                            return BadRequest($"Not enough stock for Fish ID = {orderFish.FishesId}. " +
+                                              $"Requested: {orderFish.Quantity}, Available: {fishEntity.Quantity}");
+                        }
+
+                        // Trừ số lượng Fish trong kho
+
+                        fishEntity.quantityInStock -= orderFish.Quantity;
+
+                        // Tính tổng tiền từ Koi với chuyển đổi rõ ràng
+                        totalMoney += fishEntity.Price.GetValueOrDefault(0) * (orderFish.Quantity ?? 0);
+
+                        // Cập nhật vào cơ sở dữ liệu
+                        _unitOfWork.FishRepository.Update(fishEntity);
+                    }
+                }
+
+                // **Gán thông tin cho Order**
+                order.TotalMoney = totalMoney;
+                order.FinalMoney = totalMoney - (order.DiscountMoney ?? 0);
+                order.OrderDate = DateOnly.FromDateTime(DateTime.UtcNow);
+                order.OrderStatus = "processing";
+
+                // **Lưu Order vào cơ sở dữ liệu**
                 await _unitOfWork.OrderRepository.CreateAsync(order);
                 await _unitOfWork.OrderRepository.SaveAsync();
+
+
+
+                await transaction.CommitAsync();  // Commit giao dịch nếu thành công.
+                return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
+
+                // **Trả về thông tin Order đã tạo**
                 return CreatedAtAction(nameof(GetOrders), new { id = order.OrderId }, order);
             }
             catch (DbUpdateException dbEx)
@@ -109,60 +194,9 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        //UpdateOrder
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
-        {
-            if (id != order.OrderId)
-            {
-                return BadRequest("Order ID mismatch.");
-            }
-            try
-            {
-                await _unitOfWork.OrderRepository.UpdateAsync(order);
-                await _unitOfWork.OrderRepository.SaveAsync();
-                return Ok("Order has been successfully updated.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return NotFound("The order does not exist.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while updating the order");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            try
-            {
-                var orderToDelete = await _unitOfWork.OrderRepository.GetByIdAsync(id);
 
-                if (orderToDelete == null)
-                {
-                    return NotFound($"Order with Id = {id} not found");
-                }
-
-                // Delete the order
-                _unitOfWork.OrderRepository.Remove(orderToDelete);
-                await _unitOfWork.OrderRepository.SaveAsync();  // Persist changes in the database
-
-                return NoContent();  // Return a NoContent status when deletion is successful
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Error deleting order: {ex.Message}");
-            }
-        }
-
+       
 
     }
-
-
-
 }
-
