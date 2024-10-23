@@ -39,15 +39,11 @@ namespace KMG.Repository.Repositories
             _context.Orders.Remove(entity);
         }
 
-        public async Task<List<Order>> GetAllWithIncludesAsync()
+        public void RemoveRange(IEnumerable<Order> orders)
         {
-            return await _context.Orders
-                .Include(o => o.OrderFishes)
-                    .ThenInclude(of => of.Fishes)
-                .Include(o => o.OrderKois)
-                    .ThenInclude(ok => ok.Koi)
-                .ToListAsync();
+            _context.Orders.RemoveRange(orders);
         }
+
 
         public async Task<Order> FirstOrDefaultAsync(Expression<Func<Order, bool>> predicate)
         {

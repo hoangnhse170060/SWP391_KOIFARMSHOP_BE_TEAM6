@@ -44,5 +44,10 @@ namespace KMG.Repository.Repositories
                 .ToListAsync();
         }
 
+        public void RemoveRange(IEnumerable<OrderKoi> entities)
+        {
+            _context.OrderKois.RemoveRange(entities);
+        }
+
     }
 }

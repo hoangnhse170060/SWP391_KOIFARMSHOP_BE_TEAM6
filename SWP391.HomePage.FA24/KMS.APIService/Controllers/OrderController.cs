@@ -77,56 +77,14 @@ namespace KMS.APIService.Controllers
             }
         }
 
+
+        //Show all Order
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            try
-            {
-                // Truy vấn tất cả các đơn hàng bao gồm OrderFishes và OrderKois
-                var orders = await _unitOfWork.OrderRepository.GetAllWithIncludesAsync();
-
-                // Chuẩn bị dữ liệu trả về
-                var result = orders.Select(order => new
-                {
-                    order.OrderId,
-                    order.UserId,
-                    order.OrderDate,
-                    order.TotalMoney,
-                    order.FinalMoney,
-                    order.OrderStatus,
-                    order.PaymentMethod,
-                    Fishes = order.OrderFishes.Select(f => new
-                    {
-                        f.FishesId,
-                        f.Quantity,
-                        f.Fishes.Name,
-                        f.Fishes.Status,
-                        f.Fishes.Price,
-                        f.Fishes.ImageFishes
-                    }).ToList(),
-                    Kois = order.OrderKois.Select(k => new
-                    {
-                        k.KoiId,
-                        k.Quantity,
-                        k.Koi.Name,
-                        k.Koi.Gender,
-                        k.Koi.Price,
-                        k.Koi.Size,
-                        k.Koi.ImageKoi
-                    }).ToList()
-                }).ToList();
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving orders.");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            var orders = await _unitOfWork.OrderRepository.GetAllAsync();
+            return Ok(orders);
         }
-
-
-
 
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
@@ -238,7 +196,274 @@ namespace KMS.APIService.Controllers
 
 
 
-       
+        [HttpDelete("{orderId:int}/{itemType}/{itemId:int}")]
+        public async Task<IActionResult> DeleteItemFromOrder(int orderId, string itemType, int itemId)
+        {
+            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+            try
+            {
+                // Tìm Order
+                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
+                if (order == null)
+                {
+                    return NotFound($"Order with ID = {orderId} not found.");
+                }
+
+                decimal amountToDeduct = 0;
+
+                // Kiểm tra loại item: 'koi' hoặc 'fish'
+                if (itemType.ToLower() == "koi")
+                {
+                    var orderKoi = await _unitOfWork.OrderKoiRepository
+                        .FirstOrDefaultAsync(ok => ok.OrderId == orderId && ok.KoiId == itemId);
+
+                    if (orderKoi == null)
+                        return NotFound($"Koi with ID = {itemId} not found in the order.");
+
+                    // Cập nhật số lượng trong kho
+                    var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+                    koi.quantityInStock += orderKoi.Quantity;
+                    _unitOfWork.KoiRepository.Update(koi);
+
+                    // Tính tiền cần trừ
+                    amountToDeduct = koi.Price.GetValueOrDefault(0) * (orderKoi.Quantity ?? 0);
+
+                    // Xóa item Koi khỏi đơn hàng
+                    _unitOfWork.OrderKoiRepository.Remove(orderKoi);
+                }
+                else if (itemType.ToLower() == "fish")
+                {
+                    var orderFish = await _unitOfWork.OrderFishesRepository
+                        .FirstOrDefaultAsync(of => of.OrderId == orderId && of.FishesId == itemId);
+
+                    if (orderFish == null)
+                        return NotFound($"Fish with ID = {itemId} not found in the order.");
+
+                    // Cập nhật số lượng trong kho
+                    var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+                    fish.quantityInStock += orderFish.Quantity;
+                    _unitOfWork.FishRepository.Update(fish);
+
+                    // Tính tiền cần trừ
+                    amountToDeduct = fish.Price.GetValueOrDefault(0) * (orderFish.Quantity ?? 0);
+
+                    // Xóa item Fish khỏi đơn hàng
+                    _unitOfWork.OrderFishesRepository.Remove(orderFish);
+                }
+                else
+                {
+                    return BadRequest("Invalid item type. Use 'koi' or 'fish'.");
+                }
+
+                // Cập nhật tổng tiền của đơn hàng
+                order.TotalMoney -= amountToDeduct;
+                order.FinalMoney = order.TotalMoney - (order.DiscountMoney ?? 0);
+                _unitOfWork.OrderRepository.Update(order);
+
+                // Kiểm tra nếu FinalMoney <= 0 và không còn item nào trong đơn hàng
+                if (order.FinalMoney <= 0 && !order.OrderKois.Any() && !order.OrderFishes.Any())
+                {
+                    // Xóa luôn Order nếu không còn sản phẩm
+                    _unitOfWork.OrderRepository.Remove(order);
+                }
+
+                // Lưu thay đổi vào cơ sở dữ liệu
+                await _unitOfWork.OrderRepository.SaveAsync();
+                await transaction.CommitAsync();
+
+                return NoContent(); // Thành công
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
+                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
+        [HttpDelete("{orderId:int}")]
+        public async Task<IActionResult> DeleteOrder(int orderId)
+        {
+            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+            try
+            {
+                // Tìm Order
+                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
+                if (order == null)
+                {
+                    return NotFound($"Order with ID = {orderId} not found.");
+                }
+
+                // Khôi phục số lượng trong kho từ các sản phẩm thuộc order này
+                foreach (var orderKoi in order.OrderKois)
+                {
+                    var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+                    koi.quantityInStock += orderKoi.Quantity;
+                    _unitOfWork.KoiRepository.Update(koi);
+                }
+
+                foreach (var orderFish in order.OrderFishes)
+                {
+                    var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+                    fish.quantityInStock += orderFish.Quantity;
+                    _unitOfWork.FishRepository.Update(fish);
+                }
+
+                // Xóa tất cả các bản ghi liên quan trong OrderKois và OrderFishes
+                _unitOfWork.OrderKoiRepository.RemoveRange(order.OrderKois);
+                _unitOfWork.OrderFishesRepository.RemoveRange(order.OrderFishes);
+
+                // Xóa chính Order
+                _unitOfWork.OrderRepository.Remove(order);
+
+                // Lưu thay đổi vào cơ sở dữ liệu
+                await _unitOfWork.OrderRepository.SaveAsync();
+                await transaction.CommitAsync();
+
+                return NoContent(); // Thành công
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
+                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+      
+        [HttpPut("{orderId:int}/update")]
+        public async Task<IActionResult> UpdateOrder(
+       int orderId,
+       [FromQuery] string? itemType = null,
+       [FromQuery] int? itemId = null,
+       [FromQuery] int? newQuantity = null,
+       [FromQuery] string? newPaymentMethod = null)
+        {
+            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+            try
+            {
+                // Retrieve the order
+                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
+                if (order == null)
+                {
+                    return NotFound($"Order with ID = {orderId} not found.");
+                }
+
+                // Ensure the order is not completed
+                if (order.OrderStatus == "completed")
+                {
+                    return BadRequest("Completed orders cannot be updated.");
+                }
+
+                // Ensure the new quantity is valid (greater than 0)
+                if (newQuantity.HasValue && newQuantity <= 0)
+                {
+                    return BadRequest("Quantity must be greater than zero.");
+                }
+
+                decimal totalMoneyChange = 0;
+
+                // Handle item quantity updates
+                if (!string.IsNullOrEmpty(itemType) && itemId.HasValue && newQuantity.HasValue)
+                {
+                    if (itemType.ToLower() == "koi")
+                    {
+                        var orderKoi = order.OrderKois.FirstOrDefault(ok => ok.KoiId == itemId);
+                        if (orderKoi == null)
+                            return NotFound($"Koi with ID = {itemId} not found in the order.");
+
+                        var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+
+                        int quantityChange = (int)(newQuantity.Value - orderKoi.Quantity);
+
+                        if (quantityChange > 0 && koi.quantityInStock < quantityChange)
+                        {
+                            return BadRequest($"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koi.quantityInStock}");
+                        }
+
+                        koi.quantityInStock -= quantityChange;
+                        totalMoneyChange += koi.Price.GetValueOrDefault(0) * quantityChange;
+                        orderKoi.Quantity = newQuantity.Value;
+                        _unitOfWork.OrderKoiRepository.Update(orderKoi);
+                    }
+                    else if (itemType.ToLower() == "fish")
+                    {
+                        var orderFish = order.OrderFishes.FirstOrDefault(of => of.FishesId == itemId);
+                        if (orderFish == null)
+                            return NotFound($"Fish with ID = {itemId} not found in the order.");
+
+                        var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+
+                        int quantityChange = (int)(newQuantity.Value - orderFish.Quantity);
+
+                        if (quantityChange > 0 && fish.quantityInStock < quantityChange)
+                        {
+                            return BadRequest($"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fish.quantityInStock}");
+                        }
+
+                        fish.quantityInStock -= quantityChange;
+                        totalMoneyChange += fish.Price.GetValueOrDefault(0) * quantityChange;
+                        orderFish.Quantity = newQuantity.Value;
+                        _unitOfWork.FishRepository.Update(fish);
+                    }
+                    else
+                    {
+                        return BadRequest("Invalid item type. Use 'koi' or 'fish'.");
+                    }
+                }
+
+                // Update the order total if necessary
+                if (totalMoneyChange != 0)
+                {
+                    order.TotalMoney += totalMoneyChange;
+                    order.FinalMoney = order.TotalMoney - (order.DiscountMoney ?? 0);
+                }
+
+                // Update payment method if provided
+                if (!string.IsNullOrEmpty(newPaymentMethod))
+                {
+                    order.PaymentMethod = newPaymentMethod;
+                }
+
+                _unitOfWork.OrderRepository.Update(order);
+
+                // Save changes to the database
+                await _unitOfWork.OrderRepository.SaveAsync();
+                await transaction.CommitAsync();
+
+                return Ok("Order updated successfully.");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
+                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
     }
 }

@@ -34,6 +34,12 @@ namespace KMG.Repository.Repositories
                 .ToListAsync();
         }
 
+        public void RemoveRange(IEnumerable<OrderFish> entities)
+        {
+            _context.OrderFishes.RemoveRange(entities);
+        }
+
+
     }
 }
 

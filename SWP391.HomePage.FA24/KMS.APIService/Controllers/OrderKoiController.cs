@@ -73,20 +73,20 @@ namespace KMS.APIService.Controllers
         }
 
         [HttpDelete("{orderId}/{koiId}")]
-        public async Task<IActionResult> DeleteKoiFromOrder(int orderId, int koiId)
+        public async Task<IActionResult> DeleteKoiFromOrder(int orderId)
         {
             // Tìm bản ghi cần xóa
-            var orderKoi = await _unitOfWork.OrderKoiRepository
-                .FirstOrDefaultAsync(ok => ok.OrderId == orderId && ok.KoiId == koiId);
+            var order = await _unitOfWork.OrderRepository
+                .FirstOrDefaultAsync(ok => ok.OrderId == orderId );
 
-            if (orderKoi == null)
+            if (order == null)
             {
                 // Nếu không tìm thấy, trả về 404 Not Found
                 return NotFound("Order_Koi not found.");
             }
 
             // Gọi phương thức xóa
-            _unitOfWork.OrderKoiRepository.Remove(orderKoi);
+            _unitOfWork.OrderRepository.Remove(order);
 
             // Lưu thay đổi vào cơ sở dữ liệu
             await _unitOfWork.OrderKoiRepository.SaveAsync();
