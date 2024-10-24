@@ -14,22 +14,25 @@ namespace KMS.APIService.Controllers
         public PurchaseHistoryController(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PurchaseHistory>>>
-            GetHistory()
+        public async Task<ActionResult<IEnumerable<object>>> GetHistoryWithDetails()
         {
-            var historyList = await _unitOfWork.PurchaseHistoryRepository.GetAllAsync();
-            Console.WriteLine($"Number of History retrieved: {historyList.Count}");
-            return Ok(historyList);
+            var historyList = await _unitOfWork.PurchaseHistoryRepository.GetAllWithDetails().ToListAsync();
 
+            if (historyList == null || !historyList.Any())
+            {
+                return NotFound("No purchase history found.");
+            }
+
+            return Ok(historyList);
         }
         [HttpGet("getPurchaseHistoryByUserID/{userID}")]
         public async Task<IActionResult> GetPurchaseHistoryByUserID(int userID)
         {
-
             var purchaseHistory = await _unitOfWork.PurchaseHistoryRepository.GetAll()
                 .Where(p => p.UserId == userID)
                 .Select(p => new
                 {
+                    UserName = p.User.UserName,
                     p.OrderId,
                     p.PurchaseDate,
                     p.TotalMoney,
@@ -41,10 +44,21 @@ namespace KMS.APIService.Controllers
                     p.DeliveryStatus,
                     p.PromotionId,
                     p.EarnedPoints,
-                    p.UsedPoints
+                    p.UsedPoints,
+                    KoiDetails = p.Order.OrderKois.Select(ok => new
+                    {
+                        ok.Koi.Name,
+                        ok.Koi.ImageKoi,
+                        ok.Quantity
+                    }).ToList(),
+                    FishDetails = p.Order.OrderFishes.Select(of => new
+                    {
+                        of.Fishes.Name,
+                        of.Fishes.ImageFishes,
+                        of.Quantity
+                    }).ToList()
                 })
                 .ToListAsync();
-
 
             if (purchaseHistory == null || !purchaseHistory.Any())
             {
@@ -53,6 +67,7 @@ namespace KMS.APIService.Controllers
 
             return Ok(purchaseHistory);
         }
+
 
     }
 }
