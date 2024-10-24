@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace KMG.Repository.Models;
 
@@ -31,10 +30,10 @@ public partial class PurchaseHistory
     public int? EarnedPoints { get; set; }
 
     public int? UsedPoints { get; set; }
-    [JsonIgnore]
+
     public virtual Order Order { get; set; } = null!;
-    [JsonIgnore]
+
     public virtual Promotion? Promotion { get; set; }
-    [JsonIgnore]
+
     public virtual User User { get; set; } = null!;
 }

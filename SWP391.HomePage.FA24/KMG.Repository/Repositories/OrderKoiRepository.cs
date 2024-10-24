@@ -1,6 +1,7 @@
 ﻿using KMG.Repository.Base;
 using KMG.Repository.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,18 @@ namespace KMG.Repository.Repositories
         public void RemoveRange(IEnumerable<OrderKoi> entities)
         {
             _context.OrderKois.RemoveRange(entities);
+        }
+
+
+        public async Task<IEnumerable<Order>> GetAllAsync(
+    Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = null)
+        {
+            var query = _context.Orders.AsQueryable();
+            if (include != null)
+            {
+                query = include(query);
+            }
+            return await query.ToListAsync();
         }
 
     }

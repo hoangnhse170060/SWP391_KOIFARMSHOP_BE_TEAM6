@@ -23,23 +23,10 @@ namespace KMS.APIService
                 options.AddPolicy("AllowSpecificOrigins",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
-                              .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials();
+                        policy.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                     });
-            });
-
-
-
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("RequireStaffOrAdmin", policy =>
-                    policy.RequireRole("admin", "staff")); // Đảm bảo role trùng với các role trong JWT token
-
-
-                options.AddPolicy("RequireCustomer", policy =>
-                         policy.RequireRole("customer"));
             });
 
 
@@ -100,8 +87,6 @@ namespace KMS.APIService
             });
             builder.Services.AddScoped<UnitOfWork>();
             var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

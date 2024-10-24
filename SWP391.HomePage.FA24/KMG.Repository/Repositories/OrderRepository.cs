@@ -52,41 +52,16 @@ namespace KMG.Repository.Repositories
         }
 
 
-        public async Task<IEnumerable<Feedback>> GetAllAsync(Expression<Func<Feedback, bool>> predicate)
+        public async Task<IEnumerable<Order>> GetAllAsync(
+    Func<IQueryable<Order>, IIncludableQueryable<Order, object>> include = null)
         {
-            return await _context.Feedbacks.Where(predicate).ToListAsync();
-        }
-
-        public void RemoveRange(IEnumerable<Feedback> entities)
-        {
-            _context.Feedbacks.RemoveRange(entities);
-        }
-
-        public async Task<List<Order>> GetOrdersWithDetailsAsync()
-        {
-            return await _context.Orders
-                .Include(o => o.OrderFishes)
-                    .ThenInclude(of => of.Fishes)
-                .Include(o => o.OrderKois)
-                    .ThenInclude(ok => ok.Koi)
-                .ToListAsync();
-        }
-
-        public async Task<List<Order>> GetAllAsync(
-    Func<IQueryable<Order>, IIncludableQueryable<Order, object>>? include = null)
-        {
-            IQueryable<Order> query = _context.Orders;
-
+            var query = _context.Orders.AsQueryable();
             if (include != null)
             {
                 query = include(query);
             }
-
             return await query.ToListAsync();
         }
-
-
-
 
     }
 }

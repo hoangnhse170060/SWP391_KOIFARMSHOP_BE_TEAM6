@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace KMG.Repository.Models;
 
@@ -31,17 +30,17 @@ public partial class Order
     public DateOnly? ShippingDate { get; set; }
 
     public string? DeliveryStatus { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-    [JsonIgnore]
+
     public virtual ICollection<OrderFish> OrderFishes { get; set; } = new List<OrderFish>();
-    [JsonIgnore]
+
     public virtual ICollection<OrderKoi> OrderKois { get; set; } = new List<OrderKoi>();
-    [JsonIgnore]
+
     public virtual Promotion? Promotion { get; set; }
-    [JsonIgnore]
+
     public virtual ICollection<PurchaseHistory> PurchaseHistories { get; set; } = new List<PurchaseHistory>();
-    [JsonIgnore]
+
     public virtual User? User { get; set; }
 
 }
