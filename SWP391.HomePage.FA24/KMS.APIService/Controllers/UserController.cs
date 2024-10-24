@@ -101,14 +101,11 @@ namespace KMS.APIService.Controllers
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Register registerModel)
-        {
-           
+        { 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            
+            } 
             var user = await _userRepository.RegisterAsync(registerModel.UserName, registerModel.Password, registerModel.Email);
 
             if (user == null)
@@ -181,6 +178,7 @@ namespace KMS.APIService.Controllers
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
         {
+            var curhashedPassword = HashPassword.HashPasswordToSha256(model.CurrentPassword);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -192,11 +190,12 @@ namespace KMS.APIService.Controllers
             {
                 return NotFound("User not found.");
             }
-            if (user.Password != model.CurrentPassword)
+            if (user.Password != curhashedPassword)
             {
                 return BadRequest("Current password is incorrect.");
             }
-            user.Password = model.NewPassword;
+            var newhashedPassword = HashPassword.HashPasswordToSha256(model.CurrentPassword);
+            user.Password = newhashedPassword;
             await _userRepository.SaveAsync();
 
             return Ok(new { Message = "Password changed successfully." });
@@ -342,5 +341,6 @@ namespace KMS.APIService.Controllers
                 });
             }
         }
+        
     }
 }

@@ -42,7 +42,17 @@ namespace KMS.APIService.Controllers
             var koiTypes = await _unitOfWork.KoiTypeRepository.GetKoiTypesAsync();
             return Ok(koiTypes);
         }
-
+        [HttpPost("createKoiType")]
+        public async Task<ActionResult<KoiType>> CreateKoiType([FromBody] KoiType koiType)
+        {
+            if (koiType == null)
+            {
+                return BadRequest("Koi Type is null.");
+            }
+            await _unitOfWork.KoiTypeRepository.CreateAsync(koiType);
+            await _unitOfWork.KoiTypeRepository.SaveAsync();
+            return Ok(koiType); 
+        }
         [HttpPost]
         public async Task<ActionResult<Koi>> CreateKoi([FromBody] Koi koi)
         {
