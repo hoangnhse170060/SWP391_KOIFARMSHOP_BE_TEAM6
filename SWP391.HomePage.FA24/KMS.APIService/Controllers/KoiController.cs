@@ -23,16 +23,36 @@ namespace KMS.APIService.Controllers
             return Ok(koiList);
 
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetKoiById(int id)
+        {
+
+            var koi = await _unitOfWork.KoiRepository.GetByIdAsync(id);
+            if (koi == null)
+            {
+                return NotFound(new { message = "Koi not found." });
+            }
+
+
+            return Ok(koi);
+        }
         [HttpGet("koitypes")]
         public async Task<ActionResult<IEnumerable<KoiType>>> GetKoiTypes()
         {
             var koiTypes = await _unitOfWork.KoiTypeRepository.GetKoiTypesAsync();
-
-
-
             return Ok(koiTypes);
         }
-
+        [HttpPost("createKoiType")]
+        public async Task<ActionResult<KoiType>> CreateKoiType([FromBody] KoiType koiType)
+        {
+            if (koiType == null)
+            {
+                return BadRequest("Koi Type is null.");
+            }
+            await _unitOfWork.KoiTypeRepository.CreateAsync(koiType);
+            await _unitOfWork.KoiTypeRepository.SaveAsync();
+            return Ok(koiType);
+        }
         [HttpPost]
         public async Task<ActionResult<Koi>> CreateKoi([FromBody] Koi koi)
         {
@@ -113,7 +133,6 @@ namespace KMS.APIService.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateKoi(int id, [FromBody] Koi koi)
         {
-
             if (id != koi.KoiId)
             {
                 return BadRequest("Koi ID mismatch.");
@@ -122,20 +141,22 @@ namespace KMS.APIService.Controllers
             try
             {
 
-                await _unitOfWork.KoiRepository.UpdateAsync(koi);
-                await _unitOfWork.KoiRepository.SaveAsync();
+                var result = await _unitOfWork.KoiRepository.UpdateKoiAsync(id, koi);
+                if (!result)
+                {
+                    return NotFound("The koi does not exist.");
+                }
 
                 return Ok("Koi has been successfully updated.");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return NotFound("The koi does not exist.");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+
+
 
 
 

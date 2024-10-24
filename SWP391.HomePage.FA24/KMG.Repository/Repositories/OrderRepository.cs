@@ -62,7 +62,10 @@ namespace KMG.Repository.Repositories
             }
             return await query.ToListAsync();
         }
-
+        public IQueryable<Order> GetAll()
+        {
+            return _context.Orders;
+        }
     }
 }
 

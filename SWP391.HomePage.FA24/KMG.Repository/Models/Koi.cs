@@ -8,7 +8,7 @@ namespace KMG.Repository.Models;
 
 public partial class Koi
 {
-    public int? quantityInStock {get;set;}
+   
 
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -26,7 +26,7 @@ public partial class Koi
     [MaxLength(10)]
     [RegularExpression("purebred|F1 hybrid", ErrorMessage = "Invalid breed. Must be 'purebred' or 'F1 hybrid'.")]
     public string? Breed { get; set; }
-
+    public int? quantityInStock { get; set; }
     public string? Personality { get; set; }
 
     public decimal? FeedingAmount { get; set; }

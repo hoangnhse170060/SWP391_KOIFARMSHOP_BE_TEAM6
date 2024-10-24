@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
+using System.Text.RegularExpressions;
 
 namespace KMS.APIService.Controllers
 {
@@ -68,6 +69,10 @@ namespace KMS.APIService.Controllers
             {
                 return Unauthorized("Invalid username or password.");
             }
+            if (user.Status == "locked")
+            {
+                return Unauthorized("This account has been locked.");
+            }
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -75,7 +80,8 @@ namespace KMS.APIService.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, user.Role ?? "customer")
+                    new Claim(ClaimTypes.Role, user.Role ?? "customer"),
+                    new Claim("Id", user.UserId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -96,13 +102,10 @@ namespace KMS.APIService.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] Register registerModel)
         {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-
             var user = await _userRepository.RegisterAsync(registerModel.UserName, registerModel.Password, registerModel.Email);
 
             if (user == null)
@@ -116,7 +119,29 @@ namespace KMS.APIService.Controllers
                 User = user
             });
         }
+        [HttpPost("registerForStaff")]
+        public async Task<IActionResult> RegisterStaff([FromBody] Register registerModel)
+        {
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var user = await _userRepository.RegisterStaffAsync(registerModel.UserName, registerModel.Password, registerModel.Email);
+
+            if (user == null)
+            {
+                return BadRequest("Username or Email already exists.");
+            }
+
+            return Ok(new
+            {
+                Message = "Registration successful",
+                User = user
+            });
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
@@ -132,9 +157,28 @@ namespace KMS.APIService.Controllers
             return Ok(new { message = "User is locked" });
 
         }
+        [HttpPut("restore/{id}")]
+        public async Task<IActionResult> RestoreUser(int id)
+        {
+
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+            if (user.Status != "locked")
+            {
+                return BadRequest("User is already active men .");
+            }
+            user.Status = "active";
+            await _userRepository.SaveAsync();
+
+            return Ok(new { message = "User is now active." });
+        }
         [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassword model)
         {
+            var curhashedPassword = HashPassword.HashPasswordToSha256(model.CurrentPassword);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -146,13 +190,17 @@ namespace KMS.APIService.Controllers
             {
                 return NotFound("User not found.");
             }
-
-
-            user.Password = model.NewPassword;
+            if (user.Password != curhashedPassword)
+            {
+                return BadRequest("Current password is incorrect.");
+            }
+            var newhashedPassword = HashPassword.HashPasswordToSha256(model.CurrentPassword);
+            user.Password = newhashedPassword;
             await _userRepository.SaveAsync();
 
             return Ok(new { Message = "Password changed successfully." });
         }
+
         [HttpPut("updateProfile{id}")]
         public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfile model)
         {
@@ -179,7 +227,10 @@ namespace KMS.APIService.Controllers
             {
                 user.PhoneNumber = model.PhoneNumber;
             }
-
+            if (!Regex.IsMatch(model.PhoneNumber, @"^\d{10}$"))
+            {
+                return BadRequest("Phone number must be 10 digits.");
+            }
             if (!string.IsNullOrEmpty(model.Address))
             {
                 var existingAddresses = await _addressRepository.GetAll()
@@ -258,8 +309,6 @@ namespace KMS.APIService.Controllers
                 {
                     return BadRequest("Google token validation failed.");
                 }
-
-                // Tạo người dùng mới hoặc tìm người dùng cũ với email từ Google
                 var registeredUser = await _userRepository.RegisterGoogle(googleResponse.Name, googleResponse.Email);
 
                 if (registeredUser == null)
@@ -292,16 +341,6 @@ namespace KMS.APIService.Controllers
                 });
             }
         }
-
-
-
-
-
-
-
-
-
-
 
     }
 }

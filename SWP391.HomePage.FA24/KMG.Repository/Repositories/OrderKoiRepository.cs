@@ -61,6 +61,9 @@ namespace KMG.Repository.Repositories
             }
             return await query.ToListAsync();
         }
-
+        public IQueryable<OrderKoi> GetAll()
+        {
+            return _context.OrderKois;
+        }
     }
 }
