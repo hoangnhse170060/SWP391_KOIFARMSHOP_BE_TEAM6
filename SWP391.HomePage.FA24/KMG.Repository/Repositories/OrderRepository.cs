@@ -66,6 +66,11 @@ namespace KMG.Repository.Repositories
         {
             return _context.Orders;
         }
+        public async Task<bool> IsUserOrderOwnerAsync(int userId, int orderId)
+        {
+            return await _context.Orders.AnyAsync(o => o.OrderId == orderId && o.UserId == userId);
+        }
+
     }
 }
 

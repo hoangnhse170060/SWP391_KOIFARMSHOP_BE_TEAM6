@@ -39,48 +39,32 @@ namespace KMS.APIService.Controllers
             return Ok("Feedback deleted successfully.");
         }
 
-        [HttpGet("getFeedbackbyKoiid/{koiID}")]
-        public async Task<IActionResult> GetFeedbackByKoiId(int koiID)
+        [HttpGet("getfeedbackbykoiid/{koiId}")]
+        public async Task<IActionResult> GetFeedbackByKoiId(int koiId)
         {
-            var feedbacks = await _unitOfWork.FeedbackRepository.GetAll()
-                .Where(f => f.KoiId == koiID)
-                .Select(f => new
-                {
-                    FeedbackId = f.FeedbackId,
-                    UserId = f.UserId,
-                    Rating = f.Rating,
-                    Content = f.Content,
-                    FeedbackDate = f.FeedbackDate
-                }).ToListAsync();
+            var feedbacks = await _unitOfWork.FeedbackRepository.GetFeedbackWithKoiName(koiId);
 
-            if (feedbacks == null || !feedbacks.Any())
+            if (!feedbacks.Any())
             {
-                return NotFound("No feedback found for the given Koi or Fish.");
+                return NotFound("No feedback found for the given Koi ID.");
             }
 
             return Ok(feedbacks);
         }
-        [HttpGet("getFeedbackbyFishid/{fishesID}")]
-        public async Task<IActionResult> GetFeedbackByFishId(int fishesID)
-        {
-            var feedbacks = await _unitOfWork.FeedbackRepository.GetAll()
-                .Where(f => f.FishesId == fishesID)
-                .Select(f => new
-                {
-                    FeedbackId = f.FeedbackId,
-                    UserId = f.UserId,
-                    Rating = f.Rating,
-                    Content = f.Content,
-                    FeedbackDate = f.FeedbackDate
-                }).ToListAsync();
 
-            if (feedbacks == null || !feedbacks.Any())
+        [HttpGet("getfeedbackbyfishid/{fishId}")]
+        public async Task<IActionResult> GetFeedbackByFishId(int fishId)
+        {
+            var feedbacks = await _unitOfWork.FeedbackRepository.GetFeedbackWithFishName(fishId);
+
+            if (!feedbacks.Any())
             {
-                return NotFound("No feedback found for the given Koi or Fish.");
+                return NotFound("No feedback found for the given Fish ID.");
             }
 
             return Ok(feedbacks);
         }
+
 
 
         [HttpPost("add/{orderId}")]
@@ -95,7 +79,11 @@ namespace KMS.APIService.Controllers
 
             int userId = int.Parse(userIdClaim.Value);
 
-
+            var isOwner = await _unitOfWork.OrderRepository.IsUserOrderOwnerAsync(userId, orderId);
+            if (!isOwner)
+            {
+                return BadRequest("You did not purchase this order, so you cannot leave feedback.");
+            }
             var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
             if (order == null || order.OrderStatus != "completed")
             {
