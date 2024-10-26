@@ -16,13 +16,18 @@ namespace KMG.Repository.Repositories
             _context = context;
         }
 
-        // Lấy tổng số user
+        public async Task<decimal?> GetTotalRevenueAsync()
+        {
+            return await _context.Orders
+                .Where(o => o.OrderStatus == "completed")
+                .SumAsync(o => o.FinalMoney);
+        }
         public async Task<int> GetTotalUsersAsync()
         {
             return await _context.Users.CountAsync();
         }
 
-        // Lấy tổng số sản phẩm (Koi và Fish)
+        
         public async Task<int> GetTotalProductsAsync()
         {
             var totalKoi = await _context.Kois.CountAsync();
@@ -30,10 +35,10 @@ namespace KMG.Repository.Repositories
             return totalKoi + totalFish;
         }
 
-        // Lấy dữ liệu phân tích: Doanh thu theo tháng và sản phẩm bán chạy nhất
+       
         public async Task<object> GetAnalysisDataAsync()
         {
-            // Doanh thu theo tháng
+           
             var revenuePerMonth = await _context.Orders
                 .GroupBy(o => o.OrderDate.Value.Month)
                 .Select(g => new

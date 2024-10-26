@@ -15,14 +15,13 @@ namespace KMS.APIService.Controllers
         private readonly UnitOfWork _unitOfWork;
         public FeedbackController(UnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Feedback>>>
-            GetKoi()
+        public async Task<ActionResult<IEnumerable<object>>> GetFeedback()
         {
-            var feedbackList = await _unitOfWork.FeedbackRepository.GetAllAsync();
+            var feedbackList = await _unitOfWork.FeedbackRepository.GetAll().ToListAsync();
             Console.WriteLine($"Number of feedback retrieved: {feedbackList.Count}");
             return Ok(feedbackList);
-
         }
+
         [HttpDelete("delete/{feedbackId}")]
         public async Task<IActionResult> DeleteFeedback(int feedbackId)
         {
@@ -71,7 +70,7 @@ namespace KMS.APIService.Controllers
         [Authorize(Roles = "customer")]
         public async Task<IActionResult> AddFeedback(int orderId, int rating, string content, int? koiId = null, int? fishesId = null)
         {
-            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "Id");
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
             if (userIdClaim == null)
             {
                 return Unauthorized("User is not authenticated.");
@@ -138,6 +137,21 @@ namespace KMS.APIService.Controllers
             await _unitOfWork.FeedbackRepository.SaveAsync();
 
             return Ok("Feedback has been added successfully.");
+        }
+        [HttpGet("average-rating-fish/{fishId}")]
+        public async Task<IActionResult> GetAverageRatingForFish(int fishId)
+        {
+            var averageRating = await _unitOfWork.FeedbackRepository.GetAverageRatingForFish(fishId);
+
+            return Ok(new { FishId = fishId, AverageRating = averageRating });
+        }
+
+        [HttpGet("average-rating-koi/{koiId}")]
+        public async Task<IActionResult> GetAverageRatingForKoi(int koiId)
+        {
+            var averageRating = await _unitOfWork.FeedbackRepository.GetAverageRatingForKoi(koiId);
+
+            return Ok(new { KoiId = koiId, AverageRating = averageRating });
         }
 
 
