@@ -1,14 +1,116 @@
 [
   {
+    "ContainingType": "KMS.APIService.Controllers.DashboardController",
+    "Method": "GetAnalysisData",
+    "RelativePath": "api/Dashboard/analysis",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.DashboardController",
+    "Method": "GetTotalProducts",
+    "RelativePath": "api/Dashboard/total-products",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.DashboardController",
+    "Method": "GetTotalUsers",
+    "RelativePath": "api/Dashboard/total-users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.FeedbackController",
+    "Method": "GetKoi",
+    "RelativePath": "api/Feedback",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.Feedback, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.FeedbackController",
+    "Method": "AddFeedback",
+    "RelativePath": "api/Feedback/add/{orderId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "rating",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "content",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "koiId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "fishesId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.FeedbackController",
+    "Method": "DeleteFeedback",
+    "RelativePath": "api/Feedback/delete/{feedbackId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "feedbackId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "KMS.APIService.Controllers.FeedbackController",
     "Method": "GetFeedbackByFishId",
-    "RelativePath": "api/Feedback/getFeedbackbyFishid/{fishesID}",
+    "RelativePath": "api/Feedback/getfeedbackbyfishid/{fishId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "fishesID",
+        "Name": "fishId",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -18,13 +120,13 @@
   {
     "ContainingType": "KMS.APIService.Controllers.FeedbackController",
     "Method": "GetFeedbackByKoiId",
-    "RelativePath": "api/Feedback/getFeedbackbyKoiid/{koiID}",
+    "RelativePath": "api/Feedback/getfeedbackbykoiid/{koiId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "koiID",
+        "Name": "koiId",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -76,6 +178,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.FishController",
+    "Method": "GetFishById",
+    "RelativePath": "api/Fish/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "KMS.APIService.Controllers.FishController",
@@ -178,6 +296,22 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.KoiController",
+    "Method": "GetKoiById",
+    "RelativePath": "api/Koi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.KoiController",
     "Method": "DeleteKoi",
     "RelativePath": "api/Koi/{id}",
     "HttpMethod": "DELETE",
@@ -212,6 +346,32 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.KoiController",
+    "Method": "CreateKoiType",
+    "RelativePath": "api/Koi/createKoiType",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "koiType",
+        "Type": "KMG.Repository.Models.KoiType",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "KMG.Repository.Models.KoiType",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "KMS.APIService.Controllers.KoiController",
@@ -651,7 +811,7 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.PurchaseHistoryController",
-    "Method": "GetHistory",
+    "Method": "GetHistoryWithDetails",
     "RelativePath": "api/PurchaseHistory",
     "HttpMethod": "GET",
     "IsController": true,
@@ -659,7 +819,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.PurchaseHistory, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -819,6 +979,38 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.UserController",
+    "Method": "RegisterStaff",
+    "RelativePath": "api/User/registerForStaff",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "registerModel",
+        "Type": "KMG.Repository.Models.Register",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.UserController",
+    "Method": "RestoreUser",
+    "RelativePath": "api/User/restore/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.UserController",
     "Method": "UpdateProfile",
     "RelativePath": "api/User/updateProfile{id}",
     "HttpMethod": "PUT",
@@ -836,6 +1028,48 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.VNPayController",
+    "Method": "GetOrderById",
+    "RelativePath": "api/VNPay/GetOrderById/{orderId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.VNPayController",
+    "Method": "CreatePayment",
+    "RelativePath": "api/VNPay/Payment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.VNPayController",
+    "Method": "PaymentConfirm",
+    "RelativePath": "api/VNPay/PaymentConfirm",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   }
 ]

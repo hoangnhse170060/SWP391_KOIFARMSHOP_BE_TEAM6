@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace KMG.Repository.Models;
 
@@ -11,7 +12,11 @@ public partial class OrderFish
 
     public int? Quantity { get; set; }
 
+    [JsonIgnore]
+
     public virtual Fish? Fishes { get; set; } = null!;
+
+    [JsonIgnore]
 
     public virtual Order? Order { get; set; } = null!;
 }

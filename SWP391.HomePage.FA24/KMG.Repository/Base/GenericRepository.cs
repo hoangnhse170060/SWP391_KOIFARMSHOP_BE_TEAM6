@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,8 +42,20 @@ namespace KMG.Repository.Base
             return true;
         }
 
-      
 
+       
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
+        }
+
+
+
+        public IQueryable<T> Query()
+        {
+            return _context.Set<T>().AsQueryable();
+        }
 
         public T GetById(int id)
         {
@@ -58,6 +71,9 @@ namespace KMG.Repository.Base
         {
             return _context.Set<T>().Find(code);
         }
+
+
+
 
         #region Asynchronous
 

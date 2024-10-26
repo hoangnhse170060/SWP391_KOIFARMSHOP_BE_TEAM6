@@ -190,7 +190,7 @@ namespace KMS.APIService.Controllers
 
 
         [HttpDelete("{orderId:int}/{itemType}/{itemId:int}")]
-       
+
         public async Task<IActionResult> DeleteItemFromOrder(int orderId, string itemType, int itemId)
         {
             using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
@@ -406,47 +406,41 @@ namespace KMS.APIService.Controllers
             }
         }
 
+
         [HttpPut("{orderId:int}/update-status")]
         [Authorize(Roles = "staff,admin")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromQuery] string newStatus)
         {
             try
             {
-                // Lấy đơn hàng từ cơ sở dữ liệu
                 var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
+
                 if (order == null)
                 {
                     return NotFound($"Order with ID = {orderId} not found.");
                 }
 
-                // Kiểm tra nếu đơn hàng đã bị hủy (canceled)
-                if (order.OrderStatus == "canceled")
+                if (order.OrderStatus.ToLower() == "canceled")
                 {
                     return BadRequest("Order has already been canceled and cannot be updated.");
                 }
 
-                // Kiểm tra nếu đơn hàng đã hoàn tất (completed)
-                if (order.OrderStatus == "completed")
-                {
-                    return BadRequest("Order has already been completed and cannot be updated.");
-                }
-
-                // Cập nhật trạng thái đơn hàng nếu hợp lệ
                 if (newStatus.ToLower() == "completed")
                 {
-                    order.OrderStatus = "completed";
-                    order.DeliveryStatus = "in transit";  // Cập nhật trạng thái giao hàng
+                    if (order.OrderStatus.ToLower() != "remittance")
+                    {
+                        return BadRequest("Only orders with 'Remittance' status can be marked as 'Completed'.");
+                    }
 
-                    var shippingDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
-                    order.ShippingDate = shippingDate;
-
+                    order.OrderStatus = "Completed";
+                    order.DeliveryStatus = "In Transit";
+                    order.ShippingDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
                 }
                 else
                 {
                     return BadRequest("Invalid status.");
                 }
 
-                // Cập nhật đơn hàng trong repository
                 _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.OrderRepository.SaveAsync();
 
@@ -458,6 +452,8 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+       
 
 
         [HttpPut("{orderId:int}/cancel-order")]
@@ -483,7 +479,7 @@ namespace KMS.APIService.Controllers
                 if (order.OrderStatus == "processing")
                 {
                     // Cập nhật trạng thái thành 'cancelled'
-                    order.OrderStatus = "canceled";
+                    order.OrderStatus = "cancelled";
 
                     _logger.LogInformation($"Updating order {orderId} to status 'canceled'.");
 
@@ -538,7 +534,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-    
+
 
         [HttpGet]
         [Authorize(Roles = "staff,admin")]
@@ -571,7 +567,7 @@ namespace KMS.APIService.Controllers
                     OrderKois = order.OrderKois.Select(ok => new
                     {
                         ok.KoiId,
-                        ok.Quantity, // Kiểm tra xem Quantity có null không
+                        ok.Quantity, 
                         KoiDetails = new
                         {
                             ok.Koi.KoiId,
@@ -585,7 +581,7 @@ namespace KMS.APIService.Controllers
                     OrderFishes = order.OrderFishes.Select(of => new
                     {
                         of.FishesId,
-                        of.Quantity, // Kiểm tra xem Quantity có null không
+                        of.Quantity, 
                         FishDetails = new
                         {
                             of.Fishes.FishesId,

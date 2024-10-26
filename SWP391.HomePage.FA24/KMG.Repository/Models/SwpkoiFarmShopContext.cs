@@ -39,6 +39,9 @@ public partial class SwpkoiFarmShopContext : DbContext
     public virtual DbSet<PurchaseHistory> PurchaseHistories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+
     public virtual DbSet<Address> Address { get; set; }
     public static string GetConnectionString(string connectionStringName)
     {
@@ -89,6 +92,8 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Consignments)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Consignme__userI__30F848ED");
+
+            modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
@@ -416,6 +421,38 @@ public partial class SwpkoiFarmShopContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("userName");
         });
+
+        modelBuilder.Entity<PaymentTransaction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PaymentTransaction");
+
+            entity.ToTable("PaymentTransaction");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.OrderId).HasColumnName("orderID");
+            entity.Property(e => e.TxnRef)
+                  .HasMaxLength(50)
+                  .IsUnicode(false)
+                  .HasColumnName("txnRef");
+            entity.Property(e => e.Amount)
+                  .HasColumnType("decimal(18, 2)")
+                  .HasColumnName("amount");
+            entity.Property(e => e.Status)
+                  .HasMaxLength(20)
+                  .IsUnicode(false)
+                  .HasColumnName("status");
+            entity.Property(e => e.CreatedDate).HasColumnName("createdDate");
+
+            // Define relationship with Order if necessary
+            entity.HasOne<Order>()
+                  .WithMany() // Adjust this based on your model
+                  .HasForeignKey(e => e.OrderId)
+                  .HasConstraintName("FK_PaymentTransaction_Order");
+        });
+
+
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }

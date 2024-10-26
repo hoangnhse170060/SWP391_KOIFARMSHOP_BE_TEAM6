@@ -24,6 +24,7 @@ namespace KMG.Repository
         private FeedbackRepository _feedbackRepository;
         private PurchaseHistoryRepository _purcharHistory;
         private DashboardRepository _dashboardRepository;
+        private PaymentTransactionRepository _paymentTransactionRepository;
         public UnitOfWork() => _context = new SwpkoiFarmShopContext();
         public UserRepository UserRepository
         {
@@ -113,6 +114,14 @@ namespace KMG.Repository
             get
             {
                 return _dashboardRepository ??= new DashboardRepository(_context);
+            }
+        }
+
+        public PaymentTransactionRepository PaymentTransactionRepository
+        {
+            get
+            {
+                return _paymentTransactionRepository ??= new PaymentTransactionRepository(_context);
             }
         }
 

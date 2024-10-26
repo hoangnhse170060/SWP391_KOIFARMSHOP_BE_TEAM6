@@ -22,12 +22,14 @@ namespace KMG.Repository.Repositories
         public async Task<Order> GetOrderWithDetailsAsync(int id)
         {
             return await _context.Orders
-                .Include(o => o.OrderKois)  // Load các OrderKois liên quan
-                .ThenInclude(ok => ok.Koi)  // Load thông tin Koi của OrderKoi
-                .Include(o => o.OrderFishes)  // Load các OrderFishes liên quan
-                .ThenInclude(of => of.Fishes)  // Load thông tin Fish của OrderFish
+                .Include(o => o.OrderKois)  
+                .ThenInclude(ok => ok.Koi)  
+                .Include(o => o.OrderFishes)  
+                .ThenInclude(of => of.Fishes)  
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
+
+
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
@@ -62,6 +64,8 @@ namespace KMG.Repository.Repositories
             }
             return await query.ToListAsync();
         }
+
+
         public IQueryable<Order> GetAll()
         {
             return _context.Orders;
@@ -70,6 +74,9 @@ namespace KMG.Repository.Repositories
         {
             return await _context.Orders.AnyAsync(o => o.OrderId == orderId && o.UserId == userId);
         }
+
+
+
 
     }
 }
