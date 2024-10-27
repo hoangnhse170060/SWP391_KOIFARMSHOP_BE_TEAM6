@@ -17,6 +17,7 @@ public partial class OrderKoi
     public virtual Koi? Koi { get; set; }
 
 
+
     public virtual Order? Order { get; set; }
 
     }

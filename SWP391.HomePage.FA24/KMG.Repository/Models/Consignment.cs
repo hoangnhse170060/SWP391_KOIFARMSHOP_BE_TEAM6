@@ -17,9 +17,12 @@ public partial class Consignment
 
     public decimal? ConsignmentPrice { get; set; }
 
-    public DateOnly? ConsignmentDate { get; set; }
+    public DateTime? ConsignmentDateFrom { get; set; }
+    public DateTime? ConsignmentDateTo { get; set; }
 
-    public byte[]? UserImage { get; set; }
+    public string? UserImage { get; set; }
+    public string? ConsignmentTitle { get; set; }
+    public string? ConsignmentDetail { get; set; }
 
     public virtual Koi? Koi { get; set; }
 

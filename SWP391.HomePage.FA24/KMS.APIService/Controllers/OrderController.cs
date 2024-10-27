@@ -432,8 +432,8 @@ namespace KMS.APIService.Controllers
                         return BadRequest("Only orders with 'Remittance' status can be marked as 'Completed'.");
                     }
 
-                    order.OrderStatus = "Completed";
-                    order.DeliveryStatus = "In Transit";
+                    order.OrderStatus = "completed";
+                    order.DeliveryStatus = "in transit";
                     order.ShippingDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
                 }
                 else
@@ -453,7 +453,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-       
+
 
 
         [HttpPut("{orderId:int}/cancel-order-customer")]
@@ -472,14 +472,14 @@ namespace KMS.APIService.Controllers
                 // Kiểm tra nếu đơn hàng đã ở trạng thái 'completed'
                 if (order.OrderStatus == "completed")
                 {
-                    return BadRequest("Completed orders cannot be canceled.");
+                    return BadRequest("completed orders cannot be canceled.");
                 }
 
                 // Kiểm tra nếu đơn hàng đang ở trạng thái 'processing'
                 if (order.OrderStatus == "processing")
                 {
                     // Cập nhật trạng thái thành 'cancelled'
-                    order.OrderStatus = "cancelled";
+                    order.OrderStatus = "canceled";
 
                     _logger.LogInformation($"Updating order {orderId} to status 'canceled'.");
 
@@ -567,7 +567,7 @@ namespace KMS.APIService.Controllers
                     OrderKois = order.OrderKois.Select(ok => new
                     {
                         ok.KoiId,
-                        ok.Quantity, 
+                        ok.Quantity,
                         KoiDetails = new
                         {
                             ok.Koi.KoiId,
@@ -581,7 +581,7 @@ namespace KMS.APIService.Controllers
                     OrderFishes = order.OrderFishes.Select(of => new
                     {
                         of.FishesId,
-                        of.Quantity, 
+                        of.Quantity,
                         FishDetails = new
                         {
                             of.Fishes.FishesId,
@@ -644,3 +644,5 @@ namespace KMS.APIService.Controllers
 
     }
 }
+
+//Orderxongroi

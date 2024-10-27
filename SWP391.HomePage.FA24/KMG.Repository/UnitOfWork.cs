@@ -26,6 +26,9 @@ namespace KMG.Repository
         private DashboardRepository _dashboardRepository;
         private PaymentTransactionRepository _paymentTransactionRepository;
         public UnitOfWork() => _context = new SwpkoiFarmShopContext();
+        /// <summary>
+        /// Test Viet ver 2 merge
+        /// </summary>
         public UserRepository UserRepository
         {
             get

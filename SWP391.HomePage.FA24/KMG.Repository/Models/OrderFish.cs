@@ -12,8 +12,7 @@ public partial class OrderFish
 
     public int? Quantity { get; set; }
 
-
-
+    
     public virtual Fish? Fishes { get; set; } = null!;
 
 
