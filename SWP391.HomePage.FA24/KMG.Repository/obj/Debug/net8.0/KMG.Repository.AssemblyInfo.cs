@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KMG.Repository")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f55080dc40c753895e051840d987e04cbcf89446")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7bf8afb17f2d9e74b18cc7ec7c964a7df5dee99")]
 [assembly: System.Reflection.AssemblyProductAttribute("KMG.Repository")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KMG.Repository")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

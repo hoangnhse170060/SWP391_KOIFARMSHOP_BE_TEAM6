@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KMS.APIService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fe908472d85273e7ac2b953353f616ac7f9c4c6f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7bf8afb17f2d9e74b18cc7ec7c964a7df5dee99")]
 [assembly: System.Reflection.AssemblyProductAttribute("KMS.APIService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KMS.APIService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
