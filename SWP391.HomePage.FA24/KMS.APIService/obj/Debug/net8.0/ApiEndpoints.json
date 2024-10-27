@@ -876,18 +876,12 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.OrderController",
-    "Method": "GetOrdersByUserId",
-    "RelativePath": "api/Order/user/{userId}",
+    "Method": "GetOrdersForLoggedInUser",
+    "RelativePath": "api/Order/my-orders",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [
-      {
-        "Name": "userId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
+    "Parameters": [],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",

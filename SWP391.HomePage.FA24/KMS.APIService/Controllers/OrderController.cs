@@ -644,22 +644,32 @@ namespace KMS.APIService.Controllers
         }
 
 
-        [HttpGet("user/{userId:int}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetOrdersByUserId(int userId)
+        [HttpGet("my-orders")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<object>>> GetOrdersForLoggedInUser()
         {
             try
             {
-                // **Truy vấn tất cả đơn hàng từ repository**
+                // **Trích xuất UserId từ JWT token**
+                var userIdClaim = User.FindFirst("UserId")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized("User ID not found in token.");
+                }
+
+                int userId = int.Parse(userIdClaim);
+
+                // **Truy vấn tất cả đơn hàng cho UserId từ cơ sở dữ liệu**
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
                         .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
                 );
 
-                // **Lọc đơn hàng theo `userId` nhập vào**
+                // **Lọc đơn hàng theo UserId**
                 var userOrders = orders.Where(o => o.UserId == userId).ToList();
 
-                // **Kiểm tra nếu không có đơn hàng nào**
                 if (!userOrders.Any())
                 {
                     return NotFound($"No orders found for User with ID = {userId}.");
@@ -704,14 +714,14 @@ namespace KMS.APIService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving orders.");
+                _logger.LogError(ex, "Error retrieving orders for the logged-in user.");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
     }
+}
 
-    }
+
 
 
 
