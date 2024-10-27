@@ -98,8 +98,10 @@ namespace KMS.APIService.Controllers
         }
 
 
-        [Authorize(Roles = "admin, staff")]
+
         [HttpPost("create-consignmentAdmin_Staff")]
+        [Authorize(Roles = "staff,manager")]
+
         public async Task<IActionResult> CreateConsignment(
                 int koiID,
                 string consignmentType,
@@ -204,9 +206,11 @@ namespace KMS.APIService.Controllers
         }
 
 
-        [Authorize(Roles = "admin, staff")]
+
         // PUT: api/consignment/update-consignment/{consignmentId}
         [HttpPut("update-consignmentByAdmin_Staff/{consignmentId}")]
+        [Authorize(Roles = "staff,manager")]
+
         public async Task<IActionResult> UpdateConsignment(
                 int consignmentId,
                 int koiID,

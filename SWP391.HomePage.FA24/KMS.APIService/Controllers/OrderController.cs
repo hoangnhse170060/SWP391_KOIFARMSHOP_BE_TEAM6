@@ -537,7 +537,8 @@ namespace KMS.APIService.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "getall-staff&manager")]
+        [Authorize(Roles = "staff,manager")]
+
         public async Task<ActionResult<IEnumerable<object>>> GetOrders()
         {
             try
@@ -642,7 +643,76 @@ namespace KMS.APIService.Controllers
             }
         }
 
+
+        [HttpGet("user/{userId:int}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetOrdersByUserId(int userId)
+        {
+            try
+            {
+                // **Truy vấn tất cả đơn hàng từ repository**
+                var orders = await _unitOfWork.OrderRepository.GetAllAsync(
+                    include: query => query
+                        .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
+                        .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
+                );
+
+                // **Lọc đơn hàng theo `userId` nhập vào**
+                var userOrders = orders.Where(o => o.UserId == userId).ToList();
+
+                // **Kiểm tra nếu không có đơn hàng nào**
+                if (!userOrders.Any())
+                {
+                    return NotFound($"No orders found for User with ID = {userId}.");
+                }
+
+                // **Chuẩn bị dữ liệu trả về**
+                var result = userOrders.Select(order => new
+                {
+                    order.OrderId,
+                    order.UserId,
+                    order.OrderDate,
+                    order.TotalMoney,
+                    order.FinalMoney,
+                    order.DiscountMoney,
+                    order.UsedPoints,
+                    order.EarnedPoints,
+                    order.OrderStatus,
+                    order.PaymentMethod,
+                    order.DeliveryStatus,
+                    OrderKois = order.OrderKois.Select(ok => new
+                    {
+                        ok.KoiId,
+                        ok.Quantity,
+                        ok.Koi.Name,
+                        ok.Koi.Gender,
+                        ok.Koi.Price,
+                        ok.Koi.Size,
+                        ok.Koi.ImageKoi
+                    }).ToList(),
+                    OrderFishes = order.OrderFishes.Select(of => new
+                    {
+                        of.FishesId,
+                        of.Quantity,
+                        of.Fishes.Name,
+                        of.Fishes.Status,
+                        of.Fishes.Price,
+                        of.Fishes.ImageFishes
+                    }).ToList()
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving orders.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
-}
+
+    }
+
+
 
 //Orderxongroi

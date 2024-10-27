@@ -10854,11 +10854,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (3)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+      "projectUniqueName": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\Dev\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
       "projectName": "KMS.APIService",
-      "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (3)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+      "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\Dev\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
       "packagesPath": "C:\\Users\\Hoang\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (3)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\obj\\",
+      "outputPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\Dev\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Hoang\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -10876,8 +10876,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (3)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
-              "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (3)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj"
+            "C:\\Users\\Hoang\\OneDrive\\Máy tính\\Dev\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj": {
+              "projectPath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\Dev\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj"
             }
           }
         }
