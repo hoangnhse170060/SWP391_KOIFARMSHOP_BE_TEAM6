@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VasvqL64uPQ=",
+  "dgSpecHash": "BUrgY2VP40Q=",
   "success": true,
-  "projectFilePath": "D:\\SWP391_Project\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
+  "projectFilePath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (2)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMG.Repository\\KMG.Repository.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hoang\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Hoang\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
