@@ -1,5 +1,251 @@
 [
   {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "CreateConsignment",
+    "RelativePath": "api/Consignment/create-consignmentAdmin_Staff",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "koiID",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentPrice",
+        "Type": "System.Decimal",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDateTo",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "userImage",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentTitle",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDetail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "CreateConsignment",
+    "RelativePath": "api/Consignment/create-consignmentCustomer",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "koiID",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentPrice",
+        "Type": "System.Decimal",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDateTo",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "userImage",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentTitle",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDetail",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "DeleteConsignment",
+    "RelativePath": "api/Consignment/delete-consignment/{consignmentId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "consignmentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "GetConsignmentById",
+    "RelativePath": "api/Consignment/get-consignment/{consignmentId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "consignmentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "GetAllConsignments",
+    "RelativePath": "api/Consignment/get-consignments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "UpdateConsignment",
+    "RelativePath": "api/Consignment/update-consignmentByAdmin_Staff/{consignmentId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "consignmentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "koiID",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentPrice",
+        "Type": "System.Decimal",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDateTo",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "userImage",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentTitle",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDetail",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.ConsignmentController",
+    "Method": "UpdateConsignment",
+    "RelativePath": "api/Consignment/update-consignmentCustomer/{consignmentId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "consignmentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "koiID",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentPrice",
+        "Type": "System.Decimal",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDateTo",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "userImage",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentTitle",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "consignmentDetail",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "KMS.APIService.Controllers.DashboardController",
     "Method": "GetAnalysisData",
     "RelativePath": "api/Dashboard/analysis",

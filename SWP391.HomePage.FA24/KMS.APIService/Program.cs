@@ -1,6 +1,11 @@
-﻿
+﻿using AutoMapper;
+
 using KMG.Repository;
+using KMG.Repository.Interfaces;
+using KMG.Repository.Models;
+using KMG.Repository.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -86,6 +91,11 @@ namespace KMS.APIService
     });
             });
             builder.Services.AddScoped<UnitOfWork>();
+            builder.Services.AddDbContext<SwpkoiFarmShopContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'MovieDBContext' not found.")));
+            builder.Services.AddScoped<UnitOfWork>();
+            builder.Services.AddScoped<IConsignmentService, ConsignmentService>();
+            builder.Services.AddAutoMapper(typeof(MapperProfile));
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {
