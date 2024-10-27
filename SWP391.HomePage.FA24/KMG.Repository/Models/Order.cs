@@ -34,14 +34,14 @@ public partial class Order
     [JsonIgnore]
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-   
+    [JsonIgnore]
 
     public virtual ICollection<OrderFish> OrderFishes { get; set; } = new List<OrderFish>();
-  
+    [JsonIgnore]
 
     public virtual ICollection<OrderKoi> OrderKois { get; set; } = new List<OrderKoi>();
-
     [JsonIgnore]
+
     public virtual Promotion? Promotion { get; set; }
     [JsonIgnore]
 

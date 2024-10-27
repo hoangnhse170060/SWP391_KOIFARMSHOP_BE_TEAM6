@@ -43,14 +43,12 @@ namespace KMG.Repository.Repositories
                     p.UsedPoints,
                     KoiDetails = p.Order.OrderKois.Select(ok => new
                     {
-                        ok.Koi.KoiId,
                         ok.Koi.Name,
                         ok.Koi.ImageKoi,
                         ok.Quantity
                     }).ToList(),
                     FishDetails = p.Order.OrderFishes.Select(of => new
                     {
-                        of.Fishes.FishesId,
                         of.Fishes.Name,
                         of.Fishes.ImageFishes,
                         of.Quantity

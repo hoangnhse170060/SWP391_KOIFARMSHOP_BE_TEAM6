@@ -453,10 +453,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
-
-
-
+       
 
 
         [HttpPut("{orderId:int}/cancel-order-customer")]
@@ -644,81 +641,6 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        [HttpGet("user/{userId:int}")]
-        
-        public async Task<ActionResult<IEnumerable<object>>> GetOrdersByUserId(int userId)
-        {
-            try
-            {
-                // Truy vấn tất cả đơn hàng và bao gồm các thông tin liên quan
-                var orders = await _unitOfWork.OrderRepository.GetAllAsync(
-                    include: query => query
-                        .Include(o => o.OrderKois)
-                            .ThenInclude(ok => ok.Koi)
-                        .Include(o => o.OrderFishes)
-                            .ThenInclude(of => of.Fishes)
-                );
-
-                // Lọc các đơn hàng theo UserId
-                var userOrders = orders.Where(o => o.UserId == userId).ToList();
-
-                if (!userOrders.Any())
-                {
-                    return NotFound($"No orders found for User ID = {userId}.");
-                }
-
-                var result = userOrders.Select(order => new
-                {
-                    order.OrderId,
-                    order.UserId,
-                    order.OrderDate,
-                    order.TotalMoney,
-                    order.FinalMoney,
-                    order.DiscountMoney,
-                    order.UsedPoints,
-                    order.EarnedPoints,
-                    order.OrderStatus,
-                    order.PaymentMethod,
-                    order.DeliveryStatus,
-                    OrderKois = order.OrderKois.Select(ok => new
-                    {
-                        ok.KoiId,
-                        ok.Quantity,
-                        KoiDetails = new
-                        {
-                            ok.Koi.KoiId,
-                            ok.Koi.Name,
-                            ok.Koi.Gender,
-                            ok.Koi.Price,
-                            ok.Koi.Size,
-                            ok.Koi.ImageKoi
-                        }
-                    }).ToList(),
-                    OrderFishes = order.OrderFishes.Select(of => new
-                    {
-                        of.FishesId,
-                        of.Quantity,
-                        FishDetails = new
-                        {
-                            of.Fishes.FishesId,
-                            of.Fishes.Name,
-                            of.Fishes.Status,
-                            of.Fishes.Price,
-                            of.Fishes.ImageFishes
-                        }
-                    }).ToList()
-                }).ToList();
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error retrieving orders for User ID = {userId}.");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
 
     }
 }

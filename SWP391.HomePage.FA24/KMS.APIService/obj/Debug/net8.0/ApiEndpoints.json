@@ -21,16 +21,6 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.DashboardController",
-    "Method": "GetTotalRevenue",
-    "RelativePath": "api/Dashboard/total-revenue",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.DashboardController",
     "Method": "GetTotalUsers",
     "RelativePath": "api/Dashboard/total-users",
     "HttpMethod": "GET",
@@ -41,7 +31,7 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.FeedbackController",
-    "Method": "GetFeedback",
+    "Method": "GetKoi",
     "RelativePath": "api/Feedback",
     "HttpMethod": "GET",
     "IsController": true,
@@ -49,7 +39,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[KMG.Repository.Models.Feedback, KMG.Repository, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -91,38 +81,6 @@
         "Name": "fishesId",
         "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.FeedbackController",
-    "Method": "GetAverageRatingForFish",
-    "RelativePath": "api/Feedback/average-rating-fish/{fishId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "fishId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.FeedbackController",
-    "Method": "GetAverageRatingForKoi",
-    "RelativePath": "api/Feedback/average-rating-koi/{koiId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "koiId",
-        "Type": "System.Int32",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -627,32 +585,6 @@
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "KMS.APIService.Controllers.OrderController",
-    "Method": "GetOrdersByUserId",
-    "RelativePath": "api/Order/user/{userId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "userId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   },
   {
     "ContainingType": "KMS.APIService.Controllers.OrderFishesController",

@@ -81,7 +81,7 @@ namespace KMS.APIService.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Role, user.Role ?? "customer"),
-                    new Claim("UserId", user.UserId.ToString())
+                    new Claim("Id", user.UserId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

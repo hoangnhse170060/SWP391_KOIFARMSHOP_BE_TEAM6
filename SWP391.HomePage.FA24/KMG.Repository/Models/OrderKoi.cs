@@ -12,11 +12,11 @@ public partial class OrderKoi
 
     public int? Quantity { get; set; }
 
-
+    [JsonIgnore]
 
     public virtual Koi? Koi { get; set; }
 
-
+    [JsonIgnore]
 
     public virtual Order? Order { get; set; }
 
