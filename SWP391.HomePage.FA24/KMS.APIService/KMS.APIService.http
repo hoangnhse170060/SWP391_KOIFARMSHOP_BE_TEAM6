@@ -1,6 +1,0 @@
-@KMS.APIService_HostAddress = http://localhost:5090
-
-GET {{KMS.APIService_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
