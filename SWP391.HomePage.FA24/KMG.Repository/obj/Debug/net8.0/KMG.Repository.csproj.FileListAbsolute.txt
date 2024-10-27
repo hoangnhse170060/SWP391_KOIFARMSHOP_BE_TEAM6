@@ -87,6 +87,7 @@ D:\SWP391_Project\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repositor
 D:\SWP391_Project\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.pdb
 D:\SWP391_Project\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.genruntimeconfig.cache
 D:\SWP391_Project\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\ref\KMG.Repository.dll
+<<<<<<< HEAD
 C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.deps.json
 C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.runtimeconfig.json
 C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.dll
@@ -102,3 +103,20 @@ C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.F
 C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.pdb
 C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.genruntimeconfig.cache
 C:\Users\Hoang\OneDrive\Máy tính\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\ref\KMG.Repository.dll
+=======
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.deps.json
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.runtimeconfig.json
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.dll
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\bin\Debug\net8.0\KMG.Repository.pdb
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.csproj.AssemblyReference.cache
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.AssemblyInfoInputs.cache
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.AssemblyInfo.cs
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.csproj.CoreCompileInputs.cache
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.sourcelink.json
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.dll
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\refint\KMG.Repository.dll
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.pdb
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\KMG.Repository.genruntimeconfig.cache
+C:\Users\Hoang\OneDrive\Máy tính\New folder (2)\SWP391_KOIFARMSHOP_BE_TEAM6\SWP391.HomePage.FA24\KMG.Repository\obj\Debug\net8.0\ref\KMG.Repository.dll
+>>>>>>> efe5ffec287f59f2c878bd2996e66ff911db60ca

@@ -407,8 +407,8 @@ namespace KMS.APIService.Controllers
         }
 
 
-        [HttpPut("{orderId:int}/update-status")]
-        [Authorize(Roles = "staff,admin")]
+        [HttpPut("{orderId:int}/update-status-staff&manager")]
+        [Authorize(Roles = "staff,manager")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromQuery] string newStatus)
         {
             try
@@ -459,7 +459,7 @@ namespace KMS.APIService.Controllers
 
 
 
-        [HttpPut("{orderId:int}/cancel-order")]
+        [HttpPut("{orderId:int}/cancel-order-customer")]
         [Authorize(Roles = "customer")]
         public async Task<IActionResult> CancelOrder(int orderId)
         {
@@ -540,7 +540,7 @@ namespace KMS.APIService.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "getall-staff&manager")]
         public async Task<ActionResult<IEnumerable<object>>> GetOrders()
         {
             try
@@ -605,6 +605,45 @@ namespace KMS.APIService.Controllers
             }
         }
 
+        [HttpPut("{orderId:int}/update-delivery-status-staff&manager")]
+        [Authorize(Roles = "staff,manager")]
+        public async Task<IActionResult> UpdateDeliveryStatus(int orderId)
+        {
+            try
+            {
+                // Retrieve the order from the repository
+                var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
+
+                if (order == null)
+                {
+                    return NotFound($"Order with ID = {orderId} not found.");
+                }
+
+                // Check if the order status is 'in transit'
+                if (order.DeliveryStatus?.ToLower() == "in transit")
+                {
+                    // Update delivery status to 'delivered'
+                    order.DeliveryStatus = "delivered";
+
+                    // Update the order in the repository
+                    _unitOfWork.OrderRepository.Update(order);
+                    await _unitOfWork.OrderRepository.SaveAsync();
+
+                    _logger.LogInformation($"Order {orderId} delivery status updated to 'delivered'.");
+
+                    return Ok($"Order {orderId} delivery status successfully updated to 'delivered'.");
+                }
+                else
+                {
+                    return BadRequest("Order is not in 'in transit' status, so it cannot be updated to 'delivered'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating delivery status for order {orderId}.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         [HttpGet("user/{userId:int}")]
         
