@@ -77,7 +77,7 @@ namespace KMS.APIService.Controllers
                 pay.AddRequestData("vnp_Locale", "vn");
                 pay.AddRequestData("vnp_OrderInfo", orderId.ToString());
                 pay.AddRequestData("vnp_OrderType", "other");
-                pay.AddRequestData("vnp_ReturnUrl", returnUrl);
+                pay.AddRequestData("vnp_ReturnUrl", "https://sandbox.vnpayment.vn/apis/vnpay-demo/");
                 pay.AddRequestData("vnp_TxnRef", txnRef);
 
                 string paymentUrl = pay.CreateRequestUrl(url, hashSecret);

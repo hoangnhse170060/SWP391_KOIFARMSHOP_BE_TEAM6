@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "erGjv3iQZ1A=",
+  "dgSpecHash": "16QCbYLQSO0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\New folder (2)\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
+  "projectFilePath": "C:\\Users\\Hoang\\OneDrive\\Máy tính\\Dev\\SWP391_KOIFARMSHOP_BE_TEAM6\\SWP391.HomePage.FA24\\KMS.APIService\\KMS.APIService.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hoang\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Hoang\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
