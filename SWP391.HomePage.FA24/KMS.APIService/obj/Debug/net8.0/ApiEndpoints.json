@@ -500,7 +500,7 @@
   {
     "ContainingType": "KMS.APIService.Controllers.OrderController",
     "Method": "CancelOrder",
-    "RelativePath": "api/Order/{orderId}/cancel-order",
+    "RelativePath": "api/Order/{orderId}/cancel-order-customer",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -551,8 +551,24 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.OrderController",
+    "Method": "UpdateDeliveryStatus",
+    "RelativePath": "api/Order/{orderId}/update-delivery-status-staff\u0026manager",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "KMS.APIService.Controllers.OrderController",
     "Method": "UpdateOrderStatus",
-    "RelativePath": "api/Order/{orderId}/update-status",
+    "RelativePath": "api/Order/{orderId}/update-status-staff\u0026manager",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
