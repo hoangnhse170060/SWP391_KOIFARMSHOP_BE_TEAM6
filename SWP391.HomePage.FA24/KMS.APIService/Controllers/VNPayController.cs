@@ -104,11 +104,9 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
-
         [HttpGet("PaymentConfirm")]
-            public async Task<IActionResult> PaymentConfirm()
-            {
+        public async Task<IActionResult> PaymentConfirm()
+        {
             try
             {
                 if (!Request.QueryString.HasValue)
@@ -119,7 +117,9 @@ namespace KMS.APIService.Controllers
                 string orderInfo = json["vnp_OrderInfo"];
                 string vnp_ResponseCode = json["vnp_ResponseCode"];
                 string vnp_SecureHash = json["vnp_SecureHash"];
-                int orderId = int.Parse(orderInfo);
+
+                if (!int.TryParse(orderInfo, out int orderId))
+                    return BadRequest(new { Message = "Invalid Order ID." });
 
                 var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
                 if (order == null)
@@ -132,97 +132,76 @@ namespace KMS.APIService.Controllers
 
                 bool isSignatureValid = ValidateSignature(
                     Request.QueryString.Value.Substring(1, Request.QueryString.Value.IndexOf("&vnp_SecureHash") - 1),
-                    vnp_SecureHash,
-                    hashSecret
-                );
+                    vnp_SecureHash, hashSecret);
 
                 if (isSignatureValid && vnp_ResponseCode == "00") // Thanh toán thành công
                 {
-                    order.OrderStatus = "Remittance";  // Cập nhật trạng thái thành "Remittance"
+                    order.OrderStatus = "Remittance";
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.OrderRepository.SaveAsync();
 
-                    var response = new
-                    {
-                        Message = "Payment Success",
-                        OrderId = order.OrderId,
-                        UserName = userName,
-                        TotalAmount = order.TotalMoney,
-                        PaymentDate = DateTime.Now,
-                        FishDetails = order.OrderFishes.Select(f => new
-                        {
-                            FishId = f.Fishes.FishesId,
-                            f.Quantity,
-                            f.Fishes.Name,
-                            f.Fishes.Price
-                        }).ToList(),
-                        KoiDetails = order.OrderKois.Select(k => new
-                        {
-                            KoiId = k.Koi.KoiId,
-                            k.Quantity,
-                            k.Koi.Name,
-                            k.Koi.Price
-                        }).ToList()
-                    };
-
-                    return Ok(response);
+                    // Chuyển hướng đến URL thành công
+                    return Redirect("https://www.facebook.com/profile.php?id=100079469285890");
                 }
-                else // Thanh toán thất bại hoặc hủy
+                else if (vnp_ResponseCode == "24") // Khách hàng hủy giao dịch
                 {
-                    using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
-                    try
-                    {
-                        order.OrderStatus = "Canceled";
-                        _unitOfWork.OrderRepository.Update(order);
+                    // Cập nhật trạng thái đơn hàng thành "Canceled"
+                    order.OrderStatus = "Canceled";
+                    order.TotalMoney = 0; // Đặt TotalMoney về 0
+                    order.FinalMoney = 0; // Đặt FinalMoney về 0
 
-                        foreach (var koi in order.OrderKois)
+                    // Khôi phục số lượng sản phẩm về kho
+                    foreach (var koi in order.OrderKois)
+                    {
+                        var koiProduct = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
+                        if (koiProduct != null)
                         {
-                            var koiProduct = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
+                            // Tăng lại số lượng trong kho
                             koiProduct.quantityInStock += koi.Quantity;
                             _unitOfWork.KoiRepository.Update(koiProduct);
-
-                            koi.Quantity = 0;
-                            _unitOfWork.OrderKoiRepository.Update(koi);
                         }
 
-                        foreach (var fish in order.OrderFishes)
+                        // Đặt lại số lượng trong đơn hàng về 0
+                        koi.Quantity = 0;
+                        _unitOfWork.OrderKoiRepository.Update(koi);
+                    }
+
+                    foreach (var fish in order.OrderFishes)
+                    {
+                        var fishProduct = await _unitOfWork.FishRepository.GetByIdAsync(fish.FishesId);
+                        if (fishProduct != null)
                         {
-                            var fishProduct = await _unitOfWork.FishRepository.GetByIdAsync(fish.FishesId);
+                            // Tăng lại số lượng trong kho
                             fishProduct.quantityInStock += fish.Quantity;
                             _unitOfWork.FishRepository.Update(fishProduct);
-
-                            fish.Quantity = 0;
-                            _unitOfWork.OrderFishesRepository.Update(fish);
                         }
 
-                        order.TotalMoney = 0;
-                        order.FinalMoney = 0;
-                        _unitOfWork.OrderRepository.Update(order);
-
-                        await _unitOfWork.OrderRepository.SaveAsync();
-                        await transaction.CommitAsync();
-
-                        return BadRequest(new
-                        {
-                            Message = "Payment Failed or Canceled",
-                            OrderId = order.OrderId,
-                            UserName = userName
-                        });
+                        // Đặt lại số lượng trong đơn hàng về 0
+                        fish.Quantity = 0;
+                        _unitOfWork.OrderFishesRepository.Update(fish);
                     }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        _logger.LogError(ex, "Error restoring stock.");
-                        return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
-                    }
+
+                    // Cập nhật thay đổi trong cơ sở dữ liệu
+                    _unitOfWork.OrderRepository.Update(order);
+                    await _unitOfWork.OrderRepository.SaveAsync();
+
+                    // Chuyển hướng đến URL hủy giao dịch
+                    return Redirect("https://www.facebook.com/page.ngoctrinh");
                 }
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error confirming payment.");
-                return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
+
+                // Chuyển hướng đến URL lỗi chung
+                return Redirect("https://www.facebook.com/Pham.Jack.3105");
             }
+
+            // Nếu không khớp với bất kỳ điều kiện nào, trả về lỗi mặc định
+            return BadRequest(new { Message = "Unexpected error occurred." });
         }
+
 
 
         [HttpGet("GetOrderById/{orderId}")]

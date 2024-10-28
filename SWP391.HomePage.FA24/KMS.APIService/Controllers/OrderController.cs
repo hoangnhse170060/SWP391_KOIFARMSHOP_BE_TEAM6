@@ -204,7 +204,7 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Kiểm tra nếu đơn hàng đã hoàn tất hoặc bị hủy
-                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled")
+                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled" || order.OrderStatus == "Remmittance")
                 {
                     return BadRequest($"Cannot delete items from a {order.OrderStatus} order.");
                 }
@@ -650,7 +650,7 @@ namespace KMS.APIService.Controllers
         {
             try
             {
-                // **Trích xuất UserId từ JWT token**
+                
                 var userIdClaim = User.FindFirst("UserId")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
@@ -660,14 +660,12 @@ namespace KMS.APIService.Controllers
 
                 int userId = int.Parse(userIdClaim);
 
-                // **Truy vấn tất cả đơn hàng cho UserId từ cơ sở dữ liệu**
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
                         .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
                 );
 
-                // **Lọc đơn hàng theo UserId**
                 var userOrders = orders.Where(o => o.UserId == userId).ToList();
 
                 if (!userOrders.Any())
@@ -675,7 +673,6 @@ namespace KMS.APIService.Controllers
                     return NotFound($"No orders found for User with ID = {userId}.");
                 }
 
-                // **Chuẩn bị dữ liệu trả về**
                 var result = userOrders.Select(order => new
                 {
                     order.OrderId,
