@@ -50,18 +50,23 @@ namespace KMS.APIService.Controllers
         // POST: api/consignment/create-consignment
         [HttpPost("create-consignmentCustomer")]
         public async Task<IActionResult> CreateConsignment(
-                int koiID,
-                string consignmentType,
-                decimal consignmentPrice,
-                //DateTime consignmentDateFrom,
-                DateTime consignmentDateTo,
-                string? userImage = null,
-                string? consignmentTitle = null,
-                string? consignmentDetail = null
-                ) // Optional status parameter
+      int koiID,
+      string consignmentType,
+      decimal consignmentPrice,
+      DateTime consignmentDateTo,
+      string? userImage = null,
+      string? consignmentTitle = null,
+      string? consignmentDetail = null
+  )
         {
             try
             {
+                // Validate consignmentDateTo to ensure it's not in the past
+                if (consignmentDateTo < DateTime.Now)
+                {
+                    return BadRequest("Consignment date cannot be in the past.");
+                }
+
                 // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
@@ -75,9 +80,6 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Invalid User ID.");
                 }
 
-                //var consignmentDateFromOnly = DateOnly.FromDateTime(consignmentDateFrom);
-                //var consignmentDateToOnly = DateOnly.FromDateTime(consignmentDateTo);
-
                 var status = "awaiting inspection";
 
                 // Create consignment using the service
@@ -85,14 +87,16 @@ namespace KMS.APIService.Controllers
                     userId, koiID, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
                 );
 
-                // Return created consignment
+                // Return created consignment with CreatedAtAction
                 return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, createdConsignment);
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error: {ex.Message}");
+                // Log exception and return server error
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [Authorize(Roles = "admin, staff")]
         [HttpPost("create-consignmentAdmin_Staff")]
@@ -109,6 +113,11 @@ namespace KMS.APIService.Controllers
         {
             try
             {
+                // Validate consignmentDateTo to ensure it's not in the past
+                if (consignmentDateTo < DateTime.Now)
+                {
+                    return BadRequest("Consignment date cannot be in the past.");
+                }
                 // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
@@ -155,6 +164,11 @@ namespace KMS.APIService.Controllers
         {
             try
             {
+                // Validate consignmentDateTo to ensure it's not in the past
+                if (consignmentDateTo < DateTime.Now)
+                {
+                    return BadRequest("Consignment date cannot be in the past.");
+                }
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
                 {
@@ -207,6 +221,11 @@ namespace KMS.APIService.Controllers
         {
             try
             {
+                // Validate consignmentDateTo to ensure it's not in the past
+                if (consignmentDateTo < DateTime.Now)
+                {
+                    return BadRequest("Consignment date cannot be in the past.");
+                }
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
                 {
