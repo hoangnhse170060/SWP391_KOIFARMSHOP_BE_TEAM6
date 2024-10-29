@@ -171,5 +171,39 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to get consignments: " + ex.Message);
             }
         }
+        // Triển khai phương thức CreateConsignmentsFromOrdersAsync
+        public async Task<IEnumerable<ConsignmentDto>> CreateConsignmentsFromOrdersAsync(int userId)
+        {
+            // Lấy danh sách tất cả các đơn hàng của user mà không cần kiểm tra OrderStatus và DeliveryStatus
+            var orders = await _context.PurchaseHistories
+                .Where(o => o.UserId == userId)
+                .ToListAsync();
+
+            var consignments = new List<Consignment>();
+
+            foreach (var order in orders)
+            {
+                var consignment = new Consignment
+                {
+                    UserId = userId,
+                    KoiId = order.OrderId, // Sử dụng OrderId làm KoiId; điều chỉnh nếu cần thiết
+                    ConsignmentType = "online",
+                    Status = "awaiting inspection",
+                    ConsignmentPrice = order.FinalMoney,
+                    ConsignmentDateFrom = order.PurchaseDate?.ToDateTime(TimeOnly.MinValue), // Chuyển đổi từ DateOnly? sang DateTime?
+                    ConsignmentDateTo = DateTime.Now.AddMonths(1), // Ví dụ: consignments trong 1 tháng
+                    UserImage = null,
+                    ConsignmentTitle = $"Consignment for Order {order.OrderId}",
+                    ConsignmentDetail = $"Auto-generated consignment for order on {order.PurchaseDate}"
+                };
+
+                consignments.Add(consignment);
+                await _context.Consignments.AddAsync(consignment);
+            }
+
+            await _context.SaveChangesAsync();
+            return _mapper.Map<IEnumerable<ConsignmentDto>>(consignments);
+        }
+
     }
 }

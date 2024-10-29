@@ -47,17 +47,16 @@ namespace KMS.APIService.Controllers
         }
 
         [Authorize(Roles = "customer")]
-        // POST: api/consignment/create-consignment
         [HttpPost("create-consignmentCustomer")]
         public async Task<IActionResult> CreateConsignment(
-      int koiID,
-      string consignmentType,
-      decimal consignmentPrice,
-      DateTime consignmentDateTo,
-      string? userImage = null,
-      string? consignmentTitle = null,
-      string? consignmentDetail = null
-  )
+         int koiID,
+         string consignmentType,
+         decimal consignmentPrice,
+         DateTime consignmentDateTo,
+         string? userImage = null,
+         string? consignmentTitle = null,
+         string? consignmentDetail = null
+     )
         {
             try
             {
@@ -82,13 +81,31 @@ namespace KMS.APIService.Controllers
 
                 var status = "awaiting inspection";
 
+                // Calculate the consignment fee based on the duration
+                var currentDate = DateTime.Now;
+                var totalMonths = ((consignmentDateTo.Year - currentDate.Year) * 12) + consignmentDateTo.Month - currentDate.Month;
+
+                if (consignmentDateTo.Day > currentDate.Day)
+                {
+                    totalMonths++; // Nếu ngày ký gửi lớn hơn ngày hiện tại, cộng thêm 1 tháng
+                }
+
+                // Ensure at least one month fee
+                totalMonths = Math.Max(totalMonths, 1);
+
+                decimal consignmentFee = totalMonths * 100000; // Fee per month is 100,000 VND
+
                 // Create consignment using the service
                 var createdConsignment = await _consignmentService.CreateConsignmentAsync(
                     userId, koiID, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
                 );
 
                 // Return created consignment with CreatedAtAction
-                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, createdConsignment);
+                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, new
+                {
+                    consignment = createdConsignment,
+                    consignmentFee // Include the calculated consignment fee in the response
+                });
             }
             catch (Exception ex)
             {
@@ -98,18 +115,18 @@ namespace KMS.APIService.Controllers
         }
 
 
+
         [Authorize(Roles = "admin, staff")]
         [HttpPost("create-consignmentAdmin_Staff")]
         public async Task<IActionResult> CreateConsignment(
-                int koiID,
-                string consignmentType,
-                decimal consignmentPrice,
-                //DateTime consignmentDateFrom,
-                DateTime consignmentDateTo,
-                string? userImage = null,
-                string? consignmentTitle = null,
-                string? consignmentDetail = null,
-                string? status = null) // Optional status parameter
+        int koiID,
+        string consignmentType,
+        decimal consignmentPrice,
+        DateTime consignmentDateTo,
+        string? userImage = null,
+        string? consignmentTitle = null,
+        string? consignmentDetail = null,
+        string? status = null) // Optional status parameter
         {
             try
             {
@@ -118,6 +135,7 @@ namespace KMS.APIService.Controllers
                 {
                     return BadRequest("Consignment date cannot be in the past.");
                 }
+
                 // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
@@ -131,20 +149,33 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Invalid User ID.");
                 }
 
-                //var dateOnly = DateOnly.FromDateTime(consignmentDate);
+                // Tính toán consignmentFee dựa trên số tháng từ DateTime.Now tới consignmentDateTo
+                var months = ((consignmentDateTo.Year - DateTime.Now.Year) * 12) + consignmentDateTo.Month - DateTime.Now.Month;
+                var consignmentFee = months * 100000; // Mỗi tháng 100,000 VND
 
-                // Create consignment using the service
+                // Tạo consignment sử dụng service
                 var createdConsignment = await _consignmentService.CreateConsignmentAsync(
                     userId, koiID, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
                 );
 
-                // Return created consignment
-                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, createdConsignment);
+                // Trả về consignment đã tạo cùng với consignmentFee
+                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, new
+                {
+                    consignment = createdConsignment,
+                    consignmentFee // Bao gồm phí ký gửi trong phản hồi
+                });
             }
             catch (Exception ex)
             {
                 return BadRequest($"Error: {ex.Message}");
             }
+        }
+
+        [HttpPost("create-consignments-from-orders")]
+        public async Task<IActionResult> CreateConsignmentsFromOrders(int userId)
+        {
+            var consignments = await _consignmentService.CreateConsignmentsFromOrdersAsync(userId);
+            return Ok(consignments);
         }
 
 
@@ -285,6 +316,21 @@ namespace KMS.APIService.Controllers
                 return NotFound("Consignment not found.");
             }
             return Ok("Consignment deleted successfully.");
+        }
+
+        // Endpoint để tạo consignments từ lịch sử đơn hàng của user
+        [Authorize(Roles = "customer")]
+        [HttpPost("create-from-orders")]
+        public async Task<IActionResult> CreateConsignmentsFromOrders()
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized("User not authenticated or invalid User ID.");
+            }
+
+            var consignments = await _consignmentService.CreateConsignmentsFromOrdersAsync(userId);
+            return Ok(consignments);
         }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using KMG.Repository.Dto;
-using KMG.Repository.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace KMG.Repository.Interfaces
 {
@@ -21,5 +18,8 @@ namespace KMG.Repository.Interfaces
 
         // Lấy tất cả danh sách Consignments
         Task<IEnumerable<ConsignmentDto>> GetAllConsignmentsAsync();
+
+        // Tạo Consignment từ lịch sử đơn hàng của User
+        Task<IEnumerable<ConsignmentDto>> CreateConsignmentsFromOrdersAsync(int userId); // Thêm dòng này
     }
 }
