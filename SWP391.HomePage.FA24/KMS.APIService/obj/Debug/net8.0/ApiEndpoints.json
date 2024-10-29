@@ -787,8 +787,8 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.OrderController",
-    "Method": "CancelOrder",
-    "RelativePath": "api/Order/{orderId}/cancel-order-customer",
+    "Method": "CancelOrderWithRestock",
+    "RelativePath": "api/Order/{orderId}/orderstatus-canceled",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -840,7 +840,7 @@
   {
     "ContainingType": "KMS.APIService.Controllers.OrderController",
     "Method": "UpdateDeliveryStatus",
-    "RelativePath": "api/Order/{orderId}/update-delivery-status-staff\u0026manager",
+    "RelativePath": "api/Order/{orderId}/update-status -COMPLETED",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -1356,16 +1356,21 @@
   },
   {
     "ContainingType": "KMS.APIService.Controllers.VNPayController",
-    "Method": "GetOrderById",
-    "RelativePath": "api/VNPay/GetOrderById/{orderId}",
-    "HttpMethod": "GET",
+    "Method": "CreateCashPayment",
+    "RelativePath": "api/VNPay/CashPayment",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "orderId",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
+      },
+      {
+        "Name": "amountPaid",
+        "Type": "System.Decimal",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

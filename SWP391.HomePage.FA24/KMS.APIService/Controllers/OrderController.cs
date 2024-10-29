@@ -88,6 +88,13 @@ namespace KMS.APIService.Controllers
                 return BadRequest("Order object is null.");
             }
 
+            if (string.IsNullOrWhiteSpace(order.PaymentMethod) ||
+
+             !(order.PaymentMethod.Equals("vnpay", StringComparison.OrdinalIgnoreCase) || order.PaymentMethod.Equals("cash", StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest("Payment method is required and must be either 'vnpay' or 'cash'.");
+            }
+
             // Khởi tạo các danh sách nếu chúng bị null để tránh lỗi NullReferenceException
             order.OrderFishes ??= new List<OrderFish>();
             order.OrderKois ??= new List<OrderKoi>();
@@ -204,7 +211,7 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Kiểm tra nếu đơn hàng đã hoàn tất hoặc bị hủy
-                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled" || order.OrderStatus == "Remmittance")
+                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled" || order.OrderStatus == "remittance")
                 {
                     return BadRequest($"Cannot delete items from a {order.OrderStatus} order.");
                 }
@@ -301,9 +308,9 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Kiểm tra trạng thái đơn hàng đã hoàn tất chưa
-                if (order.OrderStatus == "completed")
+                if (order.OrderStatus == "completed" || order.OrderStatus == "remittance")
                 {
-                    return BadRequest("Completed orders cannot be updated.");
+                    return BadRequest($"{order.OrderStatus}  cannot be updated.");
                 }
 
                 // Kiểm tra số lượng mới có hợp lệ không (phải lớn hơn 0)
@@ -425,15 +432,14 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Order has already been canceled and cannot be updated.");
                 }
 
-                if (newStatus.ToLower() == "completed")
+                if (newStatus.ToLower() == "delivering")
                 {
                     if (order.OrderStatus.ToLower() != "remittance")
                     {
                         return BadRequest("Only orders with 'Remittance' status can be marked as 'Completed'.");
                     }
 
-                    order.OrderStatus = "completed";
-                    order.DeliveryStatus = "in transit";
+                    order.OrderStatus = "delivering";
                     order.ShippingDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
                 }
                 else
@@ -453,83 +459,111 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
-
-
-        [HttpPut("{orderId:int}/cancel-order-customer")]
-        [Authorize(Roles = "customer")]
-        public async Task<IActionResult> CancelOrder(int orderId)
+        [HttpPut("{orderId:int}/orderstatus-canceled")]
+        public async Task<IActionResult> CancelOrderWithRestock(int orderId)
         {
+            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
             try
             {
-                // Lấy đơn hàng từ cơ sở dữ liệu
-                var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
+                // Retrieve the order with details
+                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
                 if (order == null)
                 {
                     return NotFound($"Order with ID = {orderId} not found.");
                 }
 
-                // Kiểm tra nếu đơn hàng đã ở trạng thái 'completed'
-                if (order.OrderStatus == "completed")
+                // Ensure the order can only be canceled if it is in 'processing' status
+                if (order.OrderStatus != "processing" || order.OrderStatus == "remittance")
                 {
-                    return BadRequest("completed orders cannot be canceled.");
+                    return BadRequest("Only orders in 'processing' status can be canceled.");
                 }
 
-                // Kiểm tra nếu đơn hàng đang ở trạng thái 'processing'
-                if (order.OrderStatus == "processing")
+                decimal totalMoney = 0;
+
+                // Restock Koi items and set quantity to 0
+                foreach (var koi in order.OrderKois)
                 {
-                    // Cập nhật trạng thái thành 'cancelled'
-                    order.OrderStatus = "canceled";
-
-                    _logger.LogInformation($"Updating order {orderId} to status 'canceled'.");
-
-                    // Bắt đầu transaction để đảm bảo an toàn dữ liệu
-                    using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
-
-                    try
+                    var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
+                    if (koiEntity != null)
                     {
-                        // Cập nhật đơn hàng trong repository
-                        _unitOfWork.OrderRepository.Update(order);
-
-                        // Lưu các thay đổi vào database
-                        await _unitOfWork.SaveAsync();
-
-                        // Commit transaction nếu không có lỗi
-                        await transaction.CommitAsync();
-
-                        _logger.LogInformation($"Order with ID {orderId} has been successfully canceled.");
-                        return Ok($"Order with ID {orderId} has been canceled.");
+                        koiEntity.quantityInStock += koi.Quantity.GetValueOrDefault(0); // Restock the item
+                        _unitOfWork.KoiRepository.Update(koiEntity); // Update koi entity
                     }
-                    catch (DbUpdateException dbEx)
-                    {
-                        // Rollback nếu có lỗi trong quá trình lưu vào DB
-                        await transaction.RollbackAsync();
 
-                        var innerException = dbEx.InnerException != null
-                            ? dbEx.InnerException.Message
-                            : "No inner exception";
+                    totalMoney += koi.Quantity.GetValueOrDefault(0) * koiEntity.Price.GetValueOrDefault(0); // Add to total money
 
-                        _logger.LogError(dbEx,
-                            $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                        return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                    }
-                    catch (Exception ex)
-                    {
-                        // Rollback nếu có lỗi không mong muốn khác
-                        await transaction.RollbackAsync();
-
-                        _logger.LogError(ex, $"Error cancelling order with ID {orderId}: {ex.Message}");
-                        return StatusCode(500, $"Internal server error: {ex.Message}");
-                    }
+                    koi.Quantity = 0; // Reset quantity
+                    _unitOfWork.OrderKoiRepository.Update(koi); // Update koi in the order
                 }
 
-                // Nếu trạng thái không phải 'processing'
-                return BadRequest("Only orders in 'processing' status can be canceled.");
+                // Restock Fish items and set quantity to 0
+                foreach (var fish in order.OrderFishes)
+                {
+                    var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(fish.FishesId);
+                    if (fishEntity != null)
+                    {
+                        fishEntity.quantityInStock += fish.Quantity.GetValueOrDefault(0); // Restock fish
+                        _unitOfWork.FishRepository.Update(fishEntity); // Update fish entity
+                    }
+
+                    totalMoney += fish.Quantity.GetValueOrDefault(0) * fishEntity.Price.GetValueOrDefault(0); // Add to total money
+
+                    fish.Quantity = 0; // Reset quantity
+                    _unitOfWork.OrderFishesRepository.Update(fish); // Update fish in the order
+                }
+
+                // Update order status to 'canceled'
+                order.OrderStatus = "canceled";
+                _unitOfWork.OrderRepository.Update(order); // Save the updated order
+
+                // Retrieve user and adjust points
+                var userId = order.UserId.GetValueOrDefault(); // Convert nullable int to int
+                var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+                if (user != null)
+                {
+                    user.TotalPoints -= order.EarnedPoints.GetValueOrDefault(0); // Deduct earned points
+                    if (user.TotalPoints < 0) user.TotalPoints = 0; // Prevent negative points
+
+                    _unitOfWork.UserRepository.Update(user); // Update user entity
+                }
+
+                // Commit the changes
+                await _unitOfWork.SaveAsync();
+                await transaction.CommitAsync();
+
+                _logger.LogInformation($"Order {orderId} canceled, items restocked, quantities reset to 0, and user points adjusted.");
+
+                // Return the updated order and user information
+                return Ok(new
+                {
+                    Message = $"Order with ID {orderId} has been canceled, items restocked, and values reset to 0.",
+                    Order = new
+                    {
+                        order.OrderId,
+                        order.TotalMoney,
+                        order.FinalMoney,
+                        order.UsedPoints,
+                        order.EarnedPoints,
+                        order.OrderStatus
+                    },
+                    User = new
+                    {
+                        user.UserId,
+                        TotalPoints = user.TotalPoints
+                    }
+                });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+                var innerMessage = dbEx.InnerException?.Message ?? "No inner exception";
+                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerMessage}");
+                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerMessage}");
             }
             catch (Exception ex)
             {
-                // Bắt lỗi ngoài cùng nếu có lỗi bất ngờ xảy ra
-                _logger.LogError(ex, $"Error cancelling order: {ex.Message}");
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"Internal server error: {ex.Message}");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
@@ -603,8 +637,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        [HttpPut("{orderId:int}/update-delivery-status-staff&manager")]
-        [Authorize(Roles = "staff,manager")]
+        [HttpPut("{orderId:int}/update-status -COMPLETED")]
         public async Task<IActionResult> UpdateDeliveryStatus(int orderId)
         {
             try
@@ -618,22 +651,21 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Check if the order status is 'in transit'
-                if (order.DeliveryStatus?.ToLower() == "in transit")
+                if (order.OrderStatus?.ToLower() == "delivering")
                 {
                     // Update delivery status to 'delivered'
-                    order.DeliveryStatus = "delivered";
-
+                    order.DeliveryStatus = "completed";
                     // Update the order in the repository
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.OrderRepository.SaveAsync();
 
-                    _logger.LogInformation($"Order {orderId} delivery status updated to 'delivered'.");
+                    _logger.LogInformation($"Order {orderId} delivery status updated to 'Completed'.");
 
-                    return Ok($"Order {orderId} delivery status successfully updated to 'delivered'.");
+                    return Ok($"Order {orderId} delivery status successfully updated to 'Completed'.");
                 }
                 else
                 {
-                    return BadRequest("Order is not in 'in transit' status, so it cannot be updated to 'delivered'.");
+                    return BadRequest("Order is not in 'in transit' status, so it cannot be updated to 'Completed'.");
                 }
             }
             catch (Exception ex)
@@ -650,7 +682,7 @@ namespace KMS.APIService.Controllers
         {
             try
             {
-                
+
                 var userIdClaim = User.FindFirst("UserId")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
