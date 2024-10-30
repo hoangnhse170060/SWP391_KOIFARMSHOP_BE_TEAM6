@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
+using Org.BouncyCastle.Crypto;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace KMS.APIService.Controllers
 {
@@ -137,7 +140,6 @@ namespace KMS.APIService.Controllers
                 {
                     return BadRequest("Consignment date cannot be in the past.");
                 }
-
                 // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)

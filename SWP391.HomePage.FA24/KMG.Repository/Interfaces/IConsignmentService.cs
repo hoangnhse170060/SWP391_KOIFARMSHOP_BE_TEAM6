@@ -1,4 +1,7 @@
 ﻿using KMG.Repository.Dto;
+using KMG.Repository.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace KMG.Repository.Interfaces
 {
