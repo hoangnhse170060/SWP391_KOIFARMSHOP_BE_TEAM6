@@ -41,7 +41,7 @@ namespace KMS.APIService.Controllers
                     p.OrderStatus,
                     p.PaymentMethod,
                     p.ShippingDate,
-                    p.DeliveryStatus,
+
                     p.PromotionId,
                     p.EarnedPoints,
                     p.UsedPoints,

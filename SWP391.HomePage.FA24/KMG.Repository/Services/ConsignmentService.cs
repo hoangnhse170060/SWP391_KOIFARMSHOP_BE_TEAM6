@@ -40,10 +40,10 @@ namespace KMG.Repository.Services
 
                 var newConsignment = new Consignment
                 {
-                    UserId = userID,               
-                    KoiId = koiID,                  
+                    UserId = userID,
+                    KoiId = koiID,
                     ConsignmentType = consignmentType,
-                    Status = status,              
+                    Status = status,
                     ConsignmentPrice = consignmentPrice,
                     ConsignmentDateFrom = consignmentDateFrom,
                     ConsignmentDateTo = consignmentDateTo,
@@ -95,7 +95,7 @@ namespace KMG.Repository.Services
                 existingConsignment.UserId = userID;
                 existingConsignment.KoiId = koiID;
                 existingConsignment.ConsignmentType = consignmentType;
-                existingConsignment.Status = status;    
+                existingConsignment.Status = status;
                 existingConsignment.ConsignmentPrice = consignmentPrice;
                 existingConsignment.ConsignmentDateFrom = consignmentDateFrom;
                 existingConsignment.ConsignmentDateTo = consignmentDateTo;
@@ -171,5 +171,58 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to get consignments: " + ex.Message);
             }
         }
+        public async Task<ConsignmentDto> CreateConsignmentFromOrderAsync(int userID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
+        {
+            try
+            {
+                // Kiểm tra PurchaseHistory với OrderStatus là 'processing' hoặc 'completed'
+                var validPurchaseHistory = await _context.PurchaseHistories
+                    .Where(p => p.UserId == userID && (p.OrderStatus == "processing" || p.OrderStatus == "completed"))
+                    .FirstOrDefaultAsync();
+
+                if (validPurchaseHistory == null)
+                {
+                    throw new InvalidOperationException("Không có lịch sử giao dịch hợp lệ để thực hiện ký gửi.");
+                }
+
+                // Nếu người dùng là "customer", đặt trạng thái mặc định cho consignment
+                var user = await _context.Users.FindAsync(userID);
+                if (user == null)
+                {
+                    throw new KeyNotFoundException("Không tìm thấy người dùng.");
+                }
+
+                if (user.Role == "customer")
+                {
+                    status = "awaiting inspection";
+                }
+
+                var newConsignment = new Consignment
+                {
+                    UserId = userID,
+                    KoiId = koiID,
+                    ConsignmentType = consignmentType,
+                    Status = status,
+                    ConsignmentPrice = consignmentPrice,
+                    ConsignmentDateFrom = consignmentDateFrom,
+                    ConsignmentDateTo = consignmentDateTo,
+                    UserImage = userImage,
+                    ConsignmentTitle = consignmentTitle,
+                    ConsignmentDetail = consignmentDetail
+                };
+
+                await _context.Consignments.AddAsync(newConsignment);
+                await _context.SaveChangesAsync();
+
+                // Map entity vừa tạo sang DTO
+                return _mapper.Map<ConsignmentDto>(newConsignment);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tạo consignment: " + ex.Message);
+            }
+        }
+
+
     }
 }

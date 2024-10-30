@@ -21,5 +21,9 @@ namespace KMG.Repository.Interfaces
 
         // Lấy tất cả danh sách Consignments
         Task<IEnumerable<ConsignmentDto>> GetAllConsignmentsAsync();
+
+        Task<ConsignmentDto> CreateConsignmentFromOrderAsync(int userID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail);
+
+
     }
 }
