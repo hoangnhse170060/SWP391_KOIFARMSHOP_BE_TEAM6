@@ -88,13 +88,6 @@ namespace KMS.APIService.Controllers
                 return BadRequest("Order object is null.");
             }
 
-            if (string.IsNullOrWhiteSpace(order.PaymentMethod) ||
-
-             !(order.PaymentMethod.Equals("vnpay", StringComparison.OrdinalIgnoreCase) || order.PaymentMethod.Equals("cash", StringComparison.OrdinalIgnoreCase)))
-            {
-                return BadRequest("Payment method is required and must be either 'vnpay' or 'cash'.");
-            }
-
             // Khởi tạo các danh sách nếu chúng bị null để tránh lỗi NullReferenceException
             order.OrderFishes ??= new List<OrderFish>();
             order.OrderKois ??= new List<OrderKoi>();
@@ -472,7 +465,6 @@ namespace KMS.APIService.Controllers
                     return NotFound($"Order with ID = {orderId} not found.");
                 }
 
-                // Ensure the order can only be canceled if it is in 'processing' status
                 if (order.OrderStatus != "processing" || order.OrderStatus == "remittance")
                 {
                     return BadRequest("Only orders in 'processing' status can be canceled.");
