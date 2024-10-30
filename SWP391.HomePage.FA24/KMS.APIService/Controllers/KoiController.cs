@@ -49,6 +49,11 @@ namespace KMS.APIService.Controllers
             {
                 return BadRequest("Koi Type is null.");
             }
+            var exitKoiType = await _unitOfWork.KoiTypeRepository.GetByNameAsync(koiType.Name);
+            if (exitKoiType!=null)
+            {
+                return BadRequest("Koi Type Already Have !");
+            }
             await _unitOfWork.KoiTypeRepository.CreateAsync(koiType);
             await _unitOfWork.KoiTypeRepository.SaveAsync();
             return Ok(koiType);

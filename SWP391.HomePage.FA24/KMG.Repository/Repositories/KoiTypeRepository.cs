@@ -21,5 +21,9 @@ namespace KMG.Repository.Repositories
                 .ToListAsync();
 
         }
+        public async Task<KoiType> GetByNameAsync(string name)
+        {
+            return await _context.KoiTypes.FirstOrDefaultAsync(k => k.Name == name);
+        }
     }
 }
