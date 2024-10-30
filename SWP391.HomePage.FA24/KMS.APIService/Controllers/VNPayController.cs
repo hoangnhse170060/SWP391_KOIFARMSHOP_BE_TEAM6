@@ -155,8 +155,9 @@ namespace KMS.APIService.Controllers
                     // Generate email content dynamically
                     string emailContent = GenerateOrderDetailsEmailContent(order);
 
-                    // Gửi email tới địa chỉ cố định
-                    SendEmail(recipientEmail, "Xác nhận thanh toán thành công", emailContent);
+                    string customerName = order.User?.UserName ?? "Khách hàng";
+                    decimal totalAmount = order.TotalMoney;
+
 
                     // Chuyển hướng đến URL thành công
                     return Redirect("https://www.facebook.com/profile.php?id=100079469285890");
@@ -202,6 +203,7 @@ namespace KMS.APIService.Controllers
                         // Chuyển TotalPoints sang kiểu int để tính toán chính xác
                         user.TotalPoints = (byte)Math.Max(0, (int)user.TotalPoints - order.EarnedPoints.Value);
                         _unitOfWork.UserRepository.Update(user);
+                        Console.WriteLine($"Points : {order.EarnedPoints}");
                     }
 
 
@@ -288,6 +290,7 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
             }
         }
+
 
 
         private bool ValidateSignature(string rspraw, string inputHash, string secretKey)
@@ -421,11 +424,14 @@ namespace KMS.APIService.Controllers
             return sb.ToString();
         }
 
-
-
     }
 
+
+
 }
+
+
+
 
 
 //PAYMENT

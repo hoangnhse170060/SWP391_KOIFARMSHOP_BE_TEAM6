@@ -472,7 +472,6 @@ namespace KMS.APIService.Controllers
                     return NotFound($"Order with ID = {orderId} not found.");
                 }
 
-                // Ensure the order can only be canceled if it is in 'processing' status
                 if (order.OrderStatus != "processing" || order.OrderStatus == "remittance")
                 {
                     return BadRequest("Only orders in 'processing' status can be canceled.");
