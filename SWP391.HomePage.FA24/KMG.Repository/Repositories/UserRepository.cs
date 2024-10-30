@@ -93,7 +93,7 @@ namespace KMG.Repository.Repositories
                 Email = email,
                 Password = Guid.NewGuid().ToString(),
                 Role = "customer",
-                Status = "Active",
+                Status = "active",
                 PhoneNumber = null,
                 Address = null,
                 RegisterDate = DateOnly.FromDateTime(DateTime.Now),
