@@ -171,39 +171,58 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to get consignments: " + ex.Message);
             }
         }
-        // Triển khai phương thức CreateConsignmentsFromOrdersAsync
-        public async Task<IEnumerable<ConsignmentDto>> CreateConsignmentsFromOrdersAsync(int userId)
+        public async Task<ConsignmentDto> CreateConsignmentFromOrderAsync(int userID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
         {
-            // Lấy danh sách tất cả các đơn hàng của user mà không cần kiểm tra OrderStatus và DeliveryStatus
-            var orders = await _context.PurchaseHistories
-                .Where(o => o.UserId == userId)
-                .ToListAsync();
-
-            var consignments = new List<Consignment>();
-
-            foreach (var order in orders)
+            try
             {
-                var consignment = new Consignment
+                // Kiểm tra PurchaseHistory với OrderStatus là 'processing' hoặc 'completed'
+                var validPurchaseHistory = await _context.PurchaseHistories
+                    .Where(p => p.UserId == userID && (p.OrderStatus == "processing" || p.OrderStatus == "completed"))
+                    .FirstOrDefaultAsync();
+
+                if (validPurchaseHistory == null)
                 {
-                    UserId = userId,
-                    KoiId = order.OrderId, // Sử dụng OrderId làm KoiId; điều chỉnh nếu cần thiết
-                    ConsignmentType = "online",
-                    Status = "awaiting inspection",
-                    ConsignmentPrice = order.FinalMoney,
-                    ConsignmentDateFrom = order.PurchaseDate?.ToDateTime(TimeOnly.MinValue), // Chuyển đổi từ DateOnly? sang DateTime?
-                    ConsignmentDateTo = DateTime.Now.AddMonths(1), // Ví dụ: consignments trong 1 tháng
-                    UserImage = null,
-                    ConsignmentTitle = $"Consignment for Order {order.OrderId}",
-                    ConsignmentDetail = $"Auto-generated consignment for order on {order.PurchaseDate}"
+                    throw new InvalidOperationException("Không có lịch sử giao dịch hợp lệ để thực hiện ký gửi.");
+                }
+
+                // Nếu người dùng là "customer", đặt trạng thái mặc định cho consignment
+                var user = await _context.Users.FindAsync(userID);
+                if (user == null)
+                {
+                    throw new KeyNotFoundException("Không tìm thấy người dùng.");
+                }
+
+                if (user.Role == "customer")
+                {
+                    status = "awaiting inspection";
+                }
+
+                var newConsignment = new Consignment
+                {
+                    UserId = userID,
+                    KoiId = koiID,
+                    ConsignmentType = consignmentType,
+                    Status = status,
+                    ConsignmentPrice = consignmentPrice,
+                    ConsignmentDateFrom = consignmentDateFrom,
+                    ConsignmentDateTo = consignmentDateTo,
+                    UserImage = userImage,
+                    ConsignmentTitle = consignmentTitle,
+                    ConsignmentDetail = consignmentDetail
                 };
 
-                consignments.Add(consignment);
-                await _context.Consignments.AddAsync(consignment);
-            }
+                await _context.Consignments.AddAsync(newConsignment);
+                await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
-            return _mapper.Map<IEnumerable<ConsignmentDto>>(consignments);
+                // Map entity vừa tạo sang DTO
+                return _mapper.Map<ConsignmentDto>(newConsignment);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tạo consignment: " + ex.Message);
+            }
         }
+
 
     }
 }
