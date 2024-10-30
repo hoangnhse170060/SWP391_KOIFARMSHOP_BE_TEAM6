@@ -88,13 +88,6 @@ namespace KMS.APIService.Controllers
                 return BadRequest("Order object is null.");
             }
 
-            if (string.IsNullOrWhiteSpace(order.PaymentMethod) ||
-
-             !(order.PaymentMethod.Equals("vnpay", StringComparison.OrdinalIgnoreCase) || order.PaymentMethod.Equals("cash", StringComparison.OrdinalIgnoreCase)))
-            {
-                return BadRequest("Payment method is required and must be either 'vnpay' or 'cash'.");
-            }
-
             // Khởi tạo các danh sách nếu chúng bị null để tránh lỗi NullReferenceException
             order.OrderFishes ??= new List<OrderFish>();
             order.OrderKois ??= new List<OrderKoi>();

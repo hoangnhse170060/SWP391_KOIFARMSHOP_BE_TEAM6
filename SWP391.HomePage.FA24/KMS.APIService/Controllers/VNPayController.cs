@@ -98,9 +98,6 @@ namespace KMS.APIService.Controllers
                 _unitOfWork.PaymentTransactionRepository.CreateAsync(paymentTransaction);
                 _unitOfWork.PaymentTransactionRepository.SaveAsync();
 
-
-
-
                 return Ok(new { PaymentUrl = paymentUrl });
             }
             catch (Exception ex)
@@ -139,7 +136,6 @@ namespace KMS.APIService.Controllers
                 bool isSignatureValid = ValidateSignature(
                     Request.QueryString.Value.Substring(1, Request.QueryString.Value.IndexOf("&vnp_SecureHash") - 1),
                     vnp_SecureHash, hashSecret);
-
 
 
                 if (isSignatureValid && vnp_ResponseCode == "00") // Thanh toán thành công
@@ -226,71 +222,6 @@ namespace KMS.APIService.Controllers
             // Nếu không khớp với bất kỳ điều kiện nào, trả về lỗi mặc định
             return BadRequest(new { Message = "Unexpected error occurred." });
         }
-
-
-        [HttpPost("CashPayment")]
-        public IActionResult CreateCashPayment(int orderId, decimal amountPaid)
-        {
-            try
-            {
-                var order = _unitOfWork.OrderRepository.GetById(orderId);
-
-                if (order == null)
-                    return NotFound(new { Message = "Order not found." });
-
-                // Kiểm tra phương thức thanh toán
-                if (order.PaymentMethod != "Cash")
-                    return BadRequest(new { Message = "This order is not allowed for cash payment." });
-
-                // Kiểm tra trạng thái đơn hàng
-                if (order.OrderStatus?.ToLower() != "processing")
-                    return BadRequest(new { Message = "This order is not in a valid state for payment." });
-
-                // Kiểm tra số tiền đã thanh toán
-                if (amountPaid < order.FinalMoney)
-                {
-                    return BadRequest(new
-                    {
-                        Message = "The amount paid is less than the required amount. Please enter the correct amount.",
-                        RequiredAmount = order.FinalMoney,
-                        AmountPaid = amountPaid
-                    });
-                }
-                else if (amountPaid > order.FinalMoney)
-                {
-                    return BadRequest(new
-                    {
-                        Message = "The amount paid is more than the required amount. Please enter the exact amount.",
-                        RequiredAmount = order.FinalMoney,
-                        AmountPaid = amountPaid
-                    });
-                }
-
-
-
-                // Nếu số tiền đã thanh toán khớp với FinalMoney
-                order.OrderStatus = "completed";
-                _unitOfWork.OrderRepository.Update(order);
-                _unitOfWork.OrderRepository.SaveAsync();
-
-
-
-
-                return Ok(new
-                {
-                    Message = "Payment completed successfully.",
-                    OrderId = order.OrderId,
-                    AmountPaid = amountPaid,
-                    Status = order.OrderStatus
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing cash payment.");
-                return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
-            }
-        }
-
 
 
         private bool ValidateSignature(string rspraw, string inputHash, string secretKey)
