@@ -98,6 +98,7 @@ namespace KMS.APIService.Controllers
                 _unitOfWork.PaymentTransactionRepository.CreateAsync(paymentTransaction);
                 _unitOfWork.PaymentTransactionRepository.SaveAsync();
 
+
                 return Ok(new { PaymentUrl = paymentUrl });
             }
             catch (Exception ex)
@@ -137,27 +138,37 @@ namespace KMS.APIService.Controllers
                     Request.QueryString.Value.Substring(1, Request.QueryString.Value.IndexOf("&vnp_SecureHash") - 1),
                     vnp_SecureHash, hashSecret);
 
-
-                if (isSignatureValid && vnp_ResponseCode == "00") // Thanh toán thành công
+                if (isSignatureValid && vnp_ResponseCode == "00")
                 {
                     order.OrderStatus = "remittance";
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.OrderRepository.SaveAsync();
 
-                    //// Địa chỉ email cố định để nhận thư khi thanh toán thành công
-                    //string recipientEmail = "hoangnh09022003@gmail.com";
-                    string recipientEmail = order.User?.Email ?? "default_email@gmail.com";
+                    // Lấy email từ người dùng
+                    string recipientEmail = GetUserEmail(order);
 
-                    // Generate email content dynamically
                     string emailContent = GenerateOrderDetailsEmailContent(order);
 
-                    string customerName = order.User?.UserName ?? "Khách hàng";
-                    decimal totalAmount = order.TotalMoney;
+                    if (!string.IsNullOrWhiteSpace(recipientEmail))
+                    {
+                        try
+                        {
+                            await SendEmailAsync(recipientEmail, "Payment Confirmation", emailContent);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error sending email.");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("User email not found. Skipping email sending.");
+                    }
 
-
-                    // Chuyển hướng đến URL thành công
                     return Redirect("https://www.facebook.com/profile.php?id=100079469285890");
                 }
+
+
 
 
                 else if (vnp_ResponseCode == "24") // Khách hàng hủy giao dịch
@@ -230,139 +241,151 @@ namespace KMS.APIService.Controllers
             return myChecksum.Equals(inputHash, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private void SendEmail(string toEmailAddress, string subject, string content)
+
+
+        private string GetUserEmail(Order order)
+        {
+            // Kiểm tra xem đối tượng order và user có tồn tại không
+            if (order?.User != null && !string.IsNullOrWhiteSpace(order.User.Email))
+            {
+                return order.User.Email;
+            }
+            return null; // Trả về null nếu không có email hợp lệ
+        }
+
+        private async Task SendEmailAsync(string toEmailAddress, string subject, string content)
         {
             string fromEmailAddress = "koikeshop.swp@gmail.com";
-            string fromEmailDisplayName = "[KOIKESHOP] GỬI HOÁ ĐƠN THANH TOÁN ";
-            string fromEmailPassword = "maya xeqp vvdf fsnx"; // Sử dụng mật khẩu ứng dụng tại đây
+            string fromEmailDisplayName = "[KOIKESHOP] GỬI HOÁ ĐƠN THANH TOÁN";
+            string fromEmailPassword = "mlua qksd vbya vijt";
             string smtpHost = "smtp.gmail.com";
             int smtpPort = 587;
             bool enabledSsl = true;
 
             try
             {
-                // Tạo đối tượng MailMessage
-                MailMessage message = new MailMessage();
-                message.From = new MailAddress(fromEmailAddress, fromEmailDisplayName);
+                MailMessage message = new MailMessage
+                {
+                    From = new MailAddress(fromEmailAddress, fromEmailDisplayName),
+                    Subject = subject,
+                    Body = content,
+                    IsBodyHtml = true
+                };
                 message.To.Add(new MailAddress(toEmailAddress));
-                message.Subject = subject;
-                message.Body = content;
-                message.IsBodyHtml = true;
 
-                // Cấu hình SMTP client
                 using (SmtpClient smtpClient = new SmtpClient(smtpHost, smtpPort))
                 {
                     smtpClient.Credentials = new NetworkCredential(fromEmailAddress, fromEmailPassword);
                     smtpClient.EnableSsl = enabledSsl;
-
-                    // Gửi email
-                    smtpClient.Send(message);
+                    await smtpClient.SendMailAsync(message); // Gửi email bất đồng bộ
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending email.");
             }
-
         }
-
         private string GenerateOrderDetailsEmailContent(Order order)
         {
             var sb = new StringBuilder();
 
-
+            // Hình ảnh tiêu đề
             sb.AppendLine($@"
     <div style='text-align: center; margin-bottom: 20px;'>
-        <img src='https://i.postimg.cc/vmK8B0Fq/Koi-Ke-Zalo-Cover-320x180.png' 
-             style='width: 1348px; height: 352px;' 
+        <img src='https://i.postimg.cc/L4cz55Xt/DALL-E-2024-10-29-16-38-43-A-clean-and-elegant-wide-illustration-featuring-a-vibrant-koi-fish-with.jpg' 
+             style='width: 100%; max-width: 1350px; height: auto; display: block; margin: 0 auto;' 
              alt='Koi Image'>
     </div>");
 
-            // Bảng thông tin đơn hàng và khách hàng
+            // Bảng thông tin thanh toán
             sb.AppendLine($@"
-    <tr>
-    <th colspan='2' 
-        style='background-color: #f2f2f2; 
-               padding: 15px; 
-               font-size: 22px; 
-               text-align: center; 
-               vertical-align: middle;'>
-        PAYMENT INFORMATION
-    </th>
-</tr>
-
-        <tr>
-            <th colspan='2' style='background-color: #f2f2f2; padding: 15px; font-size: 22px; text-align: left;'>PAYMENT INFORMATION</th>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order ID</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderId}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order Date</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderDate:yyyy-MM-dd}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Payment Method</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.PaymentMethod}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Total Amount</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.TotalMoney:C}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Final Amount (after discount)</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.FinalMoney:C}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Customer Name</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.UserName ?? "N/A"}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Email</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.Email ?? "N/A"}</td>
-        </tr>");
-
+    <div style='display: flex; justify-content: center;'>
+        <table style='border-collapse: collapse; width: 100%; max-width: 1350px; table-layout: fixed; margin: 0 auto;'>
+            <colgroup>
+                <col style='width: 50%;'>
+                <col style='width: 50%;'>
+            </colgroup>
+            <tr>
+                <th colspan='2' 
+                    style='background-color: #f2f2f2; 
+                           padding: 15px; 
+                           font-size: 22px; 
+                           text-align: center; 
+                           vertical-align: middle;'>
+                    PAYMENT INFORMATION
+                </th>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order ID</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderId}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order Date</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderDate:yyyy-MM-dd}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Payment Method</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.PaymentMethod}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Total Amount</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.TotalMoney:C}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Final Amount (after discount)</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.FinalMoney:C}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Customer Name</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.UserName ?? "N/A"}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Email</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.Email ?? "N/A"}</td>
+            </tr>");
 
             foreach (var koi in order.OrderKois)
             {
                 sb.AppendLine($@"
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Koi Name</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Name}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Quantity</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Quantity}</td>
-        </tr>
-        <tr>
-            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Price</th>
-            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Price:C}</td>
-        </tr>");
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Koi Name</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Name}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Quantity</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Quantity}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Price</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Price:C}</td>
+            </tr>");
             }
-
-            sb.AppendLine("</table>");
             sb.AppendLine($@"
-    <div style='background-color: #f8d7da; padding: 20px; margin-top: 20px; border-radius: 8px;'>
+        </table>
+    </div>");
+
+            // Phần liên hệ (Contact Info)
+            sb.AppendLine($@"
+    <div style='background-color: #f8d7da; padding: 20px; margin-top: 20px; border-radius: 8px; max-width: 1350px; margin: 0 auto;'>
         <h2 style='text-align: center; font-family: Arial, sans-serif; color: #d63384;'>CONTACT INFO</h2>
         <p style='text-align: center; font-size: 16px; color: #d63384;'>
             Mail: <a href='mailto:koikeshop.swp@gmail.com' style='color: #d63384;'>koikeshop.swp@gmail.com</a><br>
-            Holine: 0969896403<br>
+            Hotline: 0969896403<br>
             Website: <a href='http://koikeshop' style='text-decoration: none; color: #d63384;'>http://koikeshop</a>
         </p>
     </div>");
 
+
             return sb.ToString();
         }
 
+
+
     }
-
-
-
 }
 
 
 
 
 
-//PAYMENT
+//PAYMENT11111

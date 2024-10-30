@@ -629,7 +629,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        [HttpPut("{orderId:int}/update-status -COMPLETED")]
+        [HttpPut("{orderId:int}/update-status-COMPLETED")]
         public async Task<IActionResult> UpdateDeliveryStatus(int orderId)
         {
             try
