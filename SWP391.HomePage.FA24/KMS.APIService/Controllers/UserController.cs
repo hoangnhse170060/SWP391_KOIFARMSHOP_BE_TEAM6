@@ -321,7 +321,8 @@ namespace KMS.APIService.Controllers
         {
                 new Claim(ClaimTypes.Name, googleResponse.Name),
                 new Claim(ClaimTypes.Email, googleResponse.Email),
-                new Claim(ClaimTypes.NameIdentifier, registeredUser?.UserId.ToString())
+                new Claim("UserId", registeredUser.UserId.ToString()),
+                new Claim(ClaimTypes.Role, registeredUser.Role)
         };
 
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));

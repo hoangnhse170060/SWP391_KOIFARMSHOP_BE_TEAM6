@@ -27,7 +27,7 @@ namespace KMG.Repository.Repositories
             return await _context.Users.CountAsync();
         }
 
-        
+
         public async Task<int> GetTotalProductsAsync()
         {
             var totalKoi = await _context.Kois.CountAsync();
@@ -35,10 +35,10 @@ namespace KMG.Repository.Repositories
             return totalKoi + totalFish;
         }
 
-       
+
         public async Task<object> GetAnalysisDataAsync()
         {
-           
+
             var revenuePerMonth = await _context.Orders
                 .GroupBy(o => o.OrderDate.Value.Month)
                 .Select(g => new
@@ -52,9 +52,20 @@ namespace KMG.Repository.Repositories
                 .GroupBy(ok => ok.KoiId)
                 .Select(g => new
                 {
+
                     KoiId = g.Key,
                     TotalSold = g.Sum(ok => ok.Quantity)
-                }).OrderByDescending(x => x.TotalSold)
+                })
+                .OrderByDescending(x => x.TotalSold)
+                .Join(_context.Kois,
+                 topKoi => topKoi.KoiId,
+                 koi => koi.KoiId,
+                 (topKoi, koi) => new
+                 {
+                KoiId = topKoi.KoiId,
+                KoiName = koi.Name,
+                TotalSold = topKoi.TotalSold
+                })
                 .FirstOrDefaultAsync();
 
 
@@ -64,9 +75,19 @@ namespace KMG.Repository.Repositories
                 {
                     FishId = g.Key,
                     TotalSold = g.Sum(of => of.Quantity)
-                }).OrderByDescending(x => x.TotalSold)
+                })
+                .OrderByDescending(x => x.TotalSold)
+                .Join(_context.Fishes,
+                topFish => topFish.FishId,
+                fish => fish.FishesId,
+                (topFish, fish) => new
+                {
+                FishId = topFish.FishId,
+                FishName = fish.Name,
+                TotalSold = topFish.TotalSold
+                })
                 .FirstOrDefaultAsync();
-
+                
 
             return new
             {
