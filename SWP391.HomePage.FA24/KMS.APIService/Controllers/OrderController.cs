@@ -590,7 +590,7 @@ namespace KMS.APIService.Controllers
                     order.EarnedPoints,
                     order.OrderStatus,
                     order.PaymentMethod,
-                    order.DeliveryStatus,
+                   
                     OrderKois = order.OrderKois.Select(ok => new
                     {
                         ok.KoiId,
@@ -629,8 +629,8 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        [HttpPut("{orderId:int}/update-status -COMPLETED")]
-        public async Task<IActionResult> UpdateDeliveryStatus(int orderId)
+        [HttpPut("{orderId:int}/update-status-COMPLETED")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId)
         {
             try
             {
@@ -646,7 +646,7 @@ namespace KMS.APIService.Controllers
                 if (order.OrderStatus?.ToLower() == "delivering")
                 {
                     // Update delivery status to 'delivered'
-                    order.DeliveryStatus = "completed";
+                    order.OrderStatus = "completed";
                     // Update the order in the repository
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.OrderRepository.SaveAsync();
@@ -709,7 +709,8 @@ namespace KMS.APIService.Controllers
                     order.EarnedPoints,
                     order.OrderStatus,
                     order.PaymentMethod,
-                    order.DeliveryStatus,
+                    
+
                     OrderKois = order.OrderKois.Select(ok => new
                     {
                         ok.KoiId,
@@ -741,9 +742,6 @@ namespace KMS.APIService.Controllers
         }
     }
 }
-
-
-
 
 
 //Orderxongroi

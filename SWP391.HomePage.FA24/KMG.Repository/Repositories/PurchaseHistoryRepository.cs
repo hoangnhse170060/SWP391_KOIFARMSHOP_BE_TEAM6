@@ -37,7 +37,6 @@ namespace KMG.Repository.Repositories
                     p.OrderStatus,
                     p.PaymentMethod,
                     p.ShippingDate,
-                    p.DeliveryStatus,
                     p.PromotionId,
                     p.EarnedPoints,
                     p.UsedPoints,

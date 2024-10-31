@@ -24,7 +24,6 @@ public partial class PurchaseHistory
 
     public DateOnly? ShippingDate { get; set; }
 
-    public string? DeliveryStatus { get; set; }
 
     public int? PromotionId { get; set; }
 

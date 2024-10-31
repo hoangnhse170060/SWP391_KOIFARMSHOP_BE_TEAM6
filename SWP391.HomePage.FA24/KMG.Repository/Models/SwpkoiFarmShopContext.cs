@@ -226,10 +226,7 @@ public partial class SwpkoiFarmShopContext : DbContext
             });
 
             entity.Property(e => e.OrderId).HasColumnName("orderID");
-            entity.Property(e => e.DeliveryStatus)
-                .HasMaxLength(12)
-                .IsUnicode(false)
-                .HasColumnName("deliveryStatus");
+            
             entity.Property(e => e.DiscountMoney)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("discountMoney");
@@ -349,10 +346,7 @@ public partial class SwpkoiFarmShopContext : DbContext
 
             entity.Property(e => e.OrderId).HasColumnName("orderID");
             entity.Property(e => e.UserId).HasColumnName("userID");
-            entity.Property(e => e.DeliveryStatus)
-                .HasMaxLength(12)
-                .IsUnicode(false)
-                .HasColumnName("deliveryStatus");
+            
             entity.Property(e => e.DiscountMoney)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("discountMoney");

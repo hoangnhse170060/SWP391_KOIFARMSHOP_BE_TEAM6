@@ -41,18 +41,20 @@ namespace KMS.APIService.Controllers
                     p.OrderStatus,
                     p.PaymentMethod,
                     p.ShippingDate,
-                    p.DeliveryStatus,
+
                     p.PromotionId,
                     p.EarnedPoints,
                     p.UsedPoints,
                     KoiDetails = p.Order.OrderKois.Select(ok => new
                     {
+                        ok.KoiId,
                         ok.Koi.Name,
                         ok.Koi.ImageKoi,
                         ok.Quantity
                     }).ToList(),
                     FishDetails = p.Order.OrderFishes.Select(of => new
                     {
+                        of.FishesId,
                         of.Fishes.Name,
                         of.Fishes.ImageFishes,
                         of.Quantity

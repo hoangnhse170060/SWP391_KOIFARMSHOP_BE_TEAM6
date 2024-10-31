@@ -30,7 +30,7 @@ public partial class Order
 
     public DateOnly? ShippingDate { get; set; }
 
-    public string? DeliveryStatus { get; set; }
+  
     [JsonIgnore]
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();

@@ -40,10 +40,10 @@ namespace KMG.Repository.Services
 
                 var newConsignment = new Consignment
                 {
-                    UserId = userID,               
-                    KoiId = koiID,                  
+                    UserId = userID,
+                    KoiId = koiID,
                     ConsignmentType = consignmentType,
-                    Status = status,              
+                    Status = status,
                     ConsignmentPrice = consignmentPrice,
                     ConsignmentDateFrom = consignmentDateFrom,
                     ConsignmentDateTo = consignmentDateTo,
@@ -95,7 +95,7 @@ namespace KMG.Repository.Services
                 existingConsignment.UserId = userID;
                 existingConsignment.KoiId = koiID;
                 existingConsignment.ConsignmentType = consignmentType;
-                existingConsignment.Status = status;    
+                existingConsignment.Status = status;
                 existingConsignment.ConsignmentPrice = consignmentPrice;
                 existingConsignment.ConsignmentDateFrom = consignmentDateFrom;
                 existingConsignment.ConsignmentDateTo = consignmentDateTo;

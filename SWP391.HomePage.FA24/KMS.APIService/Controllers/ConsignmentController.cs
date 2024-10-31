@@ -15,7 +15,7 @@ namespace KMS.APIService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin, staff, customer")]
+    [Authorize(Roles = "manager, staff, customer")]
     public class ConsignmentController : ControllerBase
     {
         private readonly IConsignmentService _consignmentService;
@@ -325,15 +325,15 @@ namespace KMS.APIService.Controllers
         // PUT: api/consignment/update-consignment/{consignmentId}
         [HttpPut("update-consignmentCustomer/{consignmentId}")]
         public async Task<IActionResult> UpdateConsignment(
-                int consignmentId,
-                int koiID,
-                string consignmentType,
-                decimal consignmentPrice,
-                // DateTime consignmentDateFrom,
-                DateTime consignmentDateTo,
-                string? userImage,
-                string? consignmentTitle = null,
-                string? consignmentDetail = null)
+            int consignmentId,
+            int koiID,
+            string consignmentType,
+            decimal consignmentPrice,
+            // DateTime consignmentDateFrom,
+            DateTime consignmentDateTo,
+            string? userImage,
+            string? consignmentTitle = null,
+            string? consignmentDetail = null)
         {
             try
             {
