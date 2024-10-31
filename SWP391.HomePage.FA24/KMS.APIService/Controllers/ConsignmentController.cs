@@ -121,7 +121,7 @@ namespace KMS.APIService.Controllers
 
 
 
-        [Authorize(Roles = "admin, staff")]
+        [Authorize(Roles = "manager, staff")]
         [HttpPost("create-consignmentAdmin_Staff")]
         public async Task<IActionResult> CreateConsignment(
         int koiID,
@@ -377,7 +377,7 @@ namespace KMS.APIService.Controllers
         }
 
 
-        [Authorize(Roles = "admin, staff")]
+        [Authorize(Roles = "manager, staff")]
         // PUT: api/consignment/update-consignment/{consignmentId}
         [HttpPut("update-consignmentByAdmin_Staff/{consignmentId}")]
         public async Task<IActionResult> UpdateConsignment(
