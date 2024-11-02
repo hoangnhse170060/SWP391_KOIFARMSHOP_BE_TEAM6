@@ -41,5 +41,12 @@ namespace KMS.APIService.Controllers
             var totalRevenue = await _unitOfWork.DashboardRepository.GetTotalRevenueAsync();
             return Ok(new { TotalRevenue = totalRevenue });
         }
+        [HttpGet("order-analysis")]
+        public async Task<IActionResult> GetOrderStatusStatistics()
+        {
+            var orderStatusStatistics = await _unitOfWork.DashboardRepository.GetOrderStatusStatisticsAsync();
+            return Ok(orderStatusStatistics);
+        }
+
     }
 }

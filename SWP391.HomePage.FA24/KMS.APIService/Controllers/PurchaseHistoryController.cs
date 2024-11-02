@@ -42,7 +42,7 @@ namespace KMS.APIService.Controllers
                     p.PaymentMethod,
                     p.ShippingDate,
 
-                    p.PromotionId,
+                    p.Promotion.PromotionName,
                     p.EarnedPoints,
                     p.UsedPoints,
                     KoiDetails = p.Order.OrderKois.Select(ok => new

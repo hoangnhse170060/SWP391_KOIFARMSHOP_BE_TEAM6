@@ -96,5 +96,25 @@ namespace KMG.Repository.Repositories
                 TopSellingFish = topSellingFish
             };
         }
+        public async Task<object> GetOrderStatusStatisticsAsync()
+        {
+            var totalOrders = await _context.Orders.CountAsync();
+
+            var orderStatusCounts = await _context.Orders
+                .GroupBy(o => o.OrderStatus)
+                .Select(g => new
+                {
+                    Status = g.Key,
+                    Quantity = g.Count()
+                })
+                .ToListAsync();
+
+            return new
+            {
+                TotalOrders = totalOrders,
+                StatusCounts = orderStatusCounts
+            };
+        }
+
     }
 }

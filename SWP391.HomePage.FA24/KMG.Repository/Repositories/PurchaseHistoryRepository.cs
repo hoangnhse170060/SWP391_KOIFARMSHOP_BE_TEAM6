@@ -37,7 +37,7 @@ namespace KMG.Repository.Repositories
                     p.OrderStatus,
                     p.PaymentMethod,
                     p.ShippingDate,
-                    p.PromotionId,
+                    p.Promotion.PromotionName,
                     p.EarnedPoints,
                     p.UsedPoints,
                     KoiDetails = p.Order.OrderKois.Select(ok => new
