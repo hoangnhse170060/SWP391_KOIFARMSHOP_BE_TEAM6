@@ -69,6 +69,7 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.ToTable("Consignment");
 
             entity.Property(e => e.ConsignmentId).HasColumnName("consignmentID");
+            entity.Property(e => e.KoiTypeId).HasColumnName("koiTypeID");
             entity.Property(e => e.ConsignmentDateFrom).HasColumnName("consignmentDateFrom");
             entity.Property(e => e.ConsignmentDateTo).HasColumnName("consignmentDateTo");
             entity.Property(e => e.ConsignmentPrice)
@@ -94,6 +95,7 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Consignments)
                 .HasForeignKey(d => d.UserId)
                 .HasConstraintName("FK__Consignme__userI__30F848ED");
+
 
             modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions");
         });

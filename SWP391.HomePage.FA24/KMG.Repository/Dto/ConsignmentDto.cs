@@ -1,11 +1,11 @@
-﻿using System;
-
-namespace KMG.Repository.Dto
+﻿namespace KMG.Repository.Dto
 {
     public class ConsignmentDto
     {
         public int ConsignmentId { get; set; }
         public int? UserId { get; set; }
+
+        public int KoiTypeId { get; set; }
         public int? KoiId { get; set; }
         public string? ConsignmentType { get; set; }
         public string? Status { get; set; }

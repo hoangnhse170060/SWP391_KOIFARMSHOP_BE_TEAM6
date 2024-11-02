@@ -7,6 +7,8 @@ public partial class Consignment
 {
     public int ConsignmentId { get; set; }
 
+    public int KoiTypeId { get; set; }
+
     public int? UserId { get; set; }
 
     public int? KoiId { get; set; }
