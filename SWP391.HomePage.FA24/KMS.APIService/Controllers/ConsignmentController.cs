@@ -16,12 +16,15 @@ namespace KMS.APIService.Controllers
         private readonly IConsignmentService _consignmentService;
         private readonly IMapper _mapper;  // Inject IMapper
         private readonly SwpkoiFarmShopContext _context;
+        private readonly IEmailService _emailService;
 
-        public ConsignmentController(IConsignmentService consignmentService, IMapper mapper, SwpkoiFarmShopContext context)
+
+        public ConsignmentController(IConsignmentService consignmentService, IMapper mapper, SwpkoiFarmShopContext context, IEmailService emailService)
         {
             _consignmentService = consignmentService;
             _mapper = mapper;  // Assign IMapper to the private field
             _context = context;
+            _emailService = emailService;
         }
 
         // GET: api/consignment/get-consignments
@@ -336,8 +339,25 @@ namespace KMS.APIService.Controllers
             }
             return Ok("Consignment deleted successfully.");
         }
+        // POST: api/consignment/notify-customer
+        [HttpPost("notify-customer")]
+        public async Task<IActionResult> NotifyCustomer(int consignmentId, string customerEmail)
+        {
+            try
+            {
+                string subject = "Consignment Status Update";
+                string message = $"Dear Customer, \n\nYour consignment with ID {consignmentId} has been updated.\n\nBest regards,\nKoi Farm Team";
 
-       
+                await _emailService.SendEmailAsync(customerEmail, subject, message);
+
+                return Ok("Email sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to send email: {ex.Message}");
+            }
+        }
+
 
     }
 }

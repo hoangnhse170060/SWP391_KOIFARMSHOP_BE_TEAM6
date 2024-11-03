@@ -95,6 +95,7 @@ namespace KMS.APIService
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'MovieDBContext' not found.")));
             builder.Services.AddScoped<UnitOfWork>();
             builder.Services.AddScoped<IConsignmentService, ConsignmentService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddAutoMapper(typeof(MapperProfile));
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
