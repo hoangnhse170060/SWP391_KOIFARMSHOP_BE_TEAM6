@@ -173,6 +173,16 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to get consignments: " + ex.Message);
             }
         }
-       
+        public async Task<IEnumerable<ConsignmentDto>> GetConsignmentsByUserIdAsync(int userId)
+        {
+            var consignments = await _context.Consignments
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<ConsignmentDto>>(consignments);
+        }
+
+
+
     }
 }

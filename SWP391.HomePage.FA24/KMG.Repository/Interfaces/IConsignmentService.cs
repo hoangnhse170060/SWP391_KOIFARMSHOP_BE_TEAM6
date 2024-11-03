@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Dto;
 using KMG.Repository.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -22,7 +23,12 @@ namespace KMG.Repository.Interfaces
         // Lấy tất cả danh sách Consignments
         Task<IEnumerable<ConsignmentDto>> GetAllConsignmentsAsync();
 
-        
+        // Lấy tất cả Consignments theo UserId
+        Task<IEnumerable<ConsignmentDto>> GetConsignmentsByUserIdAsync(int userId);
+
+
+
+
 
     }
 }

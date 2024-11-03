@@ -46,6 +46,27 @@ namespace KMS.APIService.Controllers
             return Ok(consignmentDto);  // Return mapped DTO
         }
 
+        // GET: api/consignment/get-consignments-by-user/{userId}
+        [HttpGet("get-consignments-by-user/{userId}")]
+        public async Task<IActionResult> GetConsignmentsByUserId(int userId)
+        {
+            try
+            {
+                var consignments = await _consignmentService.GetConsignmentsByUserIdAsync(userId);
+                if (consignments == null || !consignments.Any())
+                {
+                    return NotFound("No consignments found for the specified user.");
+                }
+
+                return Ok(consignments); // Return list of ConsignmentDto
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+
         [Authorize(Roles = "customer")]
         [HttpPost("create-consignmentCustomer")]
         public async Task<IActionResult> CreateConsignment(
