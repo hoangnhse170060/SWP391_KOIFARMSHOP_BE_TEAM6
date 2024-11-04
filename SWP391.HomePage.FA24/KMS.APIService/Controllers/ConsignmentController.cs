@@ -4,7 +4,6 @@ using KMG.Repository.Interfaces;
 using KMG.Repository.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace KMS.APIService.Controllers
 {
@@ -17,14 +16,15 @@ namespace KMS.APIService.Controllers
         private readonly IMapper _mapper;  // Inject IMapper
         private readonly SwpkoiFarmShopContext _context;
         private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
 
-
-        public ConsignmentController(IConsignmentService consignmentService, IMapper mapper, SwpkoiFarmShopContext context, IEmailService emailService)
+        public ConsignmentController(IConsignmentService consignmentService, IMapper mapper, SwpkoiFarmShopContext context, IEmailService emailService, IUserService userService)
         {
             _consignmentService = consignmentService;
             _mapper = mapper;  // Assign IMapper to the private field
             _context = context;
             _emailService = emailService;
+            _userService = userService;
         }
 
         // GET: api/consignment/get-consignments
@@ -66,6 +66,71 @@ namespace KMS.APIService.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        [Authorize(Roles = "customer")]
+        [HttpPost("create-consignmentCustomer-outside")]
+        public async Task<IActionResult> CreateConsignment(
+    int koitypeID,
+    string consignmentType,
+    decimal consignmentPrice,
+    DateTime consignmentDateTo,
+    string? userImage = null,
+    string? consignmentTitle = null,
+    string? consignmentDetail = null)
+        {
+            try
+            {
+                // Validate consignmentType
+                if (consignmentType != "online" && consignmentType != "offline")
+                {
+                    return BadRequest("Invalid consignment type. It must be 'online' or 'offline'.");
+                }
+
+                // Validate consignmentPrice
+                if (consignmentPrice <= 0)
+                {
+                    return BadRequest("Consignment price must be greater than zero.");
+                }
+                // Validate consignmentDateTo to ensure it's not in the past
+                if (consignmentDateTo < DateTime.Now)
+                {
+                    return BadRequest("Consignment date cannot be in the past.");
+                }
+
+                // Get the UserId from the claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Parse the UserId
+                if (!int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return BadRequest("Invalid User ID.");
+                }
+
+                var status = "awaiting inspection";
+
+
+
+
+                // Create consignment using the service
+                var createdConsignment = await _consignmentService.CreateConsignmentAsync(
+                    userId, koitypeID, null, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
+                );
+
+                // Return created consignment with CreatedAtAction
+                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, new
+                {
+                    consignment = createdConsignment,
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log exception and return server error
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
@@ -197,7 +262,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        
+
 
 
         [Authorize(Roles = "customer")]
@@ -257,7 +322,43 @@ namespace KMS.APIService.Controllers
         }
 
 
-      
+
+        //// [Authorize(Roles = "manager, staff")]
+        //// PUT: api/consignment/update-status
+        //[HttpPut("update-status")]
+        //public async Task<IActionResult> UpdateConsignmentStatus([FromBody] UpdateStatusRequest request)
+        //{
+        //    try
+        //    {
+        //        // Kiểm tra người dùng hiện tại từ Claims
+        //        var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+        //        if (userIdClaim == null)
+        //        {
+        //            return Unauthorized("User not authenticated.");
+        //        }
+
+        //        // Kiểm tra vai trò của người dùng (chỉ cho phép manager và staff)
+        //        if (!HttpContext.User.IsInRole("manager") && !HttpContext.User.IsInRole("staff"))
+        //        {
+        //            return Forbid("Only managers or staff can update the consignment status.");
+        //        }
+
+        //        // Gọi phương thức service để cập nhật trạng thái
+        //        var updated = await _consignmentService.UpdateConsignmentStatusAsync(request.ConsignmentId, request.Status);
+
+        //        if (!updated)
+        //        {
+        //            return NotFound("Consignment not found.");
+        //        }
+
+        //        return Ok("Consignment status updated successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"Error: {ex.Message}");
+        //    }
+        //}
+
         // [Authorize(Roles = "manager, staff")]
         // PUT: api/consignment/update-status
         [HttpPut("update-status")]
@@ -278,21 +379,91 @@ namespace KMS.APIService.Controllers
                     return Forbid("Only managers or staff can update the consignment status.");
                 }
 
+                // Lấy thông tin consignment để xác minh tồn tại và lấy thông tin người dùng
+                var consignment = await _consignmentService.GetConsignmentByIdAsync(request.ConsignmentId);
+                if (consignment == null)
+                {
+                    return NotFound("Consignment not found.");
+                }
+
                 // Gọi phương thức service để cập nhật trạng thái
                 var updated = await _consignmentService.UpdateConsignmentStatusAsync(request.ConsignmentId, request.Status);
 
                 if (!updated)
                 {
-                    return NotFound("Consignment not found.");
+                    return NotFound("Failed to update the consignment.");
                 }
 
-                return Ok("Consignment status updated successfully.");
+                // Lấy thông tin người dùng để gửi email
+                var user = await _userService.GetUserByIdAsync(consignment.UserId.Value);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    // Gửi email thông báo
+                    string subject = "Consignment Status Update";
+                    string message = $"Dear {user.UserName},\n\nYour consignment with ID {request.ConsignmentId} has been updated to status '{request.Status}'.\n\nBest regards,\nKoi Farm Team";
+
+                    await _emailService.SendEmailAsync(user.Email, subject, message);
+                }
+
+                return Ok("Consignment status updated successfully and user notified via email.");
             }
             catch (Exception ex)
             {
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+
+
+        [Authorize(Roles = "manager, staff")]
+        [HttpPost("list-consignment-for-sale/{consignmentId}")]
+        public async Task<IActionResult> ListConsignmentForSale(int consignmentId)
+        {
+            try
+            {
+                var consignment = await _consignmentService.GetConsignmentByIdAsync(consignmentId);
+                if (consignment == null)
+                {
+                    return NotFound("Consignment not found.");
+                }
+
+                // Không cho phép đăng bán nếu loại consignment là 'offline'
+                if (consignment.ConsignmentType == "offline")
+                {
+                    return BadRequest("Offline consignments cannot be listed for sale.");
+                }
+                // Chỉ cho phép các ký gửi đã được phê duyệt để đăng bán
+                if (consignment.Status != "approved")
+                {
+                    return BadRequest("Only approved consignments can be listed for sale.");
+                }
+
+                // Cập nhật trạng thái ký gửi thành 'available'
+                bool updated = await _consignmentService.UpdateConsignmentStatusAsync(consignmentId, "available");
+
+                if (!updated)
+                {
+                    return NotFound("Failed to update the consignment.");
+                }
+
+                // Lấy thông tin người dùng để gửi email
+                var user = await _userService.GetUserByIdAsync(consignment.UserId.Value);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    // Gửi email thông báo
+                    string subject = "Your Consignment is Now Available for Sale";
+                    string message = $"Dear {user.UserName},\n\nYour consignment with ID {consignmentId} has been approved and is now available for sale.\n\nBest regards,\nKoi Farm Team";
+
+                    await _emailService.SendEmailAsync(user.Email, subject, message);
+                }
+
+                return Ok("Consignment is now listed for sale and the user has been notified.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
 
 
