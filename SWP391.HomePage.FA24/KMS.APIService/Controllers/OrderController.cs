@@ -79,6 +79,59 @@ namespace KMS.APIService.Controllers
             }
         }
 
+
+        [HttpGet("{name}")]
+        public async Task<ActionResult<object>> GetOrdersByUserName(string name)
+        {
+            try
+            {
+                var orders = await _unitOfWork.OrderRepository.GetOrdersByUserNameAsync(name);
+
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound($"No orders found for User Name = {name}.");
+                }
+
+                // Prepare data for response
+                var result = orders.Select(order => new
+                {
+                    order.OrderId,
+                    order.UserId,
+                    order.OrderDate,
+                    order.TotalMoney,
+                    order.FinalMoney,
+                    order.OrderStatus,
+                    order.PaymentMethod,
+                    Fishes = order.OrderFishes.Select(f => new
+                    {
+                        f.FishesId,
+                        f.Quantity,
+                        f.Fishes.Name,
+                        f.Fishes.Status,
+                        f.Fishes.Price,
+                        f.Fishes.ImageFishes
+                    }),
+                    Kois = order.OrderKois.Select(k => new
+                    {
+                        k.KoiId,
+                        k.Quantity,
+                        k.Koi.Name,
+                        k.Koi.Gender,
+                        k.Koi.Price,
+                        k.Koi.Size,
+                        k.Koi.ImageKoi
+                    })
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving orders by User Name.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
         {

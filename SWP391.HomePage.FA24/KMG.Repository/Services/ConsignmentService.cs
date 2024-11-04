@@ -3,9 +3,6 @@ using KMG.Repository.Dto;
 using KMG.Repository.Interfaces;
 using KMG.Repository.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace KMG.Repository.Services
 {
@@ -21,7 +18,7 @@ namespace KMG.Repository.Services
         }
 
         // Create Consignment
-        public async Task<ConsignmentDto> CreateConsignmentAsync(int userID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
+        public async Task<ConsignmentDto> CreateConsignmentAsync(int userID, int koitypeID, int? koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
         {
             try
             {
@@ -41,6 +38,7 @@ namespace KMG.Repository.Services
                 var newConsignment = new Consignment
                 {
                     UserId = userID,
+                    KoiTypeId = koitypeID,
                     KoiId = koiID,
                     ConsignmentType = consignmentType,
                     Status = status,
@@ -66,7 +64,7 @@ namespace KMG.Repository.Services
 
 
         // Update Consignment
-        public async Task<bool> UpdateConsignmentAsync(int consignmentId, int userID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
+        public async Task<bool> UpdateConsignmentAsync(int consignmentId, int userID, int koitypeID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
         {
             try
             {
@@ -93,6 +91,7 @@ namespace KMG.Repository.Services
 
                 // Cập nhật thông tin consignment
                 existingConsignment.UserId = userID;
+                existingConsignment.KoiTypeId = koitypeID;
                 existingConsignment.KoiId = koiID;
                 existingConsignment.ConsignmentType = consignmentType;
                 existingConsignment.Status = status;
@@ -112,6 +111,39 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to update consignment: " + ex.Message);
             }
         }
+
+        // update cho manager và staff
+        public async Task<bool> UpdateConsignmentStatusAsync(int consignmentId, string newStatus)
+        {
+            try
+            {
+                // Lấy thông tin consignment từ ID
+                var existingConsignment = await _context.Consignments.FindAsync(consignmentId);
+                if (existingConsignment == null)
+                {
+                    throw new KeyNotFoundException("Consignment not found.");
+                }
+
+                // Cập nhật chỉ trường status của consignment
+                existingConsignment.Status = newStatus;
+
+                // Lưu thay đổi vào cơ sở dữ liệu
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                // Kiểm tra ngoại lệ bên trong để biết chi tiết lỗi
+                if (ex.InnerException != null)
+                {
+                    throw new Exception("Failed to update consignment status: " + ex.InnerException.Message);
+                }
+                throw new Exception("Failed to update consignment status: " + ex.Message);
+            }
+        }
+
+
 
 
         // Delete Consignment
@@ -141,7 +173,10 @@ namespace KMG.Repository.Services
         {
             try
             {
-                var consignment = await _context.Consignments.FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId);
+                var consignment = await _context.Consignments
+                    .Include(c => c.Koi) // Include model Koi để lấy thông tin chi tiết cá Koi
+                    .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId);
+
                 if (consignment == null)
                 {
                     throw new KeyNotFoundException("Consignment not found.");
@@ -156,14 +191,48 @@ namespace KMG.Repository.Services
             }
         }
 
+
         // Get All Consignments
         public async Task<IEnumerable<ConsignmentDto>> GetAllConsignmentsAsync()
         {
             try
             {
-                var consignments = await _context.Consignments.ToListAsync();
+                var consignments = await _context.Consignments
+                    .Include(c => c.Koi) // Include Koi data
+                    .Include(c => c.User) // Include User data to get UserName
+                    .ToListAsync();
 
-                // Map the list of entities to DTOs
+                // Map entity list to DTO list
+                var consignmentDtos = _mapper.Map<IEnumerable<ConsignmentDto>>(consignments);
+
+                // Thêm UserName vào DTO nếu cần
+                foreach (var consignmentDto in consignmentDtos)
+                {
+                    var consignmentEntity = consignments.FirstOrDefault(c => c.ConsignmentId == consignmentDto.ConsignmentId);
+                    if (consignmentEntity?.User != null)
+                    {
+                        consignmentDto.UserName = consignmentEntity.User.UserName; // Assuming ConsignmentDto has a UserName property
+                    }
+                }
+
+                return consignmentDtos;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get consignments: " + ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<ConsignmentDto>> GetConsignmentsByUserNameAsync(string userName)
+        {
+            try
+            {
+                var consignments = await _context.Consignments
+                    .Include(c => c.Koi)
+                    .Include(c => c.User) // Bao gồm thông tin User
+                    .Where(c => c.User.UserName == userName) // Lọc theo UserName
+                    .ToListAsync();
+
                 return _mapper.Map<IEnumerable<ConsignmentDto>>(consignments);
             }
             catch (Exception ex)
@@ -171,57 +240,8 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to get consignments: " + ex.Message);
             }
         }
-        public async Task<ConsignmentDto> CreateConsignmentFromOrderAsync(int userID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
-        {
-            try
-            {
-                // Kiểm tra PurchaseHistory với OrderStatus là 'processing' hoặc 'completed'
-                var validPurchaseHistory = await _context.PurchaseHistories
-                    .Where(p => p.UserId == userID && (p.OrderStatus == "processing" || p.OrderStatus == "completed"))
-                    .FirstOrDefaultAsync();
 
-                if (validPurchaseHistory == null)
-                {
-                    throw new InvalidOperationException("Không có lịch sử giao dịch hợp lệ để thực hiện ký gửi.");
-                }
 
-                // Nếu người dùng là "customer", đặt trạng thái mặc định cho consignment
-                var user = await _context.Users.FindAsync(userID);
-                if (user == null)
-                {
-                    throw new KeyNotFoundException("Không tìm thấy người dùng.");
-                }
-
-                if (user.Role == "customer")
-                {
-                    status = "awaiting inspection";
-                }
-
-                var newConsignment = new Consignment
-                {
-                    UserId = userID,
-                    KoiId = koiID,
-                    ConsignmentType = consignmentType,
-                    Status = status,
-                    ConsignmentPrice = consignmentPrice,
-                    ConsignmentDateFrom = consignmentDateFrom,
-                    ConsignmentDateTo = consignmentDateTo,
-                    UserImage = userImage,
-                    ConsignmentTitle = consignmentTitle,
-                    ConsignmentDetail = consignmentDetail
-                };
-
-                await _context.Consignments.AddAsync(newConsignment);
-                await _context.SaveChangesAsync();
-
-                // Map entity vừa tạo sang DTO
-                return _mapper.Map<ConsignmentDto>(newConsignment);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi tạo consignment: " + ex.Message);
-            }
-        }
 
 
     }

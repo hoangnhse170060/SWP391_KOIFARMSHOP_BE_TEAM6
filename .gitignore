@@ -1,8 +1,16 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# Thư mục build và output
+bin/
+obj/
 
-/Helloworld/.vs
-/Helloworld/bin/Debug/net8.0
-/Helloworld/obj
+# Cấu hình môi trường cục bộ
+*.user
+*.vspscc
+*.vssscc
+.vscode/
 .vs/
+.idea/
+
+
+# Các tệp cấu hình
+*.config
+*.spec

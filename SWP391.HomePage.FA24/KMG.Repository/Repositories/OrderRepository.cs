@@ -29,6 +29,17 @@ namespace KMG.Repository.Repositories
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
 
+        public async Task<List<Order>> GetOrdersByUserNameAsync(string name)
+        {
+            return await _context.Orders
+                .Include(o => o.User) // Include the User entity to access UserName
+                .Include(o => o.OrderKois)
+                .ThenInclude(ok => ok.Koi)
+                .Include(o => o.OrderFishes)
+                .ThenInclude(of => of.Fishes)
+                .Where(o => o.User.UserName == name) // Filter by User.UserName
+                .ToListAsync(); // Return a list of orders
+        }
 
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
