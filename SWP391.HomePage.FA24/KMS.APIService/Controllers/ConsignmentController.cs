@@ -49,13 +49,13 @@ namespace KMS.APIService.Controllers
             return Ok(consignmentDto);  // Return mapped DTO
         }
 
-        // GET: api/consignment/get-consignments-by-user/{userId}
-        [HttpGet("get-consignments-by-user/{userId}")]
-        public async Task<IActionResult> GetConsignmentsByUserId(int userId)
+        // GET: api/consignment/get-consignments-by-user/{userName}
+        [HttpGet("get-consignments-by-user/{userName}")]
+        public async Task<IActionResult> GetConsignmentsByUserName(string userName)
         {
             try
             {
-                var consignments = await _consignmentService.GetConsignmentsByUserIdAsync(userId);
+                var consignments = await _consignmentService.GetConsignmentsByUserNameAsync(userName);
                 if (consignments == null || !consignments.Any())
                 {
                     return NotFound("No consignments found for the specified user.");
@@ -68,6 +68,7 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
 
 
         [Authorize(Roles = "customer")]
@@ -256,75 +257,44 @@ namespace KMS.APIService.Controllers
         }
 
 
-        [Authorize(Roles = "manager, staff")]
-        // PUT: api/consignment/update-consignment/{consignmentId}
-        [HttpPut("update-consignmentByAdmin_Staff/{consignmentId}")]
-        public async Task<IActionResult> UpdateConsignment(
-                int consignmentId,
-                int koitypeID,
-                int koiID,
-                string consignmentType,
-                decimal consignmentPrice,
-                //DateTime consignmentDateFrom,
-                DateTime consignmentDateTo,
-                string? userImage,
-                string? consignmentTitle = null,
-                string? consignmentDetail = null,
-                string? status = null) // Optional status parameter
+      
+        // [Authorize(Roles = "manager, staff")]
+        // PUT: api/consignment/update-status
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateConsignmentStatus([FromBody] UpdateStatusRequest request)
         {
             try
             {
-                // Validate consignmentDateTo to ensure it's not in the past
-                if (consignmentDateTo < DateTime.Now)
-                {
-                    return BadRequest("Consignment date cannot be in the past.");
-                }
+                // Kiểm tra người dùng hiện tại từ Claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
                 {
                     return Unauthorized("User not authenticated.");
                 }
 
-                if (!int.TryParse(userIdClaim.Value, out int userId))
+                // Kiểm tra vai trò của người dùng (chỉ cho phép manager và staff)
+                if (!HttpContext.User.IsInRole("manager") && !HttpContext.User.IsInRole("staff"))
                 {
-                    return BadRequest("Invalid User ID.");
+                    return Forbid("Only managers or staff can update the consignment status.");
                 }
 
-                //var dateOnly = DateOnly.FromDateTime(consignmentDate);
-
-                // Determine user role
-                var userRole = HttpContext.User.IsInRole("customer") ? "customer" : "staff/admin";
-
-                if (userRole == "staff/admin")
-                {
-                    // Optional: Validate the status if provided for admin/staff
-                    if (string.IsNullOrWhiteSpace(status))
-                    {
-                        return BadRequest("Status must be provided for admin or staff.");
-                    }
-                }
-                else
-                {
-                    return BadRequest("Invalid user role.");
-                }
-
-                // Update consignment using the service
-                var updated = await _consignmentService.UpdateConsignmentAsync(
-                    consignmentId, userId, koitypeID, koiID, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
-                );
+                // Gọi phương thức service để cập nhật trạng thái
+                var updated = await _consignmentService.UpdateConsignmentStatusAsync(request.ConsignmentId, request.Status);
 
                 if (!updated)
                 {
                     return NotFound("Consignment not found.");
                 }
 
-                return Ok("Consignment updated successfully.");
+                return Ok("Consignment status updated successfully.");
             }
             catch (Exception ex)
             {
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+
+
 
 
 
