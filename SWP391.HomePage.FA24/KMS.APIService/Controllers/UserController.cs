@@ -194,7 +194,7 @@ namespace KMS.APIService.Controllers
             {
                 return BadRequest("Current password is incorrect.");
             }
-            var newhashedPassword = HashPassword.HashPasswordToSha256(model.CurrentPassword);
+            var newhashedPassword = HashPassword.HashPasswordToSha256(model.NewPassword);
             user.Password = newhashedPassword;
             await _userRepository.SaveAsync();
 

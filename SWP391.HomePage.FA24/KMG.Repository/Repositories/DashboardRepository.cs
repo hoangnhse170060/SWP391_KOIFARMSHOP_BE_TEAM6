@@ -62,10 +62,10 @@ namespace KMG.Repository.Repositories
                  koi => koi.KoiId,
                  (topKoi, koi) => new
                  {
-                KoiId = topKoi.KoiId,
-                KoiName = koi.Name,
-                TotalSold = topKoi.TotalSold
-                })
+                     KoiId = topKoi.KoiId,
+                     KoiName = koi.Name,
+                     TotalSold = topKoi.TotalSold
+                 })
                 .FirstOrDefaultAsync();
 
 
@@ -82,18 +82,27 @@ namespace KMG.Repository.Repositories
                 fish => fish.FishesId,
                 (topFish, fish) => new
                 {
-                FishId = topFish.FishId,
-                FishName = fish.Name,
-                TotalSold = topFish.TotalSold
+                    FishId = topFish.FishId,
+                    FishName = fish.Name,
+                    TotalSold = topFish.TotalSold
                 })
                 .FirstOrDefaultAsync();
-                
+            var feedbackStatistics = await _context.Feedbacks
+                .GroupBy(f => 1)
+                .Select(g => new
+                {
+                TotalFeedbacks = g.Count(),
+                 AverageRating = g.Average(f => (double?)f.Rating) ?? 0
+                })
+                .FirstOrDefaultAsync();
+
 
             return new
             {
                 RevenuePerMonth = revenuePerMonth,
                 TopSellingKoi = topSellingKoi,
-                TopSellingFish = topSellingFish
+                TopSellingFish = topSellingFish,
+                FeedbackStatistics = feedbackStatistics
             };
         }
         public async Task<object> GetOrderStatusStatisticsAsync()
@@ -115,6 +124,25 @@ namespace KMG.Repository.Repositories
                 StatusCounts = orderStatusCounts
             };
         }
+        public async Task<object> GetTopUsersAsync(int topCount = 3)
+        {
+            var topUsers = await _context.Users
+                .Select(user => new
+                {
+                    UserId = user.UserId,
+                    UserName = user.UserName,
+                    TotalOrders = _context.Orders.Count(o => o.UserId == user.UserId),
+                    TotalSpent = _context.Orders
+                        .Where(o => o.UserId == user.UserId && o.OrderStatus == "completed")
+                        .Sum(o => (decimal?)o.FinalMoney) ?? 0
+                })
+                .OrderByDescending(user => user.TotalSpent)
+                .Take(topCount)
+                .ToListAsync();
+
+            return topUsers;
+        }
+
 
     }
 }

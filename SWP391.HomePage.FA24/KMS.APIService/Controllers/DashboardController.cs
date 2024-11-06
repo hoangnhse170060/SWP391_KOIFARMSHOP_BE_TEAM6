@@ -47,6 +47,12 @@ namespace KMS.APIService.Controllers
             var orderStatusStatistics = await _unitOfWork.DashboardRepository.GetOrderStatusStatisticsAsync();
             return Ok(orderStatusStatistics);
         }
+        [HttpGet("top-users")]
+        public async Task<IActionResult> GetTopUsers()
+        {
+            var topUsers = await _unitOfWork.DashboardRepository.GetTopUsersAsync();
+            return Ok(topUsers);
+        }
 
     }
 }
