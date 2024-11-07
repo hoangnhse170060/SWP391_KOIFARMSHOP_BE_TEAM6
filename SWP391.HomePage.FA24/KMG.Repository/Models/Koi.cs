@@ -46,6 +46,8 @@ public partial class Koi
     public string? Description { get; set; }
     public string? DetailDescription { get; set; }
     public string? AdditionImage { get; set; }
+
+    public bool IsConsigned { get; set; } = false;
     [JsonIgnore]
     public virtual ICollection<Consignment> Consignments { get; set; } = new List<Consignment>();
     [JsonIgnore]

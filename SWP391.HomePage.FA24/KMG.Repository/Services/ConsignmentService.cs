@@ -63,6 +63,9 @@ namespace KMG.Repository.Services
         }
 
 
+
+
+
         // Update Consignment
         public async Task<bool> UpdateConsignmentAsync(int consignmentId, int userID, int koitypeID, int koiID, string consignmentType, string status, decimal consignmentPrice, DateTime consignmentDateFrom, DateTime consignmentDateTo, string userImage, string consignmentTitle, string consignmentDetail)
         {
@@ -238,6 +241,24 @@ namespace KMG.Repository.Services
             catch (Exception ex)
             {
                 throw new Exception("Failed to get consignments: " + ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<ConsignmentDto>> GetConsignmentsByUserIdAsync(int userId)
+        {
+            try
+            {
+                var consignments = await _context.Consignments
+                    .Include(c => c.Koi)
+                    .Include(c => c.User) // Bao gồm thông tin User để lấy UserName
+                    .Where(c => c.UserId == userId) // Lọc theo UserId
+                    .ToListAsync();
+
+                return _mapper.Map<IEnumerable<ConsignmentDto>>(consignments); // AutoMapper sẽ tự động ánh xạ UserName
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to get consignments by UserId: " + ex.Message);
             }
         }
 

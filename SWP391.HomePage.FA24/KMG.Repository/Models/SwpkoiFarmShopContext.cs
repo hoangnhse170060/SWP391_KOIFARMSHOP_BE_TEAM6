@@ -15,6 +15,8 @@ public partial class SwpkoiFarmShopContext : DbContext
         : base(options)
     {
     }
+    public DbSet<OrderConsignment> OrderConsignments { get; set; }
+    public DbSet<OrderDetailConsignment> OrderDetailConsignments { get; set; }
 
     public virtual DbSet<Consignment> Consignments { get; set; }
 
@@ -62,6 +64,25 @@ public partial class SwpkoiFarmShopContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<OrderConsignment>()
+                 .HasMany(oc => oc.OrderDetailConsignments)
+                 .WithOne(odc => odc.OrderConsignment)
+                 .HasForeignKey(odc => odc.OrderConsignmentId);
+
+        modelBuilder.Entity<OrderDetailConsignment>()
+            .HasOne(odc => odc.Consignment)
+            .WithMany()
+            .HasForeignKey(odc => odc.ConsignmentId);
+
+        // Đặt tên mặc định cho bảng (nếu cần)
+        modelBuilder.Entity<OrderConsignment>().ToTable("OrderConsignment");
+        modelBuilder.Entity<OrderDetailConsignment>().ToTable("OrderDetailConsignment");
+
+        modelBuilder.Entity<OrderDetailConsignment>()
+        .HasOne(od => od.Consignment)
+        .WithMany()
+        .HasForeignKey(od => od.ConsignmentId);
+
         modelBuilder.Entity<Consignment>(entity =>
         {
             entity.HasKey(e => e.ConsignmentId).HasName("PK__Consignm__A2E2B54764FC7A08");

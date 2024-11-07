@@ -35,6 +35,18 @@ namespace KMS.APIService.Controllers
             var consignmentsDto = _mapper.Map<IEnumerable<ConsignmentDto>>(consignments);
             return Ok(consignmentsDto);  // Return mapped DTOs
         }
+        // GET: api/consignment/user/{userId}
+        [HttpGet("user/{userId:int}")]
+        public async Task<IActionResult> GetConsignmentsByUserId(int userId)
+        {
+            var consignments = await _consignmentService.GetConsignmentsByUserIdAsync(userId);
+            if (consignments == null || !consignments.Any())
+            {
+                return NotFound("No consignments found for the specified user.");
+            }
+            return Ok(consignments);
+        }
+
 
         // GET: api/consignment/get-consignment/{id}
         [HttpGet("get-consignment/{consignmentId}")]

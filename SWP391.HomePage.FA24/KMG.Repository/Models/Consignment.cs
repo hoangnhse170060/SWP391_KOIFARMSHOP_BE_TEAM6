@@ -25,6 +25,8 @@ public partial class Consignment
     public string? UserImage { get; set; }
     public string? ConsignmentTitle { get; set; }
     public string? ConsignmentDetail { get; set; }
+    public int? BuyerId { get; set; }
+    public virtual User? Buyer { get; set; } 
 
     public virtual Koi? Koi { get; set; }
 

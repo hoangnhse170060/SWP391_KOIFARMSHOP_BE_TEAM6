@@ -24,6 +24,8 @@ namespace KMG.Repository.Interfaces
         Task<IEnumerable<ConsignmentDto>> GetAllConsignmentsAsync();
 
         // Lấy tất cả Consignments theo UserId
+        Task<IEnumerable<ConsignmentDto>> GetConsignmentsByUserIdAsync(int userId);
+
         Task<IEnumerable<ConsignmentDto>> GetConsignmentsByUserNameAsync(string userName);
 
         Task<bool> UpdateConsignmentStatusAsync(int consignmentId, string newStatus);
