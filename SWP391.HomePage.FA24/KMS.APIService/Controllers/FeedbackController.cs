@@ -95,7 +95,13 @@ namespace KMS.APIService.Controllers
             {
                 return BadRequest("User not found.");
             }
-
+            var existingFeedback = await _unitOfWork.FeedbackRepository.GetAllL()
+            .AnyAsync(f => f.UserId == userId && f.OrderId == orderId &&
+                       f.KoiId == koiId && f.FishesId == fishesId);
+            if (existingFeedback)
+            {
+                return BadRequest("You have already provided feedback for this order item.");
+            }
 
             if (koiId != null)
             {

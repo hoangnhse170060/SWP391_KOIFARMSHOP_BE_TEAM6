@@ -34,6 +34,10 @@ namespace KMG.Repository.Repositories
                     FeedbackDate = f.FeedbackDate
                 });
         }
+        public IQueryable<Feedback> GetAllL()
+        {
+            return _context.Feedbacks;
+        }
 
         public async Task<IEnumerable<object>> GetFeedbackWithKoiName(int koiId)
         {

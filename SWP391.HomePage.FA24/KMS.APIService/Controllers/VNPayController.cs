@@ -165,7 +165,7 @@ namespace KMS.APIService.Controllers
                         _logger.LogInformation("User email not found. Skipping email sending.");
                     }
 
-                    return Redirect("https://www.facebook.com/profile.php?id=100079469285890");
+                    return Redirect("http://localhost:5173/success");
                 }
 
 
@@ -219,7 +219,7 @@ namespace KMS.APIService.Controllers
                     await _unitOfWork.OrderRepository.SaveAsync();
 
                     // Chuyển hướng đến URL hủy giao dịch
-                    return Redirect("https://www.facebook.com/page.ngoctrinh");
+                    return Redirect("http://localhost:5173/unsuccess");
                 }
             }
             catch (Exception ex)
