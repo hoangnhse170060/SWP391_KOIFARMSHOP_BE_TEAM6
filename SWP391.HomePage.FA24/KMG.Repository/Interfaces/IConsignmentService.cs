@@ -33,6 +33,19 @@ namespace KMG.Repository.Interfaces
         Task<ConsignmentDto> CreateConsignmentOrderAsync(int userId, int koiTypeId, int koiId, string consignmentType, decimal consignmentPrice, string? consignmentTitle, string? consignmentDetail);
 
 
+         Task<ConsignmentDto> CreateConsignmentTakeCareOutsideShopAsync(
+    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
+    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
+    string awardCertificates, string description, string detailDescription, string imageKoi,
+    string imageCertificate, string additionImage, string consignmentType, DateTime consignmentDateTo,
+    string consignmentTitle, string consignmentDetail);
+
+        Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(
+    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
+    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
+    string awardCertificates, string description, string detailDescription, string imageKoi,
+    string imageCertificate, string additionImage, string consignmentType,
+    string consignmentTitle, string consignmentDetail);
 
 
     }

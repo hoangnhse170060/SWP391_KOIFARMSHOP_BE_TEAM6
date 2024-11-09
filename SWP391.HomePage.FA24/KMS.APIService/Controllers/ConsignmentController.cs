@@ -143,19 +143,25 @@ namespace KMS.APIService.Controllers
         }
 
 
-        // POST: api/consignment/create-consignment-order-inside-shop
+        [Authorize(Roles = "customer")]
         [HttpPost("create-consignment-order-inside-shop")]
         public async Task<IActionResult> CreateConsignmentOrderInsideShopAsync(
-            int userId,
-            int koiTypeId,
-            int koiId,
-            string consignmentType,
-            decimal consignmentPrice,
-            string? consignmentTitle = null,
-            string? consignmentDetail = null)
+    int koiTypeId,
+    int koiId,
+    string consignmentType,
+    decimal consignmentPrice,
+    string? consignmentTitle = null,
+    string? consignmentDetail = null)
         {
             try
             {
+                // Retrieve the UserId from the authenticated user's claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
                 // Call the service method to create a consignment order
                 var consignmentDto = await _consignmentService.CreateConsignmentOrderAsync(
                     userId, koiTypeId, koiId, consignmentType, consignmentPrice, consignmentTitle, consignmentDetail);
@@ -173,23 +179,105 @@ namespace KMS.APIService.Controllers
         }
 
 
+        [Authorize(Roles = "customer")]
+        [HttpPost("create-consignment-order-from-outside-shop")]
+        public async Task<IActionResult> CreateConsignmentOrderFromOutsideShop(
+    int koiTypeId,
+    string name,
+    string origin,
+    string gender,
+    int age,
+    decimal size,
+    string breed,
+    string personality,
+    decimal feedingAmount,
+    decimal filterRate,
+    string healthStatus,
+    string awardCertificates,
+    string description,
+    string detailDescription,
+    string imageKoi,
+    string imageCertificate,
+    string additionImage,
+    string consignmentType,
+    string consignmentTitle,
+    string consignmentDetail)
+        {
+            try
+            {
+                // Retrieve the UserId from the authenticated user's claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Call the service method to create a consignment order
+                var createdConsignment = await _consignmentService.CreateConsignmentOrderFromOutsideShopAsync(
+                    userId, koiTypeId, name, origin, gender, age, size, breed, personality,
+                    feedingAmount, filterRate, healthStatus, awardCertificates, description,
+                    detailDescription, imageKoi, imageCertificate, additionImage, consignmentType,
+                    consignmentTitle, consignmentDetail);
+
+                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, createdConsignment);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [Authorize(Roles = "customer")]
+        [HttpPost("create-consignment-take-care-outside-shop")]
+        public async Task<IActionResult> CreateConsignmentTakeCareOutsideShop(
+    int koiTypeId, string name, string origin, string gender, int age, decimal size,
+    string breed, string personality, decimal feedingAmount, decimal filterRate,
+    string healthStatus, string awardCertificates, string description,
+    string detailDescription, string imageKoi, string imageCertificate,
+    string additionImage, string consignmentType, DateTime consignmentDateTo,
+    string consignmentTitle, string consignmentDetail)
+        {
+            try
+            {
+                // Get the UserId from the claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Call service to create consignment and koi record
+                var consignmentDto = await _consignmentService.CreateConsignmentTakeCareOutsideShopAsync(
+                    userId, koiTypeId, name, origin, gender, age, size, breed, personality,
+                    feedingAmount, filterRate, healthStatus, awardCertificates, description,
+                    detailDescription, imageKoi, imageCertificate, additionImage,
+                    consignmentType, consignmentDateTo, consignmentTitle, consignmentDetail);
+
+                // Return the created consignment
+                return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = consignmentDto.ConsignmentId }, consignmentDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
 
 
         [Authorize(Roles = "customer")]
-        // PUT: api/consignment/update-consignment/{consignmentId}
-        [HttpPut("update-consignmentCustomer/{consignmentId}")]
+        // PUT: api/consignment/update-consignmentCustomer-inside-shop/{consignmentId}
+        [HttpPut("update-consignmentCustomer-inside-shop/{consignmentId}")]
         public async Task<IActionResult> UpdateConsignment(
-        int consignmentId,
-        int koitypeID,
-        int koiID,
-        string consignmentType,
-        decimal consignmentPrice,
-        // DateTime consignmentDateFrom,
-        DateTime consignmentDateTo,
-        string? userImage,
-        string? consignmentTitle = null,
-        string? consignmentDetail = null)
+    int consignmentId,
+    int koitypeID,
+    int koiID,
+    string consignmentType,
+    decimal consignmentPrice,
+    DateTime consignmentDateTo,
+    string? userImage,
+    string? consignmentTitle = null,
+    string? consignmentDetail = null)
         {
             try
             {
@@ -198,6 +286,7 @@ namespace KMS.APIService.Controllers
                 {
                     return BadRequest("Consignment date cannot be in the past.");
                 }
+
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
                 {
@@ -209,10 +298,7 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Invalid User ID.");
                 }
 
-                //var dateOnly = DateOnly.FromDateTime(consignmentDate);
-
                 var status = "awaiting inspection";
-
 
                 // Update consignment using the service
                 var updated = await _consignmentService.UpdateConsignmentAsync(
@@ -231,6 +317,7 @@ namespace KMS.APIService.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+
 
 
 

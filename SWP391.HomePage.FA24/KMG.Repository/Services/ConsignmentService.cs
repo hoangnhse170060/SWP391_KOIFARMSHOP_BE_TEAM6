@@ -327,6 +327,126 @@ namespace KMG.Repository.Services
             }
         }
 
+        public async Task<ConsignmentDto> CreateConsignmentTakeCareOutsideShopAsync(
+    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
+    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
+    string awardCertificates, string description, string detailDescription, string imageKoi,
+    string imageCertificate, string additionImage, string consignmentType, DateTime consignmentDateTo,
+    string consignmentTitle, string consignmentDetail)
+        {
+            // Validate user existence
+            if (!await _context.Users.AnyAsync(u => u.UserId == userId))
+                throw new KeyNotFoundException("User not found.");
+
+            // Validate KoiType existence
+            if (!await _context.KoiTypes.AnyAsync(k => k.KoiTypeId == koiTypeId))
+                throw new KeyNotFoundException("Koi type not found.");
+
+            // Create new Koi entry
+            var newKoi = new Koi
+            {
+                KoiTypeId = koiTypeId,
+                Name = name,
+                Origin = origin,
+                Gender = gender,
+                Age = age,
+                Size = size,
+                Breed = breed,
+                Personality = personality,
+                FeedingAmount = feedingAmount,
+                FilterRate = filterRate,
+                HealthStatus = healthStatus,
+                AwardCertificates = awardCertificates,
+                Status = "unavailable",    // Initial status for consigned Koi
+                IsConsigned = true,        // Mark as consigned
+                Description = description,
+                DetailDescription = detailDescription,
+                ImageKoi = imageKoi,
+                ImageCertificate = imageCertificate,
+                AdditionImage = additionImage
+            };
+
+            _context.Kois.Add(newKoi);
+            await _context.SaveChangesAsync();
+
+            // Create consignment linked to new Koi
+            var newConsignment = new Consignment
+            {
+                UserId = userId,
+                KoiTypeId = koiTypeId,
+                KoiId = newKoi.KoiId,        // Link to the newly created Koi
+                ConsignmentType = consignmentType,
+                Status = "awaiting inspection",  // Initial status
+                ConsignmentDateFrom = DateTime.Now,
+                ConsignmentDateTo = consignmentDateTo, // Use provided ConsignmentDateTo
+                ConsignmentTitle = consignmentTitle,
+                ConsignmentDetail = consignmentDetail
+            };
+
+            _context.Consignments.Add(newConsignment);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ConsignmentDto>(newConsignment);
+        }
+
+
+        public async Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(
+    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
+    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
+    string awardCertificates, string description, string detailDescription, string imageKoi,
+    string imageCertificate, string additionImage, string consignmentType,
+    string consignmentTitle, string consignmentDetail)
+        {
+            // Step 1: Create a new Koi entry for the consignment
+            var newKoi = new Koi
+            {
+                KoiTypeId = koiTypeId,
+                Name = name,
+                Origin = origin,
+                Gender = gender,
+                Age = age,
+                Size = size,
+                Breed = breed,
+                Personality = personality,
+                FeedingAmount = feedingAmount,
+                FilterRate = filterRate,
+                HealthStatus = healthStatus,
+                AwardCertificates = awardCertificates,
+                Status = "unavailable", // Initially unavailable until approved
+                quantityInStock = 1, // For consigned items, quantity is 1
+                IsConsigned = true, // Mark as consigned
+                Description = description,
+                DetailDescription = detailDescription,
+                ImageKoi = imageKoi,
+                ImageCertificate = imageCertificate,
+                AdditionImage = additionImage
+            };
+
+            // Save the new Koi entry to the database
+            _context.Kois.Add(newKoi);
+            await _context.SaveChangesAsync();
+
+            // Step 2: Create a Consignment entry linked to the new Koi entry
+            var newConsignment = new Consignment
+            {
+                UserId = userId,
+                KoiTypeId = koiTypeId,
+                KoiId = newKoi.KoiId, // Use the newly generated KoiId
+                ConsignmentType = consignmentType,
+                Status = "awaiting inspection", // Initial status
+                ConsignmentDateFrom = DateTime.Now,
+                ConsignmentTitle = consignmentTitle,
+                ConsignmentDetail = consignmentDetail
+            };
+
+            // Save the new Consignment entry to the database
+            _context.Consignments.Add(newConsignment);
+            await _context.SaveChangesAsync();
+
+            // Map and return the created consignment as DTO
+            return _mapper.Map<ConsignmentDto>(newConsignment);
+        }
+
 
 
 
