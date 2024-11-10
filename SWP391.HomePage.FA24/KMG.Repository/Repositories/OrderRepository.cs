@@ -22,12 +22,12 @@ namespace KMG.Repository.Repositories
         public async Task<Order> GetOrderWithDetailsAsync(int id)
         {
             return await _context.Orders
-                .Include(o => o.OrderKois)  
-                .ThenInclude(ok => ok.Koi)  
-                .Include(o => o.OrderFishes)  
-                .ThenInclude(of => of.Fishes)  
+                .Include(o => o.User) // Bao gồm thông tin User
+                .Include(o => o.OrderFishes).ThenInclude(f => f.Fishes)
+                .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
         }
+
 
         public async Task<List<Order>> GetOrdersByUserNameAsync(string name)
         {

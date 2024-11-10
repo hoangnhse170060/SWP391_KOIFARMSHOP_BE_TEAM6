@@ -144,16 +144,28 @@ namespace KMS.APIService.Controllers
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.OrderRepository.SaveAsync();
 
-                    // Lấy email từ người dùng
+                    // Lấy email của người dùng và email mặc định của staff
                     string recipientEmail = GetUserEmail(order);
+                    string staffEmail = "d.anhdn2008@gmail.com";
 
                     string emailContent = GenerateOrderDetailsEmailContent(order);
 
-                    if (!string.IsNullOrWhiteSpace(recipientEmail))
+                    // Kiểm tra và gửi email đến cả người dùng và staff
+                    if (!string.IsNullOrWhiteSpace(recipientEmail) || !string.IsNullOrWhiteSpace(staffEmail))
                     {
                         try
                         {
-                            await SendEmailAsync(recipientEmail, "Payment Confirmation", emailContent);
+                            // Gửi email cho người dùng nếu có
+                            if (!string.IsNullOrWhiteSpace(recipientEmail))
+                            {
+                                await SendEmailAsync(recipientEmail, "Payment Confirmation", emailContent);
+                            }
+
+                            // Gửi email cho staff nếu có
+                            if (!string.IsNullOrWhiteSpace(staffEmail))
+                            {
+                                await SendEmailAsync(staffEmail, "Payment Confirmation", emailContent);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -162,7 +174,7 @@ namespace KMS.APIService.Controllers
                     }
                     else
                     {
-                        _logger.LogInformation("User email not found. Skipping email sending.");
+                        _logger.LogInformation("User or staff email not found. Skipping email sending.");
                     }
 
                     return Redirect("https://www.facebook.com/profile.php?id=100079469285890");

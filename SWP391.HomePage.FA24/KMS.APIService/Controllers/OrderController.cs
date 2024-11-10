@@ -44,6 +44,7 @@ namespace KMS.APIService.Controllers
                 {
                     order.OrderId,
                     order.UserId,
+                    UserName = order.User?.UserName, // Hiển thị UserName nếu có
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,
@@ -79,58 +80,6 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
-        [HttpGet("{name}")]
-        public async Task<ActionResult<object>> GetOrdersByUserName(string name)
-        {
-            try
-            {
-                var orders = await _unitOfWork.OrderRepository.GetOrdersByUserNameAsync(name);
-
-                if (orders == null || !orders.Any())
-                {
-                    return NotFound($"No orders found for User Name = {name}.");
-                }
-
-                // Prepare data for response
-                var result = orders.Select(order => new
-                {
-                    order.OrderId,
-                    order.UserId,
-                    order.OrderDate,
-                    order.TotalMoney,
-                    order.FinalMoney,
-                    order.OrderStatus,
-                    order.PaymentMethod,
-                    Fishes = order.OrderFishes.Select(f => new
-                    {
-                        f.FishesId,
-                        f.Quantity,
-                        f.Fishes.Name,
-                        f.Fishes.Status,
-                        f.Fishes.Price,
-                        f.Fishes.ImageFishes
-                    }),
-                    Kois = order.OrderKois.Select(k => new
-                    {
-                        k.KoiId,
-                        k.Quantity,
-                        k.Koi.Name,
-                        k.Koi.Gender,
-                        k.Koi.Price,
-                        k.Koi.Size,
-                        k.Koi.ImageKoi
-                    })
-                });
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving orders by User Name.");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
@@ -168,7 +117,8 @@ namespace KMS.APIService.Controllers
 
                     if (koiEntity.quantityInStock < orderKoi.Quantity)
                     {
-                        return BadRequest($"Not enough stock for Koi ID = {orderKoi.KoiId}. Requested: {orderKoi.Quantity}, Available: {koiEntity.quantityInStock}");
+                        return BadRequest(
+                            $"Not enough stock for Koi ID = {orderKoi.KoiId}. Requested: {orderKoi.Quantity}, Available: {koiEntity.quantityInStock}");
                     }
 
                     koiEntity.quantityInStock -= orderKoi.Quantity;
@@ -187,7 +137,8 @@ namespace KMS.APIService.Controllers
 
                     if (fishEntity.quantityInStock < orderFish.Quantity)
                     {
-                        return BadRequest($"Not enough stock for Fish ID = {orderFish.FishesId}. Requested: {orderFish.Quantity}, Available: {fishEntity.quantityInStock}");
+                        return BadRequest(
+                            $"Not enough stock for Fish ID = {orderFish.FishesId}. Requested: {orderFish.Quantity}, Available: {fishEntity.quantityInStock}");
                     }
 
                     fishEntity.quantityInStock -= orderFish.Quantity;
@@ -196,10 +147,10 @@ namespace KMS.APIService.Controllers
                 }
 
                 // **Gán giá trị DiscountMoney và FinalMoney**
-                decimal discountMoney = order.DiscountMoney ?? 0;  // Nếu không có discount thì mặc định là 0
-                order.DiscountMoney = discountMoney;  // Gán DiscountMoney vào order
-                order.TotalMoney = totalMoney;  // Gán TotalMoney
-                order.FinalMoney = totalMoney - discountMoney;  // Tính FinalMoney
+                decimal discountMoney = order.DiscountMoney ?? 0; // Nếu không có discount thì mặc định là 0
+                order.DiscountMoney = discountMoney; // Gán DiscountMoney vào order
+                order.TotalMoney = totalMoney; // Gán TotalMoney
+                order.FinalMoney = totalMoney - discountMoney; // Tính FinalMoney
 
                 // Kiểm tra nếu FinalMoney bị âm
                 if (order.FinalMoney < 0)
@@ -219,7 +170,8 @@ namespace KMS.APIService.Controllers
                 await transaction.CommitAsync();
 
                 // In log để kiểm tra
-                _logger.LogInformation($"Order {order.OrderId} - TotalMoney: {order.TotalMoney}, DiscountMoney: {order.DiscountMoney}, FinalMoney: {order.FinalMoney}");
+                _logger.LogInformation(
+                    $"Order {order.OrderId} - TotalMoney: {order.TotalMoney}, DiscountMoney: {order.DiscountMoney}, FinalMoney: {order.FinalMoney}");
 
                 // Trả về thông tin Order đã tạo
                 return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
@@ -257,7 +209,8 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Kiểm tra nếu đơn hàng đã hoàn tất hoặc bị hủy
-                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled" || order.OrderStatus == "remittance")
+                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled" ||
+                    order.OrderStatus == "remittance")
                 {
                     return BadRequest($"Cannot delete items from a {order.OrderStatus} order.");
                 }
@@ -382,7 +335,8 @@ namespace KMS.APIService.Controllers
 
                         if (quantityChange > 0 && koi.quantityInStock < quantityChange)
                         {
-                            return BadRequest($"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koi.quantityInStock}");
+                            return BadRequest(
+                                $"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koi.quantityInStock}");
                         }
 
                         koi.quantityInStock -= quantityChange;
@@ -405,7 +359,8 @@ namespace KMS.APIService.Controllers
 
                         if (quantityChange > 0 && fish.quantityInStock < quantityChange)
                         {
-                            return BadRequest($"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fish.quantityInStock}");
+                            return BadRequest(
+                                $"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fish.quantityInStock}");
                         }
 
                         fish.quantityInStock -= quantityChange;
@@ -496,7 +451,8 @@ namespace KMS.APIService.Controllers
                 _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.OrderRepository.SaveAsync();
 
-                return Ok($"Order status updated to {order.OrderStatus}. Shipping date set to {order.ShippingDate?.ToString("yyyy-MM-dd")}.");
+                return Ok(
+                    $"Order status updated to {order.OrderStatus}. Shipping date set to {order.ShippingDate?.ToString("yyyy-MM-dd")}.");
             }
             catch (Exception ex)
             {
@@ -535,7 +491,8 @@ namespace KMS.APIService.Controllers
                         _unitOfWork.KoiRepository.Update(koiEntity); // Update koi entity
                     }
 
-                    totalMoney += koi.Quantity.GetValueOrDefault(0) * koiEntity.Price.GetValueOrDefault(0); // Add to total money
+                    totalMoney +=
+                        koi.Quantity.GetValueOrDefault(0) * koiEntity.Price.GetValueOrDefault(0); // Add to total money
 
                     koi.Quantity = 0; // Reset quantity
                     _unitOfWork.OrderKoiRepository.Update(koi); // Update koi in the order
@@ -551,7 +508,9 @@ namespace KMS.APIService.Controllers
                         _unitOfWork.FishRepository.Update(fishEntity); // Update fish entity
                     }
 
-                    totalMoney += fish.Quantity.GetValueOrDefault(0) * fishEntity.Price.GetValueOrDefault(0); // Add to total money
+                    totalMoney +=
+                        fish.Quantity.GetValueOrDefault(0) *
+                        fishEntity.Price.GetValueOrDefault(0); // Add to total money
 
                     fish.Quantity = 0; // Reset quantity
                     _unitOfWork.OrderFishesRepository.Update(fish); // Update fish in the order
@@ -576,7 +535,8 @@ namespace KMS.APIService.Controllers
                 await _unitOfWork.SaveAsync();
                 await transaction.CommitAsync();
 
-                _logger.LogInformation($"Order {orderId} canceled, items restocked, quantities reset to 0, and user points adjusted.");
+                _logger.LogInformation(
+                    $"Order {orderId} canceled, items restocked, quantities reset to 0, and user points adjusted.");
 
                 // Return the updated order and user information
                 return Ok(new
@@ -613,11 +573,8 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
-
         [HttpGet]
         [Authorize(Roles = "staff,manager")]
-
         public async Task<ActionResult<IEnumerable<object>>> GetOrders()
         {
             try
@@ -625,16 +582,18 @@ namespace KMS.APIService.Controllers
                 // Truy vấn tất cả đơn hàng và bao gồm các thông tin liên quan
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
+                        .Include(o => o.User) // Bao gồm thông tin User
                         .Include(o => o.OrderKois)
-                            .ThenInclude(ok => ok.Koi)
+                        .ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes)
-                            .ThenInclude(of => of.Fishes)
+                        .ThenInclude(of => of.Fishes)
                 );
 
                 var result = orders.Select(order => new
                 {
                     order.OrderId,
                     order.UserId,
+                    Username = order.User?.UserName, // Hiển thị Username nếu tồn tại
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,
@@ -643,7 +602,7 @@ namespace KMS.APIService.Controllers
                     order.EarnedPoints,
                     order.OrderStatus,
                     order.PaymentMethod,
-                   
+
                     OrderKois = order.OrderKois.Select(ok => new
                     {
                         ok.KoiId,
@@ -677,10 +636,11 @@ namespace KMS.APIService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving all orders.");
+                _logger.LogError(ex, "Error retrieving orders.");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpPut("{orderId:int}/update-status-COMPLETED")]
         public async Task<IActionResult> UpdateOrderStatus(int orderId)
@@ -720,14 +680,13 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
         [HttpGet("my-orders")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<object>>> GetOrdersForLoggedInUser()
         {
             try
             {
-
+                // Lấy UserId từ token
                 var userIdClaim = User.FindFirst("UserId")?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim))
@@ -737,12 +696,15 @@ namespace KMS.APIService.Controllers
 
                 int userId = int.Parse(userIdClaim);
 
+                // Truy vấn đơn hàng của người dùng với thông tin liên quan
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
+                        .Include(o => o.User) // Bao gồm thông tin User để lấy UserName
                         .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
                 );
 
+                // Lọc các đơn hàng của người dùng
                 var userOrders = orders.Where(o => o.UserId == userId).ToList();
 
                 if (!userOrders.Any())
@@ -750,10 +712,12 @@ namespace KMS.APIService.Controllers
                     return NotFound($"No orders found for User with ID = {userId}.");
                 }
 
+                // Chuẩn bị dữ liệu trả về
                 var result = userOrders.Select(order => new
                 {
                     order.OrderId,
                     order.UserId,
+                    UserName = order.User?.UserName, // Hiển thị UserName nếu tồn tại
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,
@@ -762,7 +726,6 @@ namespace KMS.APIService.Controllers
                     order.EarnedPoints,
                     order.OrderStatus,
                     order.PaymentMethod,
-                    
 
                     OrderKois = order.OrderKois.Select(ok => new
                     {
@@ -794,7 +757,11 @@ namespace KMS.APIService.Controllers
             }
         }
     }
+
 }
 
 
-//Orderxongroi
+
+
+
+//Order
