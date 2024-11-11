@@ -182,28 +182,7 @@ namespace KMS.APIService.Controllers
 
         [Authorize(Roles = "customer")]
         [HttpPost("create-consignment-order-from-outside-shop")]
-        public async Task<IActionResult> CreateConsignmentOrderFromOutsideShop(
-    int koiTypeId,
-    string name,
-    string origin,
-    string gender,
-    int age,
-    decimal size,
-    string breed,
-    string personality,
-    decimal feedingAmount,
-    decimal filterRate,
-    string healthStatus,
-    string awardCertificates,
-    string description,
-    string detailDescription,
-    string imageKoi,
-    string imageCertificate,
-    string additionImage,
-    string consignmentType,
-    decimal consignmentPrice, 
-    string consignmentTitle,
-    string consignmentDetail)
+        public async Task<IActionResult> CreateConsignmentOrderFromOutsideShop([FromBody] ConsignmentOrderRequestDto request)
         {
             try
             {
@@ -215,11 +194,7 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Call the service method to create a consignment order
-                var createdConsignment = await _consignmentService.CreateConsignmentOrderFromOutsideShopAsync(
-                    userId, koiTypeId, name, origin, gender, age, size, breed, personality,
-                    feedingAmount, filterRate, healthStatus, awardCertificates, description,
-                    detailDescription, imageKoi, imageCertificate, additionImage, consignmentType,
-                    consignmentPrice, consignmentTitle, consignmentDetail);
+                var createdConsignment = await _consignmentService.CreateConsignmentOrderFromOutsideShopAsync(userId, request);
 
                 return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, createdConsignment);
             }
@@ -230,15 +205,10 @@ namespace KMS.APIService.Controllers
         }
 
 
+
         [Authorize(Roles = "customer")]
         [HttpPost("create-consignment-take-care-outside-shop")]
-        public async Task<IActionResult> CreateConsignmentTakeCareOutsideShop(
-    int koiTypeId, string name, string origin, string gender, int age, decimal size,
-    string breed, string personality, decimal feedingAmount, decimal filterRate,
-    string healthStatus, string awardCertificates, string description,
-    string detailDescription, string imageKoi, string imageCertificate,
-    string additionImage, string consignmentType, DateTime consignmentDateTo,
-    string consignmentTitle, string consignmentDetail)
+        public async Task<IActionResult> CreateConsignmentTakeCareOutsideShop([FromBody] ConsignmentTakeCareOutsideRequestDto request)
         {
             try
             {
@@ -250,11 +220,7 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Call service to create consignment and koi record
-                var consignmentDto = await _consignmentService.CreateConsignmentTakeCareOutsideShopAsync(
-                    userId, koiTypeId, name, origin, gender, age, size, breed, personality,
-                    feedingAmount, filterRate, healthStatus, awardCertificates, description,
-                    detailDescription, imageKoi, imageCertificate, additionImage,
-                    consignmentType, consignmentDateTo, consignmentTitle, consignmentDetail);
+                var consignmentDto = await _consignmentService.CreateConsignmentTakeCareOutsideShopAsync(userId, request);
 
                 // Return the created consignment
                 return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = consignmentDto.ConsignmentId }, consignmentDto);
@@ -266,7 +232,8 @@ namespace KMS.APIService.Controllers
         }
 
 
-      
+
+
 
         [Authorize(Roles = "customer")]
         [HttpPut("update-consignment-order-inside-shop/{consignmentId}")]

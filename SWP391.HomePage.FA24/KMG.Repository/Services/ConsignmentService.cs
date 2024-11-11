@@ -35,6 +35,9 @@ namespace KMG.Repository.Services
                     status = "awaiting inspection";
                 }
 
+                decimal fee = CalculateConsignmentFee(consignmentDateFrom, consignmentDateTo);
+
+
                 var newConsignment = new Consignment
                 {
                     UserId = userID,
@@ -366,43 +369,38 @@ namespace KMG.Repository.Services
             }
         }
 
-        public async Task<ConsignmentDto> CreateConsignmentTakeCareOutsideShopAsync(
-    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
-    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
-    string awardCertificates, string description, string detailDescription, string imageKoi,
-    string imageCertificate, string additionImage, string consignmentType, DateTime consignmentDateTo,
-    string consignmentTitle, string consignmentDetail)
+        public async Task<ConsignmentDto> CreateConsignmentTakeCareOutsideShopAsync(int userId, ConsignmentTakeCareOutsideRequestDto request)
         {
             // Validate user existence
             if (!await _context.Users.AnyAsync(u => u.UserId == userId))
                 throw new KeyNotFoundException("User not found.");
 
             // Validate KoiType existence
-            if (!await _context.KoiTypes.AnyAsync(k => k.KoiTypeId == koiTypeId))
+            if (!await _context.KoiTypes.AnyAsync(k => k.KoiTypeId == request.KoiTypeId))
                 throw new KeyNotFoundException("Koi type not found.");
 
             // Create new Koi entry
             var newKoi = new Koi
             {
-                KoiTypeId = koiTypeId,
-                Name = name,
-                Origin = origin,
-                Gender = gender,
-                Age = age,
-                Size = size,
-                Breed = breed,
-                Personality = personality,
-                FeedingAmount = feedingAmount,
-                FilterRate = filterRate,
-                HealthStatus = healthStatus,
-                AwardCertificates = awardCertificates,
+                KoiTypeId = request.KoiTypeId,
+                Name = request.Name,
+                Origin = request.Origin,
+                Gender = request.Gender,
+                Age = request.Age,
+                Size = request.Size,
+                Breed = request.Breed,
+                Personality = request.Personality,
+                FeedingAmount = request.FeedingAmount,
+                FilterRate = request.FilterRate,
+                HealthStatus = request.HealthStatus,
+                AwardCertificates = request.AwardCertificates,
                 Status = "unavailable",    // Initial status for consigned Koi
                 IsConsigned = true,        // Mark as consigned
-                Description = description,
-                DetailDescription = detailDescription,
-                ImageKoi = imageKoi,
-                ImageCertificate = imageCertificate,
-                AdditionImage = additionImage
+                Description = request.Description,
+                DetailDescription = request.DetailDescription,
+                ImageKoi = request.ImageKoi,
+                ImageCertificate = request.ImageCertificate,
+                AdditionImage = request.AdditionImage
             };
 
             _context.Kois.Add(newKoi);
@@ -412,14 +410,14 @@ namespace KMG.Repository.Services
             var newConsignment = new Consignment
             {
                 UserId = userId,
-                KoiTypeId = koiTypeId,
+                KoiTypeId = request.KoiTypeId,
                 KoiId = newKoi.KoiId,        // Link to the newly created Koi
-                ConsignmentType = consignmentType,
+                ConsignmentType = request.ConsignmentType,
                 Status = "awaiting inspection",  // Initial status
                 ConsignmentDateFrom = DateTime.Now,
-                ConsignmentDateTo = consignmentDateTo, // Use provided ConsignmentDateTo
-                ConsignmentTitle = consignmentTitle,
-                ConsignmentDetail = consignmentDetail
+                ConsignmentDateTo = request.ConsignmentDateTo, // Use provided ConsignmentDateTo
+                ConsignmentTitle = request.ConsignmentTitle,
+                ConsignmentDetail = request.ConsignmentDetail
             };
 
             _context.Consignments.Add(newConsignment);
@@ -427,6 +425,7 @@ namespace KMG.Repository.Services
 
             return _mapper.Map<ConsignmentDto>(newConsignment);
         }
+
 
 
         public async Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
@@ -577,37 +576,32 @@ namespace KMG.Repository.Services
 
 
 
-        public async Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(
-    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
-    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
-    string awardCertificates, string description, string detailDescription, string imageKoi,
-    string imageCertificate, string additionImage, string consignmentType, decimal consignmentPrice,
-    string consignmentTitle, string consignmentDetail)
+        public async Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(int userId, ConsignmentOrderRequestDto request)
         {
             // Step 1: Create a new Koi entry for the consignment
             var newKoi = new Koi
             {
-                KoiTypeId = koiTypeId,
-                Name = name,
-                Origin = origin,
-                Gender = gender,
-                Age = age,
-                Size = size,
-                Breed = breed,
-                Personality = personality,
-                FeedingAmount = feedingAmount,
-                FilterRate = filterRate,
-                HealthStatus = healthStatus,
-                AwardCertificates = awardCertificates,
+                KoiTypeId = request.KoiTypeId,
+                Name = request.Name,
+                Origin = request.Origin,
+                Gender = request.Gender,
+                Age = request.Age,
+                Size = request.Size,
+                Breed = request.Breed,
+                Personality = request.Personality,
+                FeedingAmount = request.FeedingAmount,
+                FilterRate = request.FilterRate,
+                HealthStatus = request.HealthStatus,
+                AwardCertificates = request.AwardCertificates,
                 Status = "unavailable", // Initially unavailable until approved
                 quantityInStock = 1, // For consigned items, quantity is 1
                 IsConsigned = true, // Mark as consigned
-                Description = description,
-                DetailDescription = detailDescription,
-                ImageKoi = imageKoi,
-                ImageCertificate = imageCertificate,
-                AdditionImage = additionImage,
-                Price = consignmentPrice // Synchronize Price with consignmentPrice
+                Description = request.Description,
+                DetailDescription = request.DetailDescription,
+                ImageKoi = request.ImageKoi,
+                ImageCertificate = request.ImageCertificate,
+                AdditionImage = request.AdditionImage,
+                Price = request.ConsignmentPrice // Synchronize Price with consignmentPrice
             };
 
             // Save the new Koi entry to the database
@@ -618,14 +612,14 @@ namespace KMG.Repository.Services
             var newConsignment = new Consignment
             {
                 UserId = userId,
-                KoiTypeId = koiTypeId,
+                KoiTypeId = request.KoiTypeId,
                 KoiId = newKoi.KoiId, // Use the newly generated KoiId
-                ConsignmentType = consignmentType,
+                ConsignmentType = request.ConsignmentType,
                 Status = "awaiting inspection", // Initial status
                 ConsignmentDateFrom = DateTime.Now,
-                ConsignmentPrice = consignmentPrice, // Save consignment price
-                ConsignmentTitle = consignmentTitle,
-                ConsignmentDetail = consignmentDetail
+                ConsignmentPrice = request.ConsignmentPrice, // Save consignment price
+                ConsignmentTitle = request.ConsignmentTitle,
+                ConsignmentDetail = request.ConsignmentDetail
             };
 
             // Save the new Consignment entry to the database
@@ -635,6 +629,7 @@ namespace KMG.Repository.Services
             // Map and return the created consignment as DTO
             return _mapper.Map<ConsignmentDto>(newConsignment);
         }
+
 
 
 
@@ -758,6 +753,20 @@ namespace KMG.Repository.Services
             // Save changes to the database
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private decimal CalculateConsignmentFee(DateTime consignmentDateFrom, DateTime consignmentDateTo)
+        {
+            var totalDays = (consignmentDateTo - consignmentDateFrom).Days;
+
+            // Tính số tháng và tuần
+            var months = totalDays / 30;
+            var weeks = (totalDays % 30) / 7;
+
+            // Phí: 100,000 VND mỗi tháng và 70,000 VND mỗi tuần
+            decimal fee = (months * 100000) + (weeks * 70000);
+
+            return fee;
         }
 
 

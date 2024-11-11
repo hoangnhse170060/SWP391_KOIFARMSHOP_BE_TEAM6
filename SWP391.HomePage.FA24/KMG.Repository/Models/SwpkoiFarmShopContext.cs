@@ -15,8 +15,7 @@ public partial class SwpkoiFarmShopContext : DbContext
         : base(options)
     {
     }
-    public DbSet<OrderConsignment> OrderConsignments { get; set; }
-    public DbSet<OrderDetailConsignment> OrderDetailConsignments { get; set; }
+
 
     public virtual DbSet<Consignment> Consignments { get; set; }
 
@@ -64,24 +63,7 @@ public partial class SwpkoiFarmShopContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<OrderConsignment>()
-                 .HasMany(oc => oc.OrderDetailConsignments)
-                 .WithOne(odc => odc.OrderConsignment)
-                 .HasForeignKey(odc => odc.OrderConsignmentId);
-
-        modelBuilder.Entity<OrderDetailConsignment>()
-            .HasOne(odc => odc.Consignment)
-            .WithMany()
-            .HasForeignKey(odc => odc.ConsignmentId);
-
-        // Đặt tên mặc định cho bảng (nếu cần)
-        modelBuilder.Entity<OrderConsignment>().ToTable("OrderConsignment");
-        modelBuilder.Entity<OrderDetailConsignment>().ToTable("OrderDetailConsignment");
-
-        modelBuilder.Entity<OrderDetailConsignment>()
-        .HasOne(od => od.Consignment)
-        .WithMany()
-        .HasForeignKey(od => od.ConsignmentId);
+        
 
         modelBuilder.Entity<Consignment>(entity =>
         {
@@ -109,6 +91,11 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.Property(e => e.UserImage).HasColumnName("userImage");
             entity.Property(e => e.ConsignmentTitle).HasColumnName("consignmentTitle");
             entity.Property(e => e.ConsignmentDetail).HasColumnName("consignmentDetail");
+            entity.Property(e => e.TakeCareFee)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasDefaultValue(0)
+                    .HasColumnName("takeCareFee");
+
             entity.HasOne(d => d.Koi).WithMany(p => p.Consignments)
                 .HasForeignKey(d => d.KoiId)
                 .HasConstraintName("FK__Consignme__koiID__31EC6D26");

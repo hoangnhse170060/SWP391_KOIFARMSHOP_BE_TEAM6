@@ -17,6 +17,8 @@
         public string? ConsignmentDetail { get; set; } 
         public KoiDto? Koi { get; set; }
 
+        public decimal TakeCareFee { get; set; }
+
 
     }
 }

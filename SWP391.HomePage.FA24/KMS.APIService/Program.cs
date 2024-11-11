@@ -97,7 +97,6 @@ namespace KMS.APIService
             builder.Services.AddScoped<IConsignmentService, ConsignmentService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IPaymentService, PaymentService>();
 
             builder.Services.AddAutoMapper(typeof(MapperProfile));
             var app = builder.Build();

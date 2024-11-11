@@ -17,8 +17,7 @@ public class MapperProfile : Profile
         CreateMap<Koi, KoiDto>();
         CreateMap<Consignment, ConsignmentDto>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName));
-        CreateMap<OrderConsignment, OrderConsignmentDto>().ReverseMap();
-        CreateMap<OrderDetailConsignment, OrderDetailConsignmentDto>().ReverseMap();
+       
 
 
     }
