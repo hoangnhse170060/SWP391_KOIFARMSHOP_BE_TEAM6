@@ -80,7 +80,6 @@ namespace KMS.APIService.Controllers
             }
         }
 
-
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
         {
@@ -99,6 +98,26 @@ namespace KMS.APIService.Controllers
             {
                 return BadRequest("You must choose at least one between Order Fishes or Order Kois.");
             }
+
+            // Hợp nhất các mục có cùng `KoiId` trong `OrderKois`
+            order.OrderKois = order.OrderKois
+                .GroupBy(k => k.KoiId)
+                .Select(g => new OrderKoi
+                {
+                    KoiId = g.Key,
+                    Quantity = g.Sum(k => k.Quantity)
+                })
+                .ToList();
+
+            // Hợp nhất các mục có cùng `FishesId` trong `OrderFishes`
+            order.OrderFishes = order.OrderFishes
+                .GroupBy(f => f.FishesId)
+                .Select(g => new OrderFish
+                {
+                    FishesId = g.Key,
+                    Quantity = g.Sum(f => f.Quantity)
+                })
+                .ToList();
 
             using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
 
