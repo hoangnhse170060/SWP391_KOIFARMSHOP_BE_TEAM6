@@ -48,62 +48,34 @@ namespace KMG.Repository.Interfaces
     string? consignmentDetail);
 
 
-        Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
-    int consignmentId,
-    int userId,
-    int koiTypeId,
-    string name,
-    string origin,
-    string gender,
-    int age,
-    decimal size,
-    string breed,
-    string personality,
-    decimal feedingAmount,
-    decimal filterRate,
-    string healthStatus,
-    string awardCertificates,
-    string description,
-    string detailDescription,
-    string imageKoi,
-    string imageCertificate,
-    string additionImage,
-    DateTime consignmentDateTo,
-    string? consignmentTitle,
-    string? consignmentDetail);
+        //    Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
+        //int consignmentId,
+        //int userId,
+        //int koiTypeId,
+        //string name,
+        //string origin,
+        //string gender,
+        //int age,
+        //decimal size,
+        //string breed,
+        //string personality,
+        //decimal feedingAmount,
+        //decimal filterRate,
+        //string healthStatus,
+        //string awardCertificates,
+        //string description,
+        //string detailDescription,
+        //string imageKoi,
+        //string imageCertificate,
+        //string additionImage,
+        //DateTime consignmentDateTo,
+        //string? consignmentTitle,
+        //string? consignmentDetail);
 
 
-        Task<bool> UpdateConsignmentOrderFromOutsideShopAsync(
-            int consignmentId, int userId, decimal consignmentPrice, string? name, string? origin,
-            string? gender, int? age, decimal? size, string? breed, string? personality,
-            decimal? feedingAmount, decimal? filterRate, string? healthStatus, string? awardCertificates,
-            string? description, string? detailDescription, string? imageKoi, string? imageCertificate,
-            string? additionImage, string? consignmentTitle, string? consignmentDetail
-        );
-        Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
-            int consignmentId,
-            int userId,
-            
-            string? name,
-            string? origin,
-            string? gender,
-            int? age,
-            decimal? size,
-            string? breed,
-            string? personality,
-            decimal? feedingAmount,
-            decimal? filterRate,
-            string? healthStatus,
-            string? awardCertificates,
-            string? description,
-            string? detailDescription,
-            string? imageKoi,
-            string? imageCertificate,
-            string? additionImage,
-            DateTime? consignmentDateTo,
-            string? consignmentTitle,
-            string? consignmentDetail
-        );
+        Task<bool> UpdateConsignmentOrderFromOutsideShopAsync(int consignmentId, int userId, UpdateConsignmentOrderRequestDto request);
+
+        Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(int consignmentId, int userId, UpdateConsignmentTakeCareOutsideRequestDto request);
 
         Task<bool> UpdateConsignmentOrderStatusAsync(int consignmentId, string status);
 

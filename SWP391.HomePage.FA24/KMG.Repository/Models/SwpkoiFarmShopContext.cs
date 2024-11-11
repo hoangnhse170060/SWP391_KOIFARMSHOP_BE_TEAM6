@@ -105,7 +105,7 @@ public partial class SwpkoiFarmShopContext : DbContext
                 .HasConstraintName("FK__Consignme__userI__30F848ED");
 
 
-            modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions");
+            modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions"); 
         });
 
         modelBuilder.Entity<Feedback>(entity =>

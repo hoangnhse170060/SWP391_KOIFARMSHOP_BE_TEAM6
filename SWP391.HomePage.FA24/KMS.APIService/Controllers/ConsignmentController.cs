@@ -89,58 +89,40 @@ namespace KMS.APIService.Controllers
         [Authorize(Roles = "customer")]
         [HttpPost("create-consignment-take-care-inside-shop")]
         public async Task<IActionResult> CreateConsignmentTakeCareInsideShop(
-    int koitypeID,
-    int koiID,
-    string consignmentType,
-    DateTime consignmentDateTo,
-    string? userImage = null,
-    string? consignmentTitle = null,
-    string? consignmentDetail = null
-)
+    int koitypeID, int koiID, string consignmentType, DateTime consignmentDateTo, string? userImage = null, string? consignmentTitle = null, string? consignmentDetail = null)
         {
             try
             {
-                // Validate consignmentDateTo to ensure it's not in the past
                 if (consignmentDateTo < DateTime.Now)
                 {
                     return BadRequest("Consignment date cannot be in the past.");
                 }
 
-                // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
-                if (userIdClaim == null)
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
                 {
                     return Unauthorized("User not authenticated.");
                 }
 
-                // Parse the UserId
-                if (!int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    return BadRequest("Invalid User ID.");
-                }
-
                 var status = "awaiting inspection";
 
-                // Set a default consignment price if not specified (for inside shop care)
-                decimal consignmentPrice = 0; // Default price for consignment take care inside shop
-
-                // Create consignment using the service
+                // Gọi phương thức CreateConsignmentAsync để tạo ký gửi và tính phí chăm sóc
                 var createdConsignment = await _consignmentService.CreateConsignmentAsync(
-                    userId, koitypeID, koiID, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
-                );
+                    userId, koitypeID, koiID, consignmentType, status, 0, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail);
 
-                // Return created consignment with CreatedAtAction
+                // Trả về consignment kèm theo phí chăm sóc
                 return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, new
                 {
                     consignment = createdConsignment,
+                    takeCareFee = createdConsignment.TakeCareFee // Trả phí chăm sóc cho người dùng
                 });
             }
             catch (Exception ex)
             {
-                // Log exception and return server error
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
 
         [Authorize(Roles = "customer")]
@@ -203,7 +185,7 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        // 
 
 
         [Authorize(Roles = "customer")]
@@ -327,26 +309,7 @@ namespace KMS.APIService.Controllers
         [HttpPut("update-consignment-take-care-outside-shop/{consignmentId}")]
         public async Task<IActionResult> UpdateConsignmentTakeCareOutsideShop(
     int consignmentId,
-    
-    string? name = null,
-    string? origin = null,
-    string? gender = null,
-    int? age = null,
-    decimal? size = null,
-    string? breed = null,
-    string? personality = null,
-    decimal? feedingAmount = null,
-    decimal? filterRate = null,
-    string? healthStatus = null,
-    string? awardCertificates = null,
-    string? description = null,
-    string? detailDescription = null,
-    string? imageKoi = null,
-    string? imageCertificate = null,
-    string? additionImage = null,
-    DateTime? consignmentDateTo = null,
-    string? consignmentTitle = null,
-    string? consignmentDetail = null)
+    [FromBody] UpdateConsignmentTakeCareOutsideRequestDto request)
         {
             try
             {
@@ -358,11 +321,7 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Call the service to update the consignment and koi details
-                var isUpdated = await _consignmentService.UpdateConsignmentTakeCareOutsideShopAsync(
-                    consignmentId, userId,  name, origin, gender, age, size, breed,
-                    personality, feedingAmount, filterRate, healthStatus, awardCertificates, description,
-                    detailDescription, imageKoi, imageCertificate, additionImage, consignmentDateTo,
-                    consignmentTitle, consignmentDetail);
+                var isUpdated = await _consignmentService.UpdateConsignmentTakeCareOutsideShopAsync(consignmentId, userId, request);
 
                 if (!isUpdated)
                 {
@@ -378,29 +337,12 @@ namespace KMS.APIService.Controllers
         }
 
 
+
         [Authorize(Roles = "customer")]
         [HttpPut("update-consignment-order-from-outside-shop/{consignmentId}")]
         public async Task<IActionResult> UpdateConsignmentOrderFromOutsideShopAsync(
     int consignmentId,
-    decimal consignmentPrice,
-    string? name = null,
-    string? origin = null,
-    string? gender = null,
-    int? age = null,
-    decimal? size = null,
-    string? breed = null,
-    string? personality = null,
-    decimal? feedingAmount = null,
-    decimal? filterRate = null,
-    string? healthStatus = null,
-    string? awardCertificates = null,
-    string? description = null,
-    string? detailDescription = null,
-    string? imageKoi = null,
-    string? imageCertificate = null,
-    string? additionImage = null,
-    string? consignmentTitle = null,
-    string? consignmentDetail = null)
+    [FromBody] UpdateConsignmentOrderRequestDto request)
         {
             try
             {
@@ -412,10 +354,7 @@ namespace KMS.APIService.Controllers
                 }
 
                 // Call the service method to update both consignment and koi details
-                var isUpdated = await _consignmentService.UpdateConsignmentOrderFromOutsideShopAsync(
-                    consignmentId, userId, consignmentPrice, name, origin, gender, age, size, breed,
-                    personality, feedingAmount, filterRate, healthStatus, awardCertificates, description,
-                    detailDescription, imageKoi, imageCertificate, additionImage, consignmentTitle, consignmentDetail);
+                var isUpdated = await _consignmentService.UpdateConsignmentOrderFromOutsideShopAsync(consignmentId, userId, request);
 
                 if (!isUpdated)
                 {
@@ -429,6 +368,7 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
 
 
