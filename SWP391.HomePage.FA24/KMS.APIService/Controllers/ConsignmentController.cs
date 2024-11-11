@@ -155,14 +155,14 @@ namespace KMS.APIService.Controllers
         {
             try
             {
-                // Retrieve the UserId from the authenticated user's claims
+                // Lấy UserId từ thông tin người dùng đã xác thực
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
                 {
-                    return Unauthorized("User not authenticated.");
+                    return Unauthorized("Người dùng chưa xác thực.");
                 }
 
-                // Call the service method to create a consignment order
+                // Gọi phương thức dịch vụ để tạo đơn ký gửi
                 var consignmentDto = await _consignmentService.CreateConsignmentOrderAsync(
                     userId, koiTypeId, koiId, consignmentType, consignmentPrice, consignmentTitle, consignmentDetail);
 
@@ -174,9 +174,10 @@ namespace KMS.APIService.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Lỗi server nội bộ: {ex.Message}");
             }
         }
+
 
 
         [Authorize(Roles = "customer")]
@@ -200,6 +201,7 @@ namespace KMS.APIService.Controllers
     string imageCertificate,
     string additionImage,
     string consignmentType,
+    decimal consignmentPrice, 
     string consignmentTitle,
     string consignmentDetail)
         {
@@ -217,7 +219,7 @@ namespace KMS.APIService.Controllers
                     userId, koiTypeId, name, origin, gender, age, size, breed, personality,
                     feedingAmount, filterRate, healthStatus, awardCertificates, description,
                     detailDescription, imageKoi, imageCertificate, additionImage, consignmentType,
-                    consignmentTitle, consignmentDetail);
+                    consignmentPrice, consignmentTitle, consignmentDetail);
 
                 return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, createdConsignment);
             }
@@ -226,6 +228,7 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [Authorize(Roles = "customer")]
         [HttpPost("create-consignment-take-care-outside-shop")]
@@ -263,21 +266,61 @@ namespace KMS.APIService.Controllers
         }
 
 
+      
+
+        [Authorize(Roles = "customer")]
+        [HttpPut("update-consignment-order-inside-shop/{consignmentId}")]
+        public async Task<IActionResult> UpdateConsignmentOrderInsideShopAsync(
+    int consignmentId,
+    decimal consignmentPrice,
+    string? consignmentTitle = null,
+    string? consignmentDetail = null)
+        {
+            try
+            {
+                // Lấy UserId từ thông tin người dùng đã xác thực
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("Người dùng chưa xác thực.");
+                }
+
+                // Gọi phương thức dịch vụ để cập nhật consignment và giá Koi
+                var isUpdated = await _consignmentService.UpdateConsignmentOrderAsync(
+                    consignmentId, userId, consignmentPrice, consignmentTitle, consignmentDetail);
+
+                if (!isUpdated)
+                {
+                    return NotFound("Không tìm thấy đơn ký gửi hoặc không thể cập nhật.");
+                }
+
+                return Ok("Cập nhật đơn ký gửi thành công.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi server nội bộ: {ex.Message}");
+            }
+        }
+
+
+
 
 
         [Authorize(Roles = "customer")]
-        // PUT: api/consignment/update-consignmentCustomer-inside-shop/{consignmentId}
-        [HttpPut("update-consignmentCustomer-inside-shop/{consignmentId}")]
-        public async Task<IActionResult> UpdateConsignment(
+        [HttpPut("update-consignment-take-care-inside-shop/{consignmentId}")]
+        public async Task<IActionResult> UpdateConsignmentTakeCareInsideShop(
     int consignmentId,
     int koitypeID,
     int koiID,
-    string consignmentType,
-    decimal consignmentPrice,
     DateTime consignmentDateTo,
-    string? userImage,
+    string? userImage = null,
     string? consignmentTitle = null,
-    string? consignmentDetail = null)
+    string? consignmentDetail = null
+)
         {
             try
             {
@@ -287,34 +330,136 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Consignment date cannot be in the past.");
                 }
 
+                // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
-                if (userIdClaim == null)
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
                 {
                     return Unauthorized("User not authenticated.");
                 }
 
-                if (!int.TryParse(userIdClaim.Value, out int userId))
-                {
-                    return BadRequest("Invalid User ID.");
-                }
-
-                var status = "awaiting inspection";
-
-                // Update consignment using the service
-                var updated = await _consignmentService.UpdateConsignmentAsync(
-                    consignmentId, userId, koitypeID, koiID, consignmentType, status, consignmentPrice, DateTime.Now, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
+                // Call service to update consignment
+                var updated = await _consignmentService.UpdateConsignmentTakeCareInsideShopAsync(
+                    consignmentId, userId, koitypeID, koiID, consignmentDateTo, userImage, consignmentTitle, consignmentDetail
                 );
 
                 if (!updated)
                 {
-                    return NotFound("Consignment not found.");
+                    return NotFound("Consignment not found or not authorized to update.");
                 }
 
                 return Ok("Consignment updated successfully.");
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [Authorize(Roles = "customer")]
+        [HttpPut("update-consignment-take-care-outside-shop/{consignmentId}")]
+        public async Task<IActionResult> UpdateConsignmentTakeCareOutsideShop(
+    int consignmentId,
+    
+    string? name = null,
+    string? origin = null,
+    string? gender = null,
+    int? age = null,
+    decimal? size = null,
+    string? breed = null,
+    string? personality = null,
+    decimal? feedingAmount = null,
+    decimal? filterRate = null,
+    string? healthStatus = null,
+    string? awardCertificates = null,
+    string? description = null,
+    string? detailDescription = null,
+    string? imageKoi = null,
+    string? imageCertificate = null,
+    string? additionImage = null,
+    DateTime? consignmentDateTo = null,
+    string? consignmentTitle = null,
+    string? consignmentDetail = null)
+        {
+            try
+            {
+                // Get the UserId from the authenticated user's claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Call the service to update the consignment and koi details
+                var isUpdated = await _consignmentService.UpdateConsignmentTakeCareOutsideShopAsync(
+                    consignmentId, userId,  name, origin, gender, age, size, breed,
+                    personality, feedingAmount, filterRate, healthStatus, awardCertificates, description,
+                    detailDescription, imageKoi, imageCertificate, additionImage, consignmentDateTo,
+                    consignmentTitle, consignmentDetail);
+
+                if (!isUpdated)
+                {
+                    return NotFound("Consignment or associated Koi not found or could not be updated.");
+                }
+
+                return Ok("Consignment updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+        [Authorize(Roles = "customer")]
+        [HttpPut("update-consignment-order-from-outside-shop/{consignmentId}")]
+        public async Task<IActionResult> UpdateConsignmentOrderFromOutsideShopAsync(
+    int consignmentId,
+    decimal consignmentPrice,
+    string? name = null,
+    string? origin = null,
+    string? gender = null,
+    int? age = null,
+    decimal? size = null,
+    string? breed = null,
+    string? personality = null,
+    decimal? feedingAmount = null,
+    decimal? filterRate = null,
+    string? healthStatus = null,
+    string? awardCertificates = null,
+    string? description = null,
+    string? detailDescription = null,
+    string? imageKoi = null,
+    string? imageCertificate = null,
+    string? additionImage = null,
+    string? consignmentTitle = null,
+    string? consignmentDetail = null)
+        {
+            try
+            {
+                // Retrieve the UserId from the authenticated user's claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Call the service method to update both consignment and koi details
+                var isUpdated = await _consignmentService.UpdateConsignmentOrderFromOutsideShopAsync(
+                    consignmentId, userId, consignmentPrice, name, origin, gender, age, size, breed,
+                    personality, feedingAmount, filterRate, healthStatus, awardCertificates, description,
+                    detailDescription, imageKoi, imageCertificate, additionImage, consignmentTitle, consignmentDetail);
+
+                if (!isUpdated)
+                {
+                    return NotFound("Consignment order not found or could not be updated.");
+                }
+
+                return Ok("Consignment order updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
@@ -322,35 +467,34 @@ namespace KMS.APIService.Controllers
 
 
 
-
         [Authorize(Roles = "manager, staff")]
-        // PUT: api/consignment/update-status
-        [HttpPut("update-status")]
-        public async Task<IActionResult> UpdateConsignmentStatus([FromBody] UpdateStatusRequest request)
+        // PUT: api/consignment/update-status-consignment-take-care-in-and-out
+        [HttpPut("update-status-consignment-take-care-in-and-out")]
+        public async Task<IActionResult> UpdateStatusConsignmentTakeCareInAndOut([FromBody] UpdateStatusRequest request)
         {
             try
             {
-                // Kiểm tra người dùng hiện tại từ Claims
+                // Check the current user from Claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null)
                 {
                     return Unauthorized("User not authenticated.");
                 }
 
-                // Kiểm tra vai trò của người dùng (chỉ cho phép manager và staff)
+                // Verify role (only manager and staff are allowed)
                 if (!HttpContext.User.IsInRole("manager") && !HttpContext.User.IsInRole("staff"))
                 {
                     return Forbid("Only managers or staff can update the consignment status.");
                 }
 
-                // Lấy thông tin consignment để xác minh tồn tại và lấy thông tin người dùng
+                // Retrieve consignment details to confirm existence and get user information
                 var consignment = await _consignmentService.GetConsignmentByIdAsync(request.ConsignmentId);
                 if (consignment == null)
                 {
                     return NotFound("Consignment not found.");
                 }
 
-                // Gọi phương thức service để cập nhật trạng thái
+                // Call the service method to update the status
                 var updated = await _consignmentService.UpdateConsignmentStatusAsync(request.ConsignmentId, request.Status);
 
                 if (!updated)
@@ -358,11 +502,11 @@ namespace KMS.APIService.Controllers
                     return NotFound("Failed to update the consignment.");
                 }
 
-                // Lấy thông tin người dùng để gửi email
+                // Get user info to send an email notification
                 var user = await _userService.GetUserByIdAsync(consignment.UserId.Value);
                 if (user != null && !string.IsNullOrEmpty(user.Email))
                 {
-                    // Gửi email thông báo
+                    // Send notification email
                     string subject = "Consignment Status Update";
                     string message = $"Dear {user.UserName},\n\nYour consignment with ID {request.ConsignmentId} has been updated to status '{request.Status}'.\n\nBest regards,\nKoi Farm Team";
 
@@ -376,6 +520,7 @@ namespace KMS.APIService.Controllers
                 return BadRequest($"Error: {ex.Message}");
             }
         }
+
 
 
         [Authorize(Roles = "manager, staff")]

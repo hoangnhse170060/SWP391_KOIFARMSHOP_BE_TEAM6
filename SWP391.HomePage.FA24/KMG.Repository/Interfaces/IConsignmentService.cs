@@ -41,11 +41,80 @@ namespace KMG.Repository.Interfaces
     string consignmentTitle, string consignmentDetail);
 
         Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(
-    int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
-    string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
-    string awardCertificates, string description, string detailDescription, string imageKoi,
-    string imageCertificate, string additionImage, string consignmentType,
-    string consignmentTitle, string consignmentDetail);
+            int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
+            string breed, string personality, decimal feedingAmount, decimal filterRate,
+            string healthStatus, string awardCertificates, string description, string detailDescription,
+            string imageKoi, string imageCertificate, string additionImage, string consignmentType,
+            decimal consignmentPrice, string consignmentTitle, string consignmentDetail
+        );
+        Task<bool> UpdateConsignmentTakeCareInsideShopAsync(int consignmentId, int userId, int koiTypeId, int koiId, DateTime consignmentDateTo, string? userImage, string? consignmentTitle, string? consignmentDetail);
+
+
+        Task<bool> UpdateConsignmentOrderAsync(
+    int consignmentId,
+    int userId,
+    decimal consignmentPrice,
+    string? consignmentTitle,
+    string? consignmentDetail);
+
+
+        Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
+    int consignmentId,
+    int userId,
+    int koiTypeId,
+    string name,
+    string origin,
+    string gender,
+    int age,
+    decimal size,
+    string breed,
+    string personality,
+    decimal feedingAmount,
+    decimal filterRate,
+    string healthStatus,
+    string awardCertificates,
+    string description,
+    string detailDescription,
+    string imageKoi,
+    string imageCertificate,
+    string additionImage,
+    DateTime consignmentDateTo,
+    string? consignmentTitle,
+    string? consignmentDetail);
+
+
+        Task<bool> UpdateConsignmentOrderFromOutsideShopAsync(
+            int consignmentId, int userId, decimal consignmentPrice, string? name, string? origin,
+            string? gender, int? age, decimal? size, string? breed, string? personality,
+            decimal? feedingAmount, decimal? filterRate, string? healthStatus, string? awardCertificates,
+            string? description, string? detailDescription, string? imageKoi, string? imageCertificate,
+            string? additionImage, string? consignmentTitle, string? consignmentDetail
+        );
+        Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
+            int consignmentId,
+            int userId,
+            
+            string? name,
+            string? origin,
+            string? gender,
+            int? age,
+            decimal? size,
+            string? breed,
+            string? personality,
+            decimal? feedingAmount,
+            decimal? filterRate,
+            string? healthStatus,
+            string? awardCertificates,
+            string? description,
+            string? detailDescription,
+            string? imageKoi,
+            string? imageCertificate,
+            string? additionImage,
+            DateTime? consignmentDateTo,
+            string? consignmentTitle,
+            string? consignmentDetail
+        );
+
 
 
     }

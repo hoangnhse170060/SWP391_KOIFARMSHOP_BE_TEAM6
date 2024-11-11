@@ -92,7 +92,7 @@ namespace KMG.Repository.Services
                     HealthStatus = existingKoi.HealthStatus,
                     AwardCertificates = existingKoi.AwardCertificates,
                     Status = "unavailable",    // Initial status as unavailable until approved
-                    Price = consignmentPrice,
+                    Price = consignmentPrice,  // Set the Price for Koi based on consignmentPrice
                     quantityInStock = 1,       // Since this is a consigned item, quantity is 1
                     IsConsigned = true,        // Mark as consigned
                     Description = existingKoi.Description,
@@ -127,6 +127,7 @@ namespace KMG.Repository.Services
             // Map and return the created consignment as DTO
             return _mapper.Map<ConsignmentDto>(newConsignment);
         }
+
 
 
 
@@ -390,11 +391,159 @@ namespace KMG.Repository.Services
         }
 
 
+        public async Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
+    int consignmentId,
+    int userId,
+    string? name,
+    string? origin,
+    string? gender,
+    int? age,
+    decimal? size,
+    string? breed,
+    string? personality,
+    decimal? feedingAmount,
+    decimal? filterRate,
+    string? healthStatus,
+    string? awardCertificates,
+    string? description,
+    string? detailDescription,
+    string? imageKoi,
+    string? imageCertificate,
+    string? additionImage,
+    DateTime? consignmentDateTo,
+    string? consignmentTitle,
+    string? consignmentDetail)
+        {
+            try
+            {
+                // Retrieve the existing consignment and associated Koi by ID and user
+                var existingConsignment = await _context.Consignments
+                    .Include(c => c.Koi)
+                    .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
+
+                if (existingConsignment == null || existingConsignment.Koi == null)
+                {
+                    return false; // Consignment or associated Koi not found
+                }
+
+                // Update consignment details (linked to consignment)
+                existingConsignment.ConsignmentDateTo = consignmentDateTo ?? existingConsignment.ConsignmentDateTo;
+                existingConsignment.ConsignmentTitle = consignmentTitle ?? existingConsignment.ConsignmentTitle;
+                existingConsignment.ConsignmentDetail = consignmentDetail ?? existingConsignment.ConsignmentDetail;
+
+                // Update koi details (linked to koiId)
+                existingConsignment.Koi.Name = name ?? existingConsignment.Koi.Name;
+                existingConsignment.Koi.Origin = origin ?? existingConsignment.Koi.Origin;
+                existingConsignment.Koi.Gender = gender ?? existingConsignment.Koi.Gender;
+                existingConsignment.Koi.Age = age ?? existingConsignment.Koi.Age;
+                existingConsignment.Koi.Size = size ?? existingConsignment.Koi.Size;
+                existingConsignment.Koi.Breed = breed ?? existingConsignment.Koi.Breed;
+                existingConsignment.Koi.Personality = personality ?? existingConsignment.Koi.Personality;
+                existingConsignment.Koi.FeedingAmount = feedingAmount ?? existingConsignment.Koi.FeedingAmount;
+                existingConsignment.Koi.FilterRate = filterRate ?? existingConsignment.Koi.FilterRate;
+                existingConsignment.Koi.HealthStatus = healthStatus ?? existingConsignment.Koi.HealthStatus;
+                existingConsignment.Koi.AwardCertificates = awardCertificates ?? existingConsignment.Koi.AwardCertificates;
+                existingConsignment.Koi.Description = description ?? existingConsignment.Koi.Description;
+                existingConsignment.Koi.DetailDescription = detailDescription ?? existingConsignment.Koi.DetailDescription;
+                existingConsignment.Koi.ImageKoi = imageKoi ?? existingConsignment.Koi.ImageKoi;
+                existingConsignment.Koi.ImageCertificate = imageCertificate ?? existingConsignment.Koi.ImageCertificate;
+                existingConsignment.Koi.AdditionImage = additionImage ?? existingConsignment.Koi.AdditionImage;
+
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update consignment: " + ex.Message);
+            }
+        }
+
+
+        public async Task<bool> UpdateConsignmentTakeCareOutsideShopAsync(
+    int consignmentId,
+    int userId,
+    int koiTypeId,
+    string name,
+    string origin,
+    string gender,
+    int age,
+    decimal size,
+    string breed,
+    string personality,
+    decimal feedingAmount,
+    decimal filterRate,
+    string healthStatus,
+    string awardCertificates,
+    string description,
+    string detailDescription,
+    string imageKoi,
+    string imageCertificate,
+    string additionImage,
+    DateTime consignmentDateTo,
+    string? consignmentTitle,
+    string? consignmentDetail)
+        {
+            try
+            {
+                // Retrieve the existing consignment and koi details
+                var existingConsignment = await _context.Consignments
+                    .Include(c => c.Koi)
+                    .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
+
+                if (existingConsignment == null || existingConsignment.Koi == null)
+                {
+                    return false; // Consignment or Koi not found
+                }
+
+                // Update Koi details
+                var koiToUpdate = existingConsignment.Koi;
+                koiToUpdate.KoiTypeId = koiTypeId;
+                koiToUpdate.Name = name;
+                koiToUpdate.Origin = origin;
+                koiToUpdate.Gender = gender;
+                koiToUpdate.Age = age;
+                koiToUpdate.Size = size;
+                koiToUpdate.Breed = breed;
+                koiToUpdate.Personality = personality;
+                koiToUpdate.FeedingAmount = feedingAmount;
+                koiToUpdate.FilterRate = filterRate;
+                koiToUpdate.HealthStatus = healthStatus;
+                koiToUpdate.AwardCertificates = awardCertificates;
+                koiToUpdate.Description = description;
+                koiToUpdate.DetailDescription = detailDescription;
+                koiToUpdate.ImageKoi = imageKoi;
+                koiToUpdate.ImageCertificate = imageCertificate;
+                koiToUpdate.AdditionImage = additionImage;
+
+                // Update Consignment details
+                existingConsignment.KoiTypeId = koiTypeId;
+                existingConsignment.ConsignmentDateTo = consignmentDateTo;
+                existingConsignment.ConsignmentTitle = consignmentTitle ?? existingConsignment.ConsignmentTitle;
+                existingConsignment.ConsignmentDetail = consignmentDetail ?? existingConsignment.ConsignmentDetail;
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update consignment: " + ex.Message);
+            }
+        }
+
+
+
+
+
+
         public async Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(
     int userId, int koiTypeId, string name, string origin, string gender, int age, decimal size,
     string breed, string personality, decimal feedingAmount, decimal filterRate, string healthStatus,
     string awardCertificates, string description, string detailDescription, string imageKoi,
-    string imageCertificate, string additionImage, string consignmentType,
+    string imageCertificate, string additionImage, string consignmentType, decimal consignmentPrice,
     string consignmentTitle, string consignmentDetail)
         {
             // Step 1: Create a new Koi entry for the consignment
@@ -419,7 +568,8 @@ namespace KMG.Repository.Services
                 DetailDescription = detailDescription,
                 ImageKoi = imageKoi,
                 ImageCertificate = imageCertificate,
-                AdditionImage = additionImage
+                AdditionImage = additionImage,
+                Price = consignmentPrice // Synchronize Price with consignmentPrice
             };
 
             // Save the new Koi entry to the database
@@ -435,6 +585,7 @@ namespace KMG.Repository.Services
                 ConsignmentType = consignmentType,
                 Status = "awaiting inspection", // Initial status
                 ConsignmentDateFrom = DateTime.Now,
+                ConsignmentPrice = consignmentPrice, // Save consignment price
                 ConsignmentTitle = consignmentTitle,
                 ConsignmentDetail = consignmentDetail
             };
@@ -446,6 +597,131 @@ namespace KMG.Repository.Services
             // Map and return the created consignment as DTO
             return _mapper.Map<ConsignmentDto>(newConsignment);
         }
+
+
+
+
+        public async Task<bool> UpdateConsignmentTakeCareInsideShopAsync(
+   int consignmentId,
+   int userId,
+   int koiTypeId,
+   int koiId,
+   DateTime consignmentDateTo,
+   string? userImage,
+   string? consignmentTitle,
+   string? consignmentDetail
+)
+        {
+            try
+            {
+                // Retrieve the existing consignment by ID
+                var existingConsignment = await _context.Consignments
+                    .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
+
+                if (existingConsignment == null)
+                {
+                    return false; // Consignment not found or not authorized
+                }
+
+                // Update relevant fields
+                existingConsignment.KoiTypeId = koiTypeId;
+                existingConsignment.KoiId = koiId;
+                existingConsignment.ConsignmentDateTo = consignmentDateTo;
+                existingConsignment.UserImage = userImage ?? existingConsignment.UserImage;
+                existingConsignment.ConsignmentTitle = consignmentTitle ?? existingConsignment.ConsignmentTitle;
+                existingConsignment.ConsignmentDetail = consignmentDetail ?? existingConsignment.ConsignmentDetail;
+
+                // Save changes
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update consignment: " + ex.Message);
+            }
+        }
+        public async Task<bool> UpdateConsignmentOrderAsync(
+    int consignmentId,
+    int userId,
+    decimal consignmentPrice,
+    string? consignmentTitle,
+    string? consignmentDetail)
+        {
+            // Lấy thông tin consignment dựa trên consignmentId và userId
+            var existingConsignment = await _context.Consignments
+                .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
+
+            if (existingConsignment == null)
+            {
+                return false; // Không tìm thấy consignment
+            }
+
+            // Cập nhật các trường cần thiết trong bảng Consignment
+            existingConsignment.ConsignmentPrice = consignmentPrice;
+            existingConsignment.ConsignmentTitle = consignmentTitle ?? existingConsignment.ConsignmentTitle;
+            existingConsignment.ConsignmentDetail = consignmentDetail ?? existingConsignment.ConsignmentDetail;
+
+            // Lấy thông tin Koi liên quan để cập nhật giá
+            var existingKoi = await _context.Kois.FirstOrDefaultAsync(k => k.KoiId == existingConsignment.KoiId);
+            if (existingKoi == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy cá Koi liên quan.");
+            }
+
+            // Cập nhật giá trong bảng Koi để đồng bộ với consignmentPrice
+            existingKoi.Price = consignmentPrice;
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        public async Task<bool> UpdateConsignmentOrderFromOutsideShopAsync(
+    int consignmentId, int userId, decimal consignmentPrice, string? name, string? origin,
+    string? gender, int? age, decimal? size, string? breed, string? personality,
+    decimal? feedingAmount, decimal? filterRate, string? healthStatus, string? awardCertificates,
+    string? description, string? detailDescription, string? imageKoi, string? imageCertificate,
+    string? additionImage, string? consignmentTitle, string? consignmentDetail)
+        {
+            var existingConsignment = await _context.Consignments
+                .Include(c => c.Koi)
+                .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
+
+            if (existingConsignment == null || existingConsignment.Koi == null)
+            {
+                return false; // Consignment or associated Koi not found
+            }
+
+            // Update consignment details
+            existingConsignment.ConsignmentPrice = consignmentPrice;
+            existingConsignment.ConsignmentTitle = consignmentTitle ?? existingConsignment.ConsignmentTitle;
+            existingConsignment.ConsignmentDetail = consignmentDetail ?? existingConsignment.ConsignmentDetail;
+
+            // Update Koi details, including Price
+            existingConsignment.Koi.Price = consignmentPrice; // Sync price
+            existingConsignment.Koi.Name = name ?? existingConsignment.Koi.Name;
+            existingConsignment.Koi.Origin = origin ?? existingConsignment.Koi.Origin;
+            existingConsignment.Koi.Gender = gender ?? existingConsignment.Koi.Gender;
+            existingConsignment.Koi.Age = age ?? existingConsignment.Koi.Age;
+            existingConsignment.Koi.Size = size ?? existingConsignment.Koi.Size;
+            existingConsignment.Koi.Breed = breed ?? existingConsignment.Koi.Breed;
+            existingConsignment.Koi.Personality = personality ?? existingConsignment.Koi.Personality;
+            existingConsignment.Koi.FeedingAmount = feedingAmount ?? existingConsignment.Koi.FeedingAmount;
+            existingConsignment.Koi.FilterRate = filterRate ?? existingConsignment.Koi.FilterRate;
+            existingConsignment.Koi.HealthStatus = healthStatus ?? existingConsignment.Koi.HealthStatus;
+            existingConsignment.Koi.AwardCertificates = awardCertificates ?? existingConsignment.Koi.AwardCertificates;
+            existingConsignment.Koi.Description = description ?? existingConsignment.Koi.Description;
+            existingConsignment.Koi.DetailDescription = detailDescription ?? existingConsignment.Koi.DetailDescription;
+            existingConsignment.Koi.ImageKoi = imageKoi ?? existingConsignment.Koi.ImageKoi;
+            existingConsignment.Koi.ImageCertificate = imageCertificate ?? existingConsignment.Koi.ImageCertificate;
+            existingConsignment.Koi.AdditionImage = additionImage ?? existingConsignment.Koi.AdditionImage;
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
 
 
 
