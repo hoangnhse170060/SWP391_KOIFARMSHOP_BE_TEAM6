@@ -521,6 +521,42 @@ namespace KMS.APIService.Controllers
             }
         }
 
+        [Authorize(Roles = "manager, staff")]
+        [HttpPut("update-consignment-order-status")]
+        public async Task<IActionResult> UpdateConsignmentOrderStatus([FromBody] UpdateStatusRequest request)
+        {
+            try
+            {
+                // Get the UserId from the claims to ensure the user is authenticated
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Only allow manager or staff roles to update status
+                if (!HttpContext.User.IsInRole("manager") && !HttpContext.User.IsInRole("staff"))
+                {
+                    return Forbid("Only managers or staff can update the consignment status.");
+                }
+
+                // Call the service method to update the consignment and koi status
+                var isUpdated = await _consignmentService.UpdateConsignmentOrderStatusAsync(request.ConsignmentId, request.Status);
+
+                if (!isUpdated)
+                {
+                    return NotFound("Consignment order not found or could not be updated.");
+                }
+
+                return Ok("Consignment order status updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
 
 
         [Authorize(Roles = "manager, staff")]

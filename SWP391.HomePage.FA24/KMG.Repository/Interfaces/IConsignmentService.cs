@@ -115,6 +115,7 @@ namespace KMG.Repository.Interfaces
             string? consignmentDetail
         );
 
+        Task<bool> UpdateConsignmentOrderStatusAsync(int consignmentId, string status);
 
 
     }

@@ -73,7 +73,6 @@ namespace KMG.Repository.Services
                 throw new KeyNotFoundException("Koi with specified ID and Type not found.");
             }
 
-            // Step 2: Create a new Koi entry with similar attributes (only if the consignment is online)
             int? newKoiId = null;
             if (consignmentType.ToLower() == "online")
             {
@@ -107,7 +106,6 @@ namespace KMG.Repository.Services
                 newKoiId = newKoi.KoiId; // Capture the new Koi ID for association with consignment
             }
 
-            // Step 3: Create a new Consignment entry with the newly created Koi ID
             var newConsignment = new Consignment
             {
                 UserId = userId,
@@ -211,6 +209,46 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to update consignment status: " + ex.Message);
             }
         }
+
+        public async Task<bool> UpdateConsignmentOrderStatusAsync(int consignmentId, string status)
+        {
+            try
+            {
+                // Retrieve the existing consignment along with its associated Koi
+                var existingConsignment = await _context.Consignments
+                    .Include(c => c.Koi)
+                    .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId);
+
+                if (existingConsignment == null || existingConsignment.Koi == null)
+                {
+                    return false; // Consignment or associated Koi not found
+                }
+
+                // Update the status in the Consignment table
+                existingConsignment.Status = status;
+
+                // Update the status in the Koi table based on Consignment status
+                if (status.Equals("approved", StringComparison.OrdinalIgnoreCase))
+                {
+                    existingConsignment.Koi.Status = "available";
+                }
+                else
+                {
+                    // Set Koi status to unavailable if consignment is not approved
+                    existingConsignment.Koi.Status = "unavailable";
+                }
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to update consignment order status: " + ex.Message);
+            }
+        }
+
+
 
 
 
