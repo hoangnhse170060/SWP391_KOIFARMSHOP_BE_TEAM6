@@ -292,31 +292,37 @@ namespace KMS.APIService.Controllers
 
                     if (checkSignature && tmnCode == json["vnp_TmnCode"])
                     {
+                        string redirectUrl;
                         if (vnp_ResponseCode == "00") // Thành công
                         {
-                            
                             // Gửi email thông báo
                             SendPaymentSuccessEmailToManager(int.Parse(consignmentId));
 
-                            return Ok(new { Message = "Payment Success", ConsignmentId = consignmentId });
+                            // URL thành công
+                            redirectUrl = $"http://localhost:5173/success";
                         }
                         else
                         {
-                            return BadRequest(new { Message = "Payment Failed", ResponseCode = vnp_ResponseCode });
+                            // URL thất bại
+                            redirectUrl = $"http://localhost:5173/unsuccess";
                         }
+
+                        // Trả về URL cho frontend
+                        return Redirect(redirectUrl);
                     }
                     else
                     {
-                        return BadRequest(new { Message = "Invalid Signature" });
+                        return Redirect("https://yourwebsite.com/payment-failed?errorCode=invalid_signature");
                     }
                 }
-                return BadRequest(new { Message = "Invalid Request" });
+                return Redirect("https://yourwebsite.com/payment-failed?errorCode=invalid_request");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
+                return Redirect($"https://yourwebsite.com/payment-failed?errorCode=internal_error&message={WebUtility.UrlEncode(ex.Message)}");
             }
         }
+
 
         private async void SendPaymentSuccessEmailToManager(int consignmentId)
         {
