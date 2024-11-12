@@ -122,6 +122,10 @@ namespace KMS.APIService.Controllers
                     }
 
                     koiEntity.quantityInStock -= orderKoi.Quantity;
+                    if (koiEntity.quantityInStock == 0)
+                    {
+                        koiEntity.Status = "Unavailable";
+                    }
                     totalMoney += koiEntity.Price.GetValueOrDefault(0) * orderKoi.Quantity.GetValueOrDefault(0);
                     _unitOfWork.KoiRepository.Update(koiEntity);
                 }
@@ -142,6 +146,11 @@ namespace KMS.APIService.Controllers
                     }
 
                     fishEntity.quantityInStock -= orderFish.Quantity;
+                    
+                    if (fishEntity.quantityInStock == 0)
+                    {
+                        fishEntity.Status = "Unavailable";
+                    }
                     totalMoney += fishEntity.Price.GetValueOrDefault(0) * orderFish.Quantity.GetValueOrDefault(0);
                     _unitOfWork.FishRepository.Update(fishEntity);
                 }
