@@ -7,14 +7,14 @@
 - **Backend**: C#
 - **Database**: SQL Server
 - **GitHub Repository FE**: (https://github.com/khanhnqse/Koi-Farm-Shop-FE-Team-6)
-- **GitHub Repository BE**: (https://github.com/hoangnhse170060/SWP391_Team5)
+- **GitHub Repository BE**: (https://github.com/hoangnhse170060/SWP391_KOIFARMSHOP_BE_TEAM6)
 
 ## 👥 Contributors
 
 | Name       | UniID | Role        | Position        | GitHub Profile                        |
 |------------|-------|-------------|-----------------|---------------------------------------|
-| **Bùi Minh Việt**   | **SE184771**| Developer   | BE,FE      | [naksasaka](https://github.com/naksasaka)         |
-| **Phạm Văn Học**   | **SE184940**| Developer   | BE,FE          | [hocpvse184940](https://github.com/hocpvse184940)         |
+| **Bùi Minh Việt**   | **SE184771**| Developer   | BE    | [naksasaka](https://github.com/naksasaka)         |
+| **Phạm Văn Học**   | **SE184940**| Developer   | FE          | [hocpvse184940](https://github.com/hocpvse184940)         |
 | **Đặng Ngọc Sáng**   | **SE184169**| Developer   | BE        | [sangdnse184169](https://github.com/sangdnSE184169)         |
 | **Nguyễn Hữu Hoàng**   | **SE170060**| Developer   | BE | [hoangnhse170060](https://github.com/hoangnhse170060)         |
 | **Nguyễn Quang Khanh**   | **SE173088**| Developer   | FE | [khanhnqse](https://github.com/khanhnqse)         |

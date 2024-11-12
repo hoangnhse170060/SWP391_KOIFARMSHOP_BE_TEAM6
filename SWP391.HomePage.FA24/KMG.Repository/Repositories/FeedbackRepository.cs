@@ -87,7 +87,7 @@ namespace KMG.Repository.Repositories
                 .Where(f => f.FishesId == fishId && f.Rating.HasValue)
                 .AverageAsync(f => f.Rating.Value);
 
-            return averageRating;
+            return Math.Round(averageRating, 1);
         }
 
         public async Task<double> GetAverageRatingForKoi(int koiId)
@@ -96,7 +96,7 @@ namespace KMG.Repository.Repositories
                 .Where(f => f.KoiId == koiId && f.Rating.HasValue)
                 .AverageAsync(f => f.Rating.Value);
 
-            return averageRating;
+            return Math.Round(averageRating, 1);
         }
 
     }
