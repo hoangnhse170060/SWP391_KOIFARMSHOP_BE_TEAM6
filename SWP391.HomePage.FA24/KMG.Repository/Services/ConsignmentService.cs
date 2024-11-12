@@ -397,8 +397,8 @@ namespace KMG.Repository.Services
                 FilterRate = request.FilterRate,
                 HealthStatus = request.HealthStatus,
                 AwardCertificates = request.AwardCertificates,
-                Status = "unavailable",    // Initial status for consigned Koi
-                IsConsigned = true,        // Mark as consigned
+                Status = "unavailable",
+                IsConsigned = true,
                 Description = request.Description,
                 DetailDescription = request.DetailDescription,
                 ImageKoi = request.ImageKoi,
@@ -409,24 +409,44 @@ namespace KMG.Repository.Services
             _context.Kois.Add(newKoi);
             await _context.SaveChangesAsync();
 
+            // Calculate TakeCareFee
+            var consignmentDateFrom = DateTime.Now;
+            var consignmentDateTo = request.ConsignmentDateTo;
+            decimal takeCareFee = CalculateTakeCareFee(consignmentDateFrom, consignmentDateTo);
+
             // Create consignment linked to new Koi
             var newConsignment = new Consignment
             {
                 UserId = userId,
                 KoiTypeId = request.KoiTypeId,
-                KoiId = newKoi.KoiId,        // Link to the newly created Koi
+                KoiId = newKoi.KoiId,
                 ConsignmentType = request.ConsignmentType,
-                Status = "awaiting inspection",  // Initial status
-                ConsignmentDateFrom = DateTime.Now,
-                ConsignmentDateTo = request.ConsignmentDateTo, // Use provided ConsignmentDateTo
+                Status = "awaiting inspection",
+                ConsignmentDateFrom = consignmentDateFrom,
+                ConsignmentDateTo = consignmentDateTo,
                 ConsignmentTitle = request.ConsignmentTitle,
-                ConsignmentDetail = request.ConsignmentDetail
+                ConsignmentDetail = request.ConsignmentDetail,
+                TakeCareFee = takeCareFee // Assign the calculated fee
             };
 
             _context.Consignments.Add(newConsignment);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<ConsignmentDto>(newConsignment);
+        }
+
+        private decimal CalculateTakeCareFee(DateTime consignmentDateFrom, DateTime consignmentDateTo)
+        {
+            TimeSpan duration = consignmentDateTo - consignmentDateFrom;
+            int totalDays = (int)duration.TotalDays;
+
+            // Calculate the fee based on full months and remaining weeks
+            int months = totalDays / 30;
+            int remainingDays = totalDays % 30;
+            int weeks = remainingDays / 7;
+
+            decimal fee = (months * 100000) + (weeks * 70000);
+            return fee;
         }
 
 

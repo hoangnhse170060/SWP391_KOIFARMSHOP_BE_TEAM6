@@ -9,6 +9,8 @@ using System.Net.Mail;
 using System.Net;
 using System.Web;
 using System.Text;
+using KMG.Repository.Interfaces; 
+
 
 namespace KMS.APIService.Controllers
 {
@@ -21,11 +23,14 @@ namespace KMS.APIService.Controllers
         private readonly string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         private readonly string tmnCode = "QBK46KBK";
         private readonly string hashSecret = "MFKD4UMO9TUCVYTO8WQRQ01ZZA5I1KPD";
+        private readonly IEmailService _emailService; // Inject IEmailService
 
-        public VNPayController(UnitOfWork unitOfWork, ILogger<OrderController> logger)
+
+        public VNPayController(UnitOfWork unitOfWork, ILogger<OrderController> logger, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _emailService = emailService;
         }
         [HttpPost("Payment")]
         public IActionResult CreatePayment(int orderId)
@@ -234,6 +239,95 @@ namespace KMS.APIService.Controllers
             return BadRequest(new { Message = "Unexpected error occurred." });
         }
 
+
+        [HttpPost("CreateConsignmentPayment")]
+        public IActionResult CreateConsignmentPayment(int consignmentId, decimal takeCareFee)
+        {
+            string scheme = Request.Scheme;
+            string host = Request.Host.Host;
+            int? port = Request.Host.Port;
+            string returnUrl = $"{scheme}://{host}:{port}/api/vnpay/ConsignmentPaymentConfirm";
+            string txnRef = $"{Guid.NewGuid()}"; // Unique transaction reference
+
+            string clientIPAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            PayLib pay = new PayLib();
+            pay.AddRequestData("vnp_Version", "2.1.0");
+            pay.AddRequestData("vnp_Command", "pay");
+            pay.AddRequestData("vnp_TmnCode", tmnCode);
+            pay.AddRequestData("vnp_Amount", (Convert.ToInt32(takeCareFee) * 100).ToString()); // Số tiền chuyển đổi sang VNĐ
+            pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+            pay.AddRequestData("vnp_CurrCode", "VND");
+            pay.AddRequestData("vnp_IpAddr", clientIPAddress);
+            pay.AddRequestData("vnp_Locale", "vn");
+            pay.AddRequestData("vnp_OrderInfo", consignmentId.ToString()); // Sử dụng Consignment ID
+            pay.AddRequestData("vnp_OrderType", "consignment");
+            pay.AddRequestData("vnp_ReturnUrl", returnUrl);
+            pay.AddRequestData("vnp_TxnRef", txnRef);
+
+            // Tạo URL thanh toán
+            string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
+            return Ok(new { PaymentUrl = paymentUrl });
+        }
+
+        [HttpGet("ConsignmentPaymentConfirm")]
+        public IActionResult ConsignmentPaymentConfirm()
+        {
+            try
+            {
+                if (Request.QueryString.HasValue)
+                {
+                    var queryString = Request.QueryString.Value;
+                    var json = HttpUtility.ParseQueryString(queryString);
+
+                    string txnRef = json["vnp_TxnRef"];
+                    string consignmentId = json["vnp_OrderInfo"];
+                    string vnp_ResponseCode = json["vnp_ResponseCode"];
+                    string vnp_SecureHash = json["vnp_SecureHash"];
+                    var pos = Request.QueryString.Value.IndexOf("&vnp_SecureHash");
+
+                    // Validate chữ ký
+                    bool checkSignature = PayLib.HmacSHA512(hashSecret, Request.QueryString.Value.Substring(1, pos - 1))
+                        .Equals(vnp_SecureHash, StringComparison.InvariantCultureIgnoreCase);
+
+                    if (checkSignature && tmnCode == json["vnp_TmnCode"])
+                    {
+                        if (vnp_ResponseCode == "00") // Thành công
+                        {
+                            
+                            // Gửi email thông báo
+                            SendPaymentSuccessEmailToManager(int.Parse(consignmentId));
+
+                            return Ok(new { Message = "Payment Success", ConsignmentId = consignmentId });
+                        }
+                        else
+                        {
+                            return BadRequest(new { Message = "Payment Failed", ResponseCode = vnp_ResponseCode });
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest(new { Message = "Invalid Signature" });
+                    }
+                }
+                return BadRequest(new { Message = "Invalid Request" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Internal Server Error", Error = ex.Message });
+            }
+        }
+
+        private async void SendPaymentSuccessEmailToManager(int consignmentId)
+        {
+            // Cấu hình thông tin email cho manager
+            string managerEmail = "chjchjamen@gmail.com"; 
+            string subject = $"Consignment Payment Success - ID: {consignmentId}";
+            string message = $"Payment for consignment ID {consignmentId} has been successfully completed. The consignment is now awaiting processing.";
+
+            // Gửi email sử dụng IEmailService
+            await _emailService.SendEmailAsync(managerEmail, subject, message);
+        }
 
         private bool ValidateSignature(string rspraw, string inputHash, string secretKey)
         {
