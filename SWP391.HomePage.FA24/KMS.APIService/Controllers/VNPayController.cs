@@ -145,46 +145,76 @@ namespace KMS.APIService.Controllers
 
                 if (isSignatureValid && vnp_ResponseCode == "00")
                 {
-                    order.OrderStatus = "remittance";
-                    _unitOfWork.OrderRepository.Update(order);
-                    await _unitOfWork.OrderRepository.SaveAsync();
-
-                    // Lấy email của người dùng và email mặc định của staff
-                    string recipientEmail = GetUserEmail(order);
-                    string staffEmail = "d.anhdn2008@gmail.com";
-
-                    string emailContent = GenerateOrderDetailsEmailContent(order);
-
-                    // Kiểm tra và gửi email đến cả người dùng và staff
-                    if (!string.IsNullOrWhiteSpace(recipientEmail) || !string.IsNullOrWhiteSpace(staffEmail))
+                    // Kiểm tra nếu sản phẩm Koi nào có IsConsigned = true
+                    bool hasConsignedKoi = false;
+                    foreach (var koi in order.OrderKois)
                     {
-                        try
+                        if (koi.Koi != null && koi.Koi.IsConsigned == true) // Kiểm tra IsConsigned của Koi
                         {
-                            // Gửi email cho người dùng nếu có
-                            if (!string.IsNullOrWhiteSpace(recipientEmail))
-                            {
-                                await SendEmailAsync(recipientEmail, "Payment Confirmation", emailContent);
-                            }
-
-                            // Gửi email cho staff nếu có
-                            if (!string.IsNullOrWhiteSpace(staffEmail))
-                            {
-                                await SendEmailAsync(staffEmail, "Payment Confirmation", emailContent);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "Error sending email.");
+                            hasConsignedKoi = true;
+                            break;
                         }
                     }
-                    else
-                    {
-                        _logger.LogInformation("User or staff email not found. Skipping email sending.");
-                    }
 
-                    return Redirect("http://localhost:5173/success");
+                    // Gửi email nếu có ít nhất một sản phẩm Koi được consignment
+                    if (hasConsignedKoi)
+                    {
+                        // Email người dùng (nếu có)
+                        var userEmail = GetUserEmail(order);
+                        var emailContent = GenerateOrderDetailsEmailContent(order);
+                        if (!string.IsNullOrEmpty(userEmail))
+                        {
+                            await SendEmailAsync(userEmail, "Consignment Payment Confirmation", emailContent);
+                        }
+
+                        // Email cho manager
+                        var managerEmail = "chjchjamen@gmail.com"; // Thay bằng email của manager
+                        if (!string.IsNullOrEmpty(managerEmail))
+                        {
+                            await SendEmailAsync(managerEmail, "Consignment Payment Success Notification",
+                            $"The consignment related to Order ID {orderId} includes one or more consigned Koi, and the payment has been completed successfully.");
+                        }
+
+                        order.OrderStatus = "remittance";
+                        _unitOfWork.OrderRepository.Update(order);
+                        await _unitOfWork.OrderRepository.SaveAsync();
+
+                        // Lấy email của người dùng và email mặc định của staff
+                        string recipientEmail = GetUserEmail(order);
+                        string staffEmail = "d.anhdn2008@gmail.com";
+
+
+
+                        // Kiểm tra và gửi email đến cả người dùng và staff
+                        if (!string.IsNullOrWhiteSpace(recipientEmail) || !string.IsNullOrWhiteSpace(staffEmail))
+                        {
+                            try
+                            {
+                                // Gửi email cho người dùng nếu có
+                                if (!string.IsNullOrWhiteSpace(recipientEmail))
+                                {
+                                    await SendEmailAsync(recipientEmail, "Payment Confirmation", emailContent);
+                                }
+
+                                // Gửi email cho staff nếu có
+                                if (!string.IsNullOrWhiteSpace(staffEmail))
+                                {
+                                    await SendEmailAsync(staffEmail, "Payment Confirmation", emailContent);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Error sending email.");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInformation("User or staff email not found. Skipping email sending.");
+                        }
+
+                        return Redirect("http://localhost:5173/success");
+                    }
                 }
-
 
 
 

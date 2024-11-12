@@ -79,6 +79,8 @@ namespace KMG.Repository.Interfaces
 
         Task<bool> UpdateConsignmentOrderStatusAsync(int consignmentId, string status);
 
+        Task<bool> UpdateConsignmentOrderFieldsAsync(int consignmentId, int userId, UpdateOrderConsignmentRequestDto request);
 
+        Task<bool> UpdateConsignmentTitleAndDetailAsync(int consignmentId, int userId, string? consignmentTitle, string? consignmentDetail);
     }
 }
