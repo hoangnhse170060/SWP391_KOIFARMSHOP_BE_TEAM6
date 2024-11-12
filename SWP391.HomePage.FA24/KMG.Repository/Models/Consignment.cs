@@ -25,6 +25,10 @@ public partial class Consignment
     public string? UserImage { get; set; }
     public string? ConsignmentTitle { get; set; }
     public string? ConsignmentDetail { get; set; }
+    public int? BuyerId { get; set; }
+
+    public decimal TakeCareFee { get; set; } = 0; 
+    public virtual User? Buyer { get; set; } 
 
     public virtual Koi? Koi { get; set; }
 

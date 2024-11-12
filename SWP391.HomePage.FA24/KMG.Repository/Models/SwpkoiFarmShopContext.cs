@@ -16,6 +16,7 @@ public partial class SwpkoiFarmShopContext : DbContext
     {
     }
 
+
     public virtual DbSet<Consignment> Consignments { get; set; }
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
@@ -62,6 +63,8 @@ public partial class SwpkoiFarmShopContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
+
         modelBuilder.Entity<Consignment>(entity =>
         {
             entity.HasKey(e => e.ConsignmentId).HasName("PK__Consignm__A2E2B54764FC7A08");
@@ -88,6 +91,11 @@ public partial class SwpkoiFarmShopContext : DbContext
             entity.Property(e => e.UserImage).HasColumnName("userImage");
             entity.Property(e => e.ConsignmentTitle).HasColumnName("consignmentTitle");
             entity.Property(e => e.ConsignmentDetail).HasColumnName("consignmentDetail");
+            entity.Property(e => e.TakeCareFee)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasDefaultValue(0)
+                    .HasColumnName("takeCareFee");
+
             entity.HasOne(d => d.Koi).WithMany(p => p.Consignments)
                 .HasForeignKey(d => d.KoiId)
                 .HasConstraintName("FK__Consignme__koiID__31EC6D26");
@@ -97,7 +105,7 @@ public partial class SwpkoiFarmShopContext : DbContext
                 .HasConstraintName("FK__Consignme__userI__30F848ED");
 
 
-            modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions");
+            modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions"); 
         });
 
         modelBuilder.Entity<Feedback>(entity =>
