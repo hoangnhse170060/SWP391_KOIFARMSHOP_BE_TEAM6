@@ -634,36 +634,6 @@ namespace KMG.Repository.Services
 
 
 
-        public async Task<bool> UpdateConsignmentTitleAndDetailAsync(
-    int consignmentId,
-    int userId,
-    string? consignmentTitle,
-    string? consignmentDetail)
-        {
-            try
-            {
-                // Retrieve the existing consignment by ID and user ID
-                var existingConsignment = await _context.Consignments
-                    .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
-
-                if (existingConsignment == null)
-                {
-                    return false; // Consignment not found or not authorized
-                }
-
-                // Update only the title and detail fields
-                existingConsignment.ConsignmentTitle = consignmentTitle ?? existingConsignment.ConsignmentTitle;
-                existingConsignment.ConsignmentDetail = consignmentDetail ?? existingConsignment.ConsignmentDetail;
-
-                // Save changes
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Failed to update consignment title and detail: " + ex.Message);
-            }
-        }
 
 
         public async Task<bool> UpdateConsignmentTakeCareInsideShopAsync(
@@ -782,31 +752,6 @@ namespace KMG.Repository.Services
             await _context.SaveChangesAsync();
             return true;
         }
-
-        public async Task<bool> UpdateConsignmentOrderFieldsAsync(int consignmentId, int userId, UpdateOrderConsignmentRequestDto request)
-        {
-            var existingConsignment = await _context.Consignments
-                .Include(c => c.Koi)
-                .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
-
-            if (existingConsignment == null || existingConsignment.Koi == null)
-            {
-                return false; // Không tìm thấy Consignment hoặc Koi liên quan
-            }
-
-            // Cập nhật các trường cần thiết trong Consignment
-            existingConsignment.ConsignmentPrice = request.ConsignmentPrice;
-            existingConsignment.ConsignmentTitle = request.ConsignmentTitle ?? existingConsignment.ConsignmentTitle;
-            existingConsignment.ConsignmentDetail = request.ConsignmentDetail ?? existingConsignment.ConsignmentDetail;
-
-            // Đồng bộ giá của Koi với ConsignmentPrice
-            existingConsignment.Koi.Price = request.ConsignmentPrice;
-
-            // Lưu thay đổi vào cơ sở dữ liệu
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
 
 
         private decimal CalculateConsignmentFee(DateTime consignmentDateFrom, DateTime consignmentDateTo)
