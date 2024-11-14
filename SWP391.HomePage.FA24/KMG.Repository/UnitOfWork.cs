@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Models;
 using KMG.Repository.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,18 @@ namespace KMG.Repository
         /// <summary>
         /// Test Viet ver 2 merge
         /// </summary>
+        /// 
+        public UnitOfWork(SwpkoiFarmShopContext context)
+    {
+        _context = context;
+    }
+
+        public async Task<Consignment?> GetConsignmentByKoiIdAsync(int koiId)
+        {
+            return await _context.Consignments
+                .Include(c => c.User) // Include the User to get the creator's email !!!
+                .FirstOrDefaultAsync(c => c.KoiId == koiId);
+        }
         public UserRepository UserRepository
         {
             get
