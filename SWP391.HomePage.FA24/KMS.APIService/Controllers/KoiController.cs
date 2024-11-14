@@ -80,6 +80,7 @@ namespace KMS.APIService.Controllers
                 {
                     return NotFound("KoiType not found.");
                 }
+                koi.quantityInStock = 1;
                 koi.Status = "available";
                 koi.Name = koiType.Name;
                 await _unitOfWork.KoiRepository.CreateAsync(koi);
