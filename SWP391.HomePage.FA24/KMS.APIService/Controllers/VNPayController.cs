@@ -23,7 +23,7 @@ namespace KMS.APIService.Controllers
         private readonly string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         private readonly string tmnCode = "QBK46KBK";
         private readonly string hashSecret = "MFKD4UMO9TUCVYTO8WQRQ01ZZA5I1KPD";
-        private readonly IEmailService _emailService; // Inject IEmailService
+        private readonly IEmailService _emailService; 
 
 
         public VNPayController(UnitOfWork unitOfWork, ILogger<OrderController> logger, IEmailService emailService)
@@ -355,7 +355,7 @@ namespace KMS.APIService.Controllers
 
 
 
-        private string GetUserEmail(Order order)
+          private string GetUserEmail(Order order)
         {
             // Kiểm tra xem đối tượng order và user có tồn tại không
             if (order?.User != null && !string.IsNullOrWhiteSpace(order.User.Email))
@@ -368,7 +368,7 @@ namespace KMS.APIService.Controllers
         private async Task SendEmailAsync(string toEmailAddress, string subject, string content)
         {
             string fromEmailAddress = "koikeshop.swp@gmail.com";
-            string fromEmailDisplayName = "[KOIKESHOP] GỬI HOÁ ĐƠN THANH TOÁN";
+            string fromEmailDisplayName = "[KOIKESHOP] PAYMENT INVOICE";
             string fromEmailPassword = "mlua qksd vbya vijt";
             string smtpHost = "smtp.gmail.com";
             int smtpPort = 587;
@@ -389,7 +389,7 @@ namespace KMS.APIService.Controllers
                 {
                     smtpClient.Credentials = new NetworkCredential(fromEmailAddress, fromEmailPassword);
                     smtpClient.EnableSsl = enabledSsl;
-                    await smtpClient.SendMailAsync(message); // Gửi email bất đồng bộ
+                    await smtpClient.SendMailAsync(message); 
                 }
             }
             catch (Exception ex)
@@ -411,7 +411,7 @@ namespace KMS.APIService.Controllers
 
             // Bảng thông tin thanh toán
             sb.AppendLine($@"
-    <div style='display: flex; justify-content: center;'>
+        <div style='display: flex; justify-content: center;'>
         <table style='border-collapse: collapse; width: 100%; max-width: 1350px; table-layout: fixed; margin: 0 auto;'>
             <colgroup>
                 <col style='width: 50%;'>
@@ -435,25 +435,25 @@ namespace KMS.APIService.Controllers
                 <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order Date</th>
                 <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderDate:yyyy-MM-dd}</td>
             </tr>
-            <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Payment Method</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.PaymentMethod}</td>
-            </tr>
-            <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Total Amount</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.TotalMoney:C}</td>
-            </tr>
-            <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Final Amount (after discount)</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.FinalMoney:C}</td>
-            </tr>
-            <tr>
+             <tr>
                 <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Customer Name</th>
                 <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.UserName ?? "N/A"}</td>
             </tr>
             <tr>
                 <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Email</th>
                 <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.Email ?? "N/A"}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Phone Number</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.PhoneNumber }</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Address</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.Address?? "N/A"}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Payment Method</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.PaymentMethod}</td>
             </tr>");
 
             foreach (var koi in order.OrderKois)
@@ -472,8 +472,40 @@ namespace KMS.APIService.Controllers
                 <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Price:C}</td>
             </tr>");
             }
+            
+            foreach (var fish in order.OrderFishes)
+            {
+                sb.AppendLine($@"
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Koi Name</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{fish.Fishes.Name}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Quantity</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{fish.Quantity}</td>
+            </tr>
+            <tr>
+                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Price</th>
+                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{fish.Fishes.Price:C}</td>
+            </tr>");
+            }
+            
             sb.AppendLine($@"
-        </table>
+        <tr>
+            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Total Amount</th>
+            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.TotalMoney:C}</td>
+        </tr>
+           <tr>
+            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Promotion</th>
+            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.Promotion?.PromotionName ?? "N/A"}</td>
+        </tr>
+
+        <tr>
+            <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Final Amount (after discount)</th>
+            <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.FinalMoney:C}</td>
+        </tr>
+
+       </table>
     </div>");
 
             // Phần liên hệ (Contact Info)

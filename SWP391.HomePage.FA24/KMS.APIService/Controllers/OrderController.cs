@@ -44,7 +44,7 @@ namespace KMS.APIService.Controllers
                 {
                     order.OrderId,
                     order.UserId,
-                    UserName = order.User?.UserName, // Hiển thị UserName nếu có
+                    UserName = order.User?.UserName,
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,
@@ -79,147 +79,136 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        
+[HttpPost]
+public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
+{
+    if (order == null)
+    {
+        return BadRequest("Order object is null.");
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
+    // Initialize lists if null to avoid NullReferenceException
+    order.OrderFishes ??= new List<OrderFish>();
+    order.OrderKois ??= new List<OrderKoi>();
+
+    // Merge items with the same `KoiId` in `OrderKois` and force quantity to 1
+    order.OrderKois = order.OrderKois
+        .GroupBy(k => k.KoiId)
+        .Select(g => new OrderKoi
         {
-            // Kiểm tra nếu đối tượng Order không hợp lệ
-            if (order == null)
+            KoiId = g.Key,
+            Quantity = 1 // Force quantity to be 1
+        })
+        .ToList();
+
+    // Merge items with the same `FishesId` in `OrderFishes` and force quantity to 1
+    order.OrderFishes = order.OrderFishes
+        .GroupBy(f => f.FishesId)
+        .Select(g => new OrderFish
+        {
+            FishesId = g.Key,
+            Quantity = 1 // Force quantity to be 1
+        })
+        .ToList();
+
+    using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+
+    try
+    {
+        decimal totalMoney = 0;
+
+        // **Process OrderKois**
+        foreach (var orderKoi in order.OrderKois)
+        {
+            var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+            if (koiEntity == null)
             {
-                return BadRequest("Order object is null.");
+                return NotFound($"Koi with ID = {orderKoi.KoiId} not found.");
             }
 
-            // Khởi tạo các danh sách nếu chúng bị null để tránh lỗi NullReferenceException
-            order.OrderFishes ??= new List<OrderFish>();
-            order.OrderKois ??= new List<OrderKoi>();
-
-            // Kiểm tra: Ít nhất một trong hai danh sách phải có dữ liệu
-            if (!order.OrderFishes.Any() && !order.OrderKois.Any())
+            if (koiEntity.quantityInStock < 1)
             {
-                return BadRequest("You must choose at least one between Order Fishes or Order Kois.");
+                return BadRequest($"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koiEntity.quantityInStock}");
             }
 
-            // Hợp nhất các mục có cùng `KoiId` trong `OrderKois`
-            order.OrderKois = order.OrderKois
-                .GroupBy(k => k.KoiId)
-                .Select(g => new OrderKoi
-                {
-                    KoiId = g.Key,
-                    Quantity = g.Sum(k => k.Quantity)
-                })
-                .ToList();
-
-            // Hợp nhất các mục có cùng `FishesId` trong `OrderFishes`
-            order.OrderFishes = order.OrderFishes
-                .GroupBy(f => f.FishesId)
-                .Select(g => new OrderFish
-                {
-                    FishesId = g.Key,
-                    Quantity = g.Sum(f => f.Quantity)
-                })
-                .ToList();
-
-            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
-
-            try
+            koiEntity.quantityInStock -= 1; // Deduct 1 since quantity is fixed at 1
+            if (koiEntity.quantityInStock == 0)
             {
-                decimal totalMoney = 0;
-
-                // **Xử lý OrderKois**
-                foreach (var orderKoi in order.OrderKois)
-                {
-                    var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
-                    if (koiEntity == null)
-                    {
-                        return NotFound($"Koi with ID = {orderKoi.KoiId} not found.");
-                    }
-
-                    if (koiEntity.quantityInStock < orderKoi.Quantity)
-                    {
-                        return BadRequest(
-                            $"Not enough stock for Koi ID = {orderKoi.KoiId}. Requested: {orderKoi.Quantity}, Available: {koiEntity.quantityInStock}");
-                    }
-
-                    koiEntity.quantityInStock -= orderKoi.Quantity;
-                    if (koiEntity.quantityInStock == 0)
-                    {
-                        koiEntity.Status = "Unavailable";
-                    }
-                    totalMoney += koiEntity.Price.GetValueOrDefault(0) * orderKoi.Quantity.GetValueOrDefault(0);
-                    _unitOfWork.KoiRepository.Update(koiEntity);
-                }
-
-                // **Xử lý OrderFishes**
-                foreach (var orderFish in order.OrderFishes)
-                {
-                    var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
-                    if (fishEntity == null)
-                    {
-                        return NotFound($"Fish with ID = {orderFish.FishesId} not found.");
-                    }
-
-                    if (fishEntity.quantityInStock < orderFish.Quantity)
-                    {
-                        return BadRequest(
-                            $"Not enough stock for Fish ID = {orderFish.FishesId}. Requested: {orderFish.Quantity}, Available: {fishEntity.quantityInStock}");
-                    }
-
-                    fishEntity.quantityInStock -= orderFish.Quantity;
-                    
-                    if (fishEntity.quantityInStock == 0)
-                    {
-                        fishEntity.Status = "Unavailable";
-                    }
-                    totalMoney += fishEntity.Price.GetValueOrDefault(0) * orderFish.Quantity.GetValueOrDefault(0);
-                    _unitOfWork.FishRepository.Update(fishEntity);
-                }
-
-                // **Gán giá trị DiscountMoney và FinalMoney**
-                decimal discountMoney = order.DiscountMoney ?? 0; // Nếu không có discount thì mặc định là 0
-                order.DiscountMoney = discountMoney; // Gán DiscountMoney vào order
-                order.TotalMoney = totalMoney; // Gán TotalMoney
-                order.FinalMoney = totalMoney - discountMoney; // Tính FinalMoney
-
-                // Kiểm tra nếu FinalMoney bị âm
-                if (order.FinalMoney < 0)
-                {
-                    return BadRequest("Final money cannot be less than zero after applying the discount.");
-                }
-
-                // Gán thông tin ngày và trạng thái
-                order.OrderDate = DateOnly.FromDateTime(DateTime.UtcNow);
-                order.OrderStatus = "processing";
-
-                // **Lưu Order vào cơ sở dữ liệu**
-                await _unitOfWork.OrderRepository.CreateAsync(order);
-                await _unitOfWork.OrderRepository.SaveAsync();
-
-                // Commit giao dịch nếu thành công
-                await transaction.CommitAsync();
-
-                // In log để kiểm tra
-                _logger.LogInformation(
-                    $"Order {order.OrderId} - TotalMoney: {order.TotalMoney}, DiscountMoney: {order.DiscountMoney}, FinalMoney: {order.FinalMoney}");
-
-                // Trả về thông tin Order đã tạo
-                return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
+                koiEntity.Status = "Unavailable";
             }
-            catch (DbUpdateException dbEx)
-            {
-                await transaction.RollbackAsync();
-                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
-                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"Internal server error: {ex.Message}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+
+            totalMoney += (koiEntity.Price ?? 0) * 1; // Calculate total
+            _unitOfWork.KoiRepository.Update(koiEntity);
         }
 
+        // **Process OrderFishes**
+        foreach (var orderFish in order.OrderFishes)
+        {
+            var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+            if (fishEntity == null)
+            {
+                return NotFound($"Fish with ID = {orderFish.FishesId} not found.");
+            }
 
+            if (fishEntity.quantityInStock < 1)
+            {
+                return BadRequest($"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fishEntity.quantityInStock}");
+            }
+
+            fishEntity.quantityInStock -= 1; // Deduct 1 since quantity is fixed at 1
+            if (fishEntity.quantityInStock == 0)
+            {
+                fishEntity.Status = "Unavailable";
+            }
+
+            totalMoney += (fishEntity.Price ?? 0) * 1; // Calculate total
+            _unitOfWork.FishRepository.Update(fishEntity);
+        }
+
+        // **Assign DiscountMoney and FinalMoney**
+        decimal discountMoney = order.DiscountMoney ?? 0; // Default discount is 0 if not provided
+        order.DiscountMoney = discountMoney; // Assign DiscountMoney to order
+        order.TotalMoney = totalMoney; // Assign TotalMoney
+        order.FinalMoney = totalMoney - discountMoney; // Calculate FinalMoney
+
+        // Check if FinalMoney is negative
+        if (order.FinalMoney < 0)
+        {
+            return BadRequest("Final money cannot be less than zero after applying the discount.");
+        }
+
+        // Set order date and status
+        order.OrderDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        order.OrderStatus = "processing";
+
+        // **Save Order to Database**
+        await _unitOfWork.OrderRepository.CreateAsync(order);
+        await _unitOfWork.OrderRepository.SaveAsync();
+
+        // Commit transaction if successful
+        await transaction.CommitAsync();
+
+        // Log for verification
+        _logger.LogInformation($"Order {order.OrderId} created successfully. TotalMoney: {order.TotalMoney}, DiscountMoney: {order.DiscountMoney}, FinalMoney: {order.FinalMoney}");
+
+        // Return the created Order details
+        return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
+    }
+    catch (DbUpdateException dbEx)
+    {
+        await transaction.RollbackAsync();
+        var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
+        _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+        return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        _logger.LogError(ex, $"Internal server error: {ex.Message}");
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
 
 
         [HttpDelete("{orderId:int}/{itemType}/{itemId:int}")]
@@ -316,136 +305,138 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        [HttpPut("{orderId:int}/update")]
-        public async Task<IActionResult> UpdateOrder(
-            int orderId,
-            [FromQuery] string? itemType = null,
-            [FromQuery] int? itemId = null,
-            [FromQuery] int? newQuantity = null,
-            [FromQuery] string? newPaymentMethod = null)
-        {
-            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
-            try
-            {
-                // Lấy đơn hàng cùng các chi tiết liên quan
-                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
-                if (order == null)
-                {
-                    return NotFound($"Order with ID = {orderId} not found.");
-                }
+        // [HttpPut("{orderId:int}/update")]
+        // public async Task<IActionResult> UpdateOrder(
+        //     int orderId,
+        //     [FromQuery] string? itemType = null,
+        //     [FromQuery] int? itemId = null,
+        //     [FromQuery] int? newQuantity = null,
+        //     [FromQuery] string? newPaymentMethod = null)
+        // {
+        //     using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+        //     try
+        //     {
+        //         // Lấy đơn hàng cùng các chi tiết liên quan
+        //         var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
+        //         if (order == null)
+        //         {
+        //             return NotFound($"Order with ID = {orderId} not found.");
+        //         }
+        //
+        //         // Kiểm tra trạng thái đơn hàng đã hoàn tất chưa
+        //         if (order.OrderStatus == "completed" || order.OrderStatus == "remittance")
+        //         {
+        //             return BadRequest($"{order.OrderStatus}  cannot be updated.");
+        //         }
+        //
+        //         // Kiểm tra số lượng mới có hợp lệ không (phải lớn hơn 0)
+        //         if (newQuantity.HasValue && newQuantity <= 0)
+        //         {
+        //             return BadRequest("Quantity must be greater than zero.");
+        //         }
+        //
+        //         decimal totalMoneyChange = 0;
+        //
+        //         // Xử lý cập nhật số lượng sản phẩm
+        //         if (!string.IsNullOrEmpty(itemType) && itemId.HasValue && newQuantity.HasValue)
+        //         {
+        //             if (itemType.ToLower() == "koi")
+        //             {
+        //                 var orderKoi = order.OrderKois.FirstOrDefault(ok => ok.KoiId == itemId);
+        //                 if (orderKoi == null)
+        //                     return NotFound($"Koi with ID = {itemId} not found in the order.");
+        //
+        //                 var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+        //
+        //                 int quantityChange = (int)(newQuantity.Value - orderKoi.Quantity);
+        //
+        //                 if (quantityChange > 0 && koi.quantityInStock < quantityChange)
+        //                 {
+        //                     return BadRequest(
+        //                         $"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koi.quantityInStock}");
+        //                 }
+        //
+        //                 koi.quantityInStock -= quantityChange;
+        //                 totalMoneyChange += koi.Price.GetValueOrDefault(0) * quantityChange;
+        //                 orderKoi.Quantity = newQuantity.Value;
+        //
+        //                 // Cập nhật OrderKoi và Koi trong database
+        //                 _unitOfWork.OrderKoiRepository.Update(orderKoi);
+        //                 _unitOfWork.KoiRepository.Update(koi);
+        //             }
+        //             else if (itemType.ToLower() == "fish")
+        //             {
+        //                 var orderFish = order.OrderFishes.FirstOrDefault(of => of.FishesId == itemId);
+        //                 if (orderFish == null)
+        //                     return NotFound($"Fish with ID = {itemId} not found in the order.");
+        //
+        //                 var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+        //
+        //                 int quantityChange = (int)(newQuantity.Value - orderFish.Quantity);
+        //
+        //                 if (quantityChange > 0 && fish.quantityInStock < quantityChange)
+        //                 {
+        //                     return BadRequest(
+        //                         $"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fish.quantityInStock}");
+        //                 }
+        //
+        //                 fish.quantityInStock -= quantityChange;
+        //                 totalMoneyChange += fish.Price.GetValueOrDefault(0) * quantityChange;
+        //                 orderFish.Quantity = newQuantity.Value;
+        //
+        //                 // Cập nhật OrderFish và Fish trong database
+        //                 _unitOfWork.OrderFishesRepository.Update(orderFish);
+        //                 _unitOfWork.FishRepository.Update(fish);
+        //             }
+        //             else
+        //             {
+        //                 return BadRequest("Invalid item type. Use 'koi' or 'fish'.");
+        //             }
+        //         }
+        //
+        //         // Cập nhật tổng tiền nếu có thay đổi
+        //         if (totalMoneyChange != 0)
+        //         {
+        //             order.TotalMoney += totalMoneyChange;
+        //             order.FinalMoney = order.TotalMoney - (order.DiscountMoney ?? 0);
+        //         }
+        //
+        //         // Cập nhật phương thức thanh toán nếu có
+        //         if (!string.IsNullOrEmpty(newPaymentMethod))
+        //         {
+        //             order.PaymentMethod = newPaymentMethod;
+        //         }
+        //
+        //         // Cập nhật đơn hàng trong database
+        //         _unitOfWork.OrderRepository.Update(order);
+        //
+        //         // Lưu tất cả các thay đổi vào database
+        //         await _unitOfWork.SaveAsync();
+        //         await transaction.CommitAsync();
+        //
+        //         return Ok("Order updated successfully.");
+        //     }
+        //     catch (DbUpdateException dbEx)
+        //     {
+        //         await transaction.RollbackAsync();
+        //         var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
+        //         _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+        //         return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         await transaction.RollbackAsync();
+        //         _logger.LogError(ex, $"An error occurred: {ex.Message}");
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
 
-                // Kiểm tra trạng thái đơn hàng đã hoàn tất chưa
-                if (order.OrderStatus == "completed" || order.OrderStatus == "remittance")
-                {
-                    return BadRequest($"{order.OrderStatus}  cannot be updated.");
-                }
 
-                // Kiểm tra số lượng mới có hợp lệ không (phải lớn hơn 0)
-                if (newQuantity.HasValue && newQuantity <= 0)
-                {
-                    return BadRequest("Quantity must be greater than zero.");
-                }
-
-                decimal totalMoneyChange = 0;
-
-                // Xử lý cập nhật số lượng sản phẩm
-                if (!string.IsNullOrEmpty(itemType) && itemId.HasValue && newQuantity.HasValue)
-                {
-                    if (itemType.ToLower() == "koi")
-                    {
-                        var orderKoi = order.OrderKois.FirstOrDefault(ok => ok.KoiId == itemId);
-                        if (orderKoi == null)
-                            return NotFound($"Koi with ID = {itemId} not found in the order.");
-
-                        var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
-
-                        int quantityChange = (int)(newQuantity.Value - orderKoi.Quantity);
-
-                        if (quantityChange > 0 && koi.quantityInStock < quantityChange)
-                        {
-                            return BadRequest(
-                                $"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koi.quantityInStock}");
-                        }
-
-                        koi.quantityInStock -= quantityChange;
-                        totalMoneyChange += koi.Price.GetValueOrDefault(0) * quantityChange;
-                        orderKoi.Quantity = newQuantity.Value;
-
-                        // Cập nhật OrderKoi và Koi trong database
-                        _unitOfWork.OrderKoiRepository.Update(orderKoi);
-                        _unitOfWork.KoiRepository.Update(koi);
-                    }
-                    else if (itemType.ToLower() == "fish")
-                    {
-                        var orderFish = order.OrderFishes.FirstOrDefault(of => of.FishesId == itemId);
-                        if (orderFish == null)
-                            return NotFound($"Fish with ID = {itemId} not found in the order.");
-
-                        var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
-
-                        int quantityChange = (int)(newQuantity.Value - orderFish.Quantity);
-
-                        if (quantityChange > 0 && fish.quantityInStock < quantityChange)
-                        {
-                            return BadRequest(
-                                $"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fish.quantityInStock}");
-                        }
-
-                        fish.quantityInStock -= quantityChange;
-                        totalMoneyChange += fish.Price.GetValueOrDefault(0) * quantityChange;
-                        orderFish.Quantity = newQuantity.Value;
-
-                        // Cập nhật OrderFish và Fish trong database
-                        _unitOfWork.OrderFishesRepository.Update(orderFish);
-                        _unitOfWork.FishRepository.Update(fish);
-                    }
-                    else
-                    {
-                        return BadRequest("Invalid item type. Use 'koi' or 'fish'.");
-                    }
-                }
-
-                // Cập nhật tổng tiền nếu có thay đổi
-                if (totalMoneyChange != 0)
-                {
-                    order.TotalMoney += totalMoneyChange;
-                    order.FinalMoney = order.TotalMoney - (order.DiscountMoney ?? 0);
-                }
-
-                // Cập nhật phương thức thanh toán nếu có
-                if (!string.IsNullOrEmpty(newPaymentMethod))
-                {
-                    order.PaymentMethod = newPaymentMethod;
-                }
-
-                // Cập nhật đơn hàng trong database
-                _unitOfWork.OrderRepository.Update(order);
-
-                // Lưu tất cả các thay đổi vào database
-                await _unitOfWork.SaveAsync();
-                await transaction.CommitAsync();
-
-                return Ok("Order updated successfully.");
-            }
-            catch (DbUpdateException dbEx)
-            {
-                await transaction.RollbackAsync();
-                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
-                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"An error occurred: {ex.Message}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
 
         [HttpPut("{orderId:int}/update-status-staff&manager")]
         [Authorize(Roles = "staff,manager")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromQuery] string newStatus)
+        public async Task<IActionResult> UpdateStatusDeliversing(int orderId)
         {
             try
             {
@@ -461,21 +452,18 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Order has already been canceled and cannot be updated.");
                 }
 
-                if (newStatus.ToLower() == "delivering")
+                // Check if the order status is "remittance" and change to "delivering"
+                if (order.OrderStatus.ToLower() == "remittance")
                 {
-                    if (order.OrderStatus.ToLower() != "remittance")
-                    {
-                        return BadRequest("Only orders with 'Remittance' status can be marked as 'Completed'.");
-                    }
-
                     order.OrderStatus = "delivering";
                     order.ShippingDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
                 }
                 else
                 {
-                    return BadRequest("Invalid status.");
+                    return BadRequest("Only orders with 'remittance' status can be updated to 'delivering'.");
                 }
 
+                // Update order status and save changes
                 _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.OrderRepository.SaveAsync();
 
@@ -488,8 +476,9 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+    
 
-        [HttpPut("{orderId:int}/orderstatus-canceled")]
+    [HttpPut("{orderId:int}/orderstatus-canceled")]
         public async Task<IActionResult> CancelOrderWithRestock(int orderId)
         {
             using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
