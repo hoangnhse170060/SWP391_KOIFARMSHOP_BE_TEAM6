@@ -25,7 +25,11 @@ namespace KMG.Repository.Repositories
                 .Include(o => o.User) // Bao gồm thông tin User
                 .Include(o => o.OrderFishes).ThenInclude(f => f.Fishes)
                 .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
+                .Include(o=> o.Address)
+                .Include(o => o.Promotion)
+                .Include(o => o.Point)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
+
         }
 
 

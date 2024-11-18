@@ -25,6 +25,7 @@ namespace KMG.Repository
         private PurchaseHistoryRepository _purcharHistory;
         private DashboardRepository _dashboardRepository;
         private PaymentTransactionRepository _paymentTransactionRepository;
+        private PointRepository _pointRepository;
         public UnitOfWork() => _context = new SwpkoiFarmShopContext();
         /// <summary>
         /// Test Viet ver 2 merge
@@ -125,6 +126,13 @@ namespace KMG.Repository
             get
             {
                 return _paymentTransactionRepository ??= new PaymentTransactionRepository(_context);
+            }
+        }
+        public PointRepository PointRepository
+        {
+            get
+            {
+                return _pointRepository ??= new PointRepository(_context);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using KMG.Repository;
+using KMG.Repository.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +35,12 @@ namespace KMS.APIService.Controllers
         {
             var analysisData = await _unitOfWork.DashboardRepository.GetAnalysisDataAsync();
             return Ok(analysisData);
+        }
+        [HttpGet("get-day-revenue")]
+        public async Task<IActionResult> GetDateData()
+        {
+            var date = await _unitOfWork.DashboardRepository.GetRevenueByAllDatesAsync();
+            return Ok(date);
         }
         [HttpGet("total-revenue")]
         public async Task<IActionResult> GetTotalRevenue()

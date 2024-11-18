@@ -22,19 +22,55 @@ namespace KMG.Repository.Repositories
                 .Where(o => o.OrderStatus == "completed")
                 .SumAsync(o => o.FinalMoney);
         }
-        public async Task<int> GetTotalUsersAsync()
+        public async Task<Object> GetTotalUsersAsync()
         {
-            return await _context.Users.CountAsync();
+            var staffAcount = await _context.Users.CountAsync(s => s.Role == "staff");
+            var userAccount = await _context.Users.CountAsync(u => u.Role == "customer");
+            var totalAccount = await _context.Users.CountAsync();
+            return new
+            {
+                Staff_account = staffAcount,
+                User_account = userAccount,
+                Totak_account = totalAccount,
+            };
         }
 
 
-        public async Task<int> GetTotalProductsAsync()
+        public async Task<object> GetTotalProductsAsync()
         {
             var totalKoi = await _context.Kois.CountAsync();
             var totalFish = await _context.Fishes.CountAsync();
-            return totalKoi + totalFish;
-        }
 
+            var availableKoi = await _context.Kois.CountAsync(k => k.Status == "Available");
+            var unavailableKoi = totalKoi - availableKoi;
+
+            var availableFish = await _context.Fishes.CountAsync(f => f.Status == "Available");
+            var unavailableFish = totalFish - availableFish;
+
+            return new
+            {
+                TotalProducts = totalKoi + totalFish,
+                TotalKoi = new { TotalKoi = totalKoi, Available = availableKoi, Unavailable = unavailableKoi },
+                TotalFish = new { TotalFish = totalFish, Available = availableFish, Unavailable = unavailableFish }
+            };
+        }
+        public async Task<Dictionary<string, decimal>> GetRevenueByAllDatesAsync()
+        {
+            var revenuePerDay = await _context.Orders
+                .Where(o => o.OrderStatus == "completed" && o.OrderDate.HasValue)
+                .ToListAsync();
+
+            var groupedRevenue = revenuePerDay
+                .GroupBy(o => o.OrderDate.Value.ToDateTime(TimeOnly.MinValue).Date)
+                .Select(g => new
+                {
+                    Date = g.Key.ToString("yyyy-MM-dd"),
+                    TotalRevenue = g.Sum(o => o.FinalMoney) ?? 0
+                })
+                .ToDictionary(x => x.Date, x => x.TotalRevenue);
+
+            return groupedRevenue;
+        }
 
         public async Task<object> GetAnalysisDataAsync()
         {
@@ -91,8 +127,8 @@ namespace KMG.Repository.Repositories
                 .GroupBy(f => 1)
                 .Select(g => new
                 {
-                TotalFeedbacks = g.Count(),
-                 AverageRating = g.Average(f => (double?)f.Rating) ?? 0
+                    TotalFeedbacks = g.Count(),
+                    AverageRating = g.Average(f => (double?)f.Rating) ?? 0
                 })
                 .FirstOrDefaultAsync();
 
@@ -107,23 +143,23 @@ namespace KMG.Repository.Repositories
         }
         public async Task<object> GetOrderStatusStatisticsAsync()
         {
-            var totalOrders = await _context.Orders.CountAsync();
-
             var orderStatusCounts = await _context.Orders
-                .GroupBy(o => o.OrderStatus)
+                .Where(o => o.OrderDate.HasValue) 
+                .GroupBy(o => new { o.OrderStatus, Month = o.OrderDate.Value.Month, Year = o.OrderDate.Value.Year })
                 .Select(g => new
                 {
-                    Status = g.Key,
+                    Status = g.Key.OrderStatus,
+                    Month = g.Key.Month,
+                    Year = g.Key.Year,
                     Quantity = g.Count()
                 })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
                 .ToListAsync();
 
-            return new
-            {
-                TotalOrders = totalOrders,
-                StatusCounts = orderStatusCounts
-            };
+            return orderStatusCounts;
         }
+
         public async Task<object> GetTopUsersAsync(int topCount = 3)
         {
             var topUsers = await _context.Users
@@ -146,3 +182,8 @@ namespace KMG.Repository.Repositories
 
     }
 }
+
+
+
+
+// HOÀNG ĂN CỨC 

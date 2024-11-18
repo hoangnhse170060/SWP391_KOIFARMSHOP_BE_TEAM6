@@ -38,18 +38,25 @@ namespace KMS.APIService.Controllers
                 {
                     return NotFound($"Order with Id = {id} not found.");
                 }
-
+               var points = await _unitOfWork.PointRepository.GetPointsByOrderIdAsync(id);
                 // Chuẩn bị dữ liệu trả về
                 var result = new
                 {
                     order.OrderId,
                     order.UserId,
                     UserName = order.User?.UserName,
+                    Email = order.User?.Email,
+                    PhoneNumber = order.User?.PhoneNumber,
+                    Address = order.Address?.address,
+                    Promotion = order.Promotion?.PromotionName,
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,
                     order.OrderStatus,
                     order.PaymentMethod,
+                    order.EarnedPoints,
+                    order.UsedPoints,
+                    Point_transaction = points,
                     Fishes = order.OrderFishes.Select(f => new
                     {
                         f.FishesId,
@@ -135,7 +142,7 @@ public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
             koiEntity.quantityInStock -= 1; // Deduct 1 since quantity is fixed at 1
             if (koiEntity.quantityInStock == 0)
             {
-                koiEntity.Status = "Unavailable";
+                koiEntity.Status = "unavailable";
             }
 
             totalMoney += (koiEntity.Price ?? 0) * 1; // Calculate total
@@ -159,7 +166,7 @@ public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
             fishEntity.quantityInStock -= 1; // Deduct 1 since quantity is fixed at 1
             if (fishEntity.quantityInStock == 0)
             {
-                fishEntity.Status = "Unavailable";
+                fishEntity.Status = "unavailable";
             }
 
             totalMoney += (fishEntity.Price ?? 0) * 1; // Calculate total
@@ -599,18 +606,24 @@ public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
                 // Truy vấn tất cả đơn hàng và bao gồm các thông tin liên quan
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
-                        .Include(o => o.User) // Bao gồm thông tin User
+                        .Include(o => o.User) 
                         .Include(o => o.OrderKois)
                         .ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes)
                         .ThenInclude(of => of.Fishes)
+                        .Include(o => o.Address)
+                        .Include(o => o.Promotion)
+                        .Include(o => o.Point)
                 );
-
+                
                 var result = orders.Select(order => new
                 {
                     order.OrderId,
                     order.UserId,
-                    Username = order.User?.UserName, // Hiển thị Username nếu tồn tại
+                    Username = order.User?.UserName, 
+                    Address = order.Address?.address,
+                    Promotion = order.Promotion?.PromotionName,
+                    
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,
@@ -719,6 +732,8 @@ public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
                         .Include(o => o.User) // Bao gồm thông tin User để lấy UserName
                         .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
+                        .Include(o => o.Address)
+                        .Include(o => o.Promotion)
                 );
 
                 // Lọc các đơn hàng của người dùng
@@ -734,7 +749,9 @@ public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
                 {
                     order.OrderId,
                     order.UserId,
-                    UserName = order.User?.UserName, // Hiển thị UserName nếu tồn tại
+                    UserName = order.User?.UserName, 
+                    Address = order.Address?.address,
+                    Promotion = order.Promotion?.PromotionName,
                     order.OrderDate,
                     order.TotalMoney,
                     order.FinalMoney,

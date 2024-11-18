@@ -22,13 +22,14 @@ namespace KMS.APIService.Controllers
 
         private readonly AddressRepository _addressRepository;
         private readonly UserRepository _userRepository;
+        private readonly PointRepository _pointRepository;
         private readonly string _secretKey;
 
         public UserController(UnitOfWork unitOfWork)
         {
             _userRepository = new UserRepository(unitOfWork.UserRepository._context);
             _addressRepository = new AddressRepository(unitOfWork.AddressRepository._context);
-
+            _pointRepository = new PointRepository(unitOfWork.PointRepository._context);
             _secretKey = "xinchaocacbanminhlasang1234567890";
         }
         [HttpGet]
@@ -53,7 +54,27 @@ namespace KMS.APIService.Controllers
 
             return Ok(user);
         }
+        [HttpGet("points/{userId}")]
+        public async Task<IActionResult> GetTransactionPointByUserId(int userId)
+        {
+            try
+            {
+                
+                var points = await _pointRepository.GetPointsByUserIdAsync(userId);
 
+                if (points == null || points.Count == 0)
+                {
+                    return NotFound(new { message = "Không tìm thấy giao dịch điểm cho người dùng này." });
+                }
+
+                return Ok(points);
+            }
+            catch (Exception ex)
+            {
+              
+                return StatusCode(500, new { message = "Đã xảy ra lỗi khi truy vấn dữ liệu.", details = ex.Message });
+            }
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Login loginModel)

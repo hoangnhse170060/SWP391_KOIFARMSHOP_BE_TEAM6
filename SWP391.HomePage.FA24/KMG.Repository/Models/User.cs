@@ -32,7 +32,7 @@ public partial class User
     [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     [JsonIgnore]
-    public virtual ICollection<Point> Points { get; set; } = new List<Point>();
+    public virtual ICollection<Points> Points { get; set; } = new List<Points>();
     [JsonIgnore]
     public virtual ICollection<PurchaseHistory> PurchaseHistories { get; set; } = new List<PurchaseHistory>();
 }
