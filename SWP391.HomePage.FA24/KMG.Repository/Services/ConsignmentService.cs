@@ -44,8 +44,8 @@ namespace KMG.Repository.Services
                     KoiId = koiID,
                     ConsignmentType = consignmentType,
                     Status = status,
-                    ConsignmentPrice = consignmentPrice, // Giá gốc ký gửi, không bao gồm phí chăm sóc
-                    TakeCareFee = takeCareFee,           // Gán phí chăm sóc vào thuộc tính TakeCareFee
+                    ConsignmentPrice = consignmentPrice,
+                    TakeCareFee = takeCareFee,
                     ConsignmentDateFrom = consignmentDateFrom,
                     ConsignmentDateTo = consignmentDateTo,
                     UserImage = userImage,
@@ -58,7 +58,7 @@ namespace KMG.Repository.Services
 
                 // Map entity vừa tạo sang DTO
                 var consignmentDto = _mapper.Map<ConsignmentDto>(newConsignment);
-                consignmentDto.TakeCareFee = takeCareFee; // Trả TakeCareFee về cho người dùng
+                consignmentDto.TakeCareFee = takeCareFee;
                 return consignmentDto;
             }
             catch (Exception ex)
@@ -70,7 +70,10 @@ namespace KMG.Repository.Services
 
         public async Task<ConsignmentDto> CreateConsignmentOrderAsync(int userId, int koiTypeId, int koiId, string consignmentType, decimal consignmentPrice, string? consignmentTitle, string? consignmentDetail)
         {
-            // Step 1: Retrieve the existing Koi details by koiId and koiTypeId
+            if (consignmentPrice <= 0)
+            {
+                throw new ArgumentException("Consignment price must be greater than 0.");
+            }
             var existingKoi = await _context.Kois
                 .FirstOrDefaultAsync(k => k.KoiId == koiId && k.KoiTypeId == koiTypeId);
 
@@ -96,10 +99,10 @@ namespace KMG.Repository.Services
                     FilterRate = existingKoi.FilterRate,
                     HealthStatus = existingKoi.HealthStatus,
                     AwardCertificates = existingKoi.AwardCertificates,
-                    Status = "unavailable",    // Initial status as unavailable until approved
-                    Price = consignmentPrice,  // Set the Price for Koi based on consignmentPrice
-                    quantityInStock = 1,       // Since this is a consigned item, quantity is 1
-                    IsConsigned = true,        // Mark as consigned
+                    Status = "unavailable",
+                    Price = consignmentPrice,
+                    quantityInStock = 1,
+                    IsConsigned = true,
                     Description = existingKoi.Description,
                     DetailDescription = existingKoi.DetailDescription,
                     ImageKoi = existingKoi.ImageKoi,
@@ -109,16 +112,16 @@ namespace KMG.Repository.Services
 
                 _context.Kois.Add(newKoi);
                 await _context.SaveChangesAsync();
-                newKoiId = newKoi.KoiId; // Capture the new Koi ID for association with consignment
+                newKoiId = newKoi.KoiId;
             }
 
             var newConsignment = new Consignment
             {
                 UserId = userId,
                 KoiTypeId = koiTypeId,
-                KoiId = newKoiId,                 // Link to the newly created Koi ID
+                KoiId = newKoiId,
                 ConsignmentType = consignmentType,
-                Status = "awaiting inspection",   // Initial status
+                Status = "awaiting inspection",
                 ConsignmentPrice = consignmentPrice,
                 ConsignmentDateFrom = DateTime.Now,
                 ConsignmentTitle = consignmentTitle,
@@ -158,7 +161,7 @@ namespace KMG.Repository.Services
                 // Kiểm tra vai trò người dùng
                 if (user.Role == "customer")
                 {
-                    // Khách hàng không được chỉnh sửa status
+
                     status = existingConsignment.Status;
                 }
 
@@ -580,6 +583,10 @@ namespace KMG.Repository.Services
 
         public async Task<ConsignmentDto> CreateConsignmentOrderFromOutsideShopAsync(int userId, ConsignmentOrderRequestDto request)
         {
+            if (request.ConsignmentPrice <= 0)
+            {
+                throw new ArgumentException("Consignment price must be greater than 0.");
+            }
             // Step 1: Create a new Koi entry for the consignment
             var newKoi = new Koi
             {
@@ -604,7 +611,7 @@ namespace KMG.Repository.Services
                 ImageCertificate = request.ImageCertificate,
                 AdditionImage = request.AdditionImage,
                 Price = request.ConsignmentPrice // Synchronize Price with consignmentPrice
-            }; 
+            };
 
             // Save the new Koi entry to the database
             _context.Kois.Add(newKoi);

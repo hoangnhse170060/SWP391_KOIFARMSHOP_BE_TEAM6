@@ -13,7 +13,7 @@ namespace KMS.APIService.Controllers
     public class ConsignmentController : ControllerBase
     {
         private readonly IConsignmentService _consignmentService;
-        private readonly IMapper _mapper;  // Inject IMapper
+        private readonly IMapper _mapper;
         private readonly SwpkoiFarmShopContext _context;
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
@@ -21,7 +21,7 @@ namespace KMS.APIService.Controllers
         public ConsignmentController(IConsignmentService consignmentService, IMapper mapper, SwpkoiFarmShopContext context, IEmailService emailService, IUserService userService)
         {
             _consignmentService = consignmentService;
-            _mapper = mapper;  // Assign IMapper to the private field
+            _mapper = mapper;
             _context = context;
             _emailService = emailService;
             _userService = userService;
@@ -114,7 +114,7 @@ namespace KMS.APIService.Controllers
                 return CreatedAtAction(nameof(GetConsignmentById), new { consignmentId = createdConsignment.ConsignmentId }, new
                 {
                     consignment = createdConsignment,
-                    takeCareFee = createdConsignment.TakeCareFee // Trả phí chăm sóc cho người dùng
+                    takeCareFee = createdConsignment.TakeCareFee
                 });
             }
             catch (Exception ex)
@@ -137,6 +137,10 @@ namespace KMS.APIService.Controllers
         {
             try
             {
+                if (consignmentPrice <= 0)
+                {
+                    return BadRequest("Consignment price must be greater than 0.");
+                }
                 // Lấy UserId từ thông tin người dùng đã xác thực
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
@@ -168,6 +172,10 @@ namespace KMS.APIService.Controllers
         {
             try
             {
+                if (request.ConsignmentPrice <= 0)
+                {
+                    return BadRequest("Consignment price must be greater than 0.");
+                }
                 // Retrieve the UserId from the authenticated user's claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
@@ -185,7 +193,7 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        // 
+
 
 
         [Authorize(Roles = "customer")]
