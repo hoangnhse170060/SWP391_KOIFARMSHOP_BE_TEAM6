@@ -27,6 +27,7 @@ namespace KMG.Repository.Repositories
                 .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
                 .Include(o => o.Promotion)
                 .Include(o => o.Point)
+                .Include(o => o.Address)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
         }

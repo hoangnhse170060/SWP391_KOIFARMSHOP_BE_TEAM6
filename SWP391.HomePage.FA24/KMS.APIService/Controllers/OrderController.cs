@@ -48,7 +48,7 @@ namespace KMS.APIService.Controllers
                     UserName = order.User?.UserName,
                     Email = order.User?.Email,
                     PhoneNumber = order.User?.PhoneNumber,
-                    address = order.User?.Address,
+                    Address = order.Address?.address,
                     Promotion = order.Promotion?.PromotionName,
                     order.OrderDate,
                     order.TotalMoney,
@@ -517,6 +517,7 @@ public async Task<ActionResult<object>> CreateOrder([FromBody] Order order)
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
                         .Include(o => o.User)
+                        .Include(o => o.Address)
                         .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
                         .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
                         .Include(o => o.Promotion)
@@ -536,7 +537,7 @@ public async Task<ActionResult<object>> CreateOrder([FromBody] Order order)
                         transactionId = pt.TransactionId,
                         userId = pt.UserId,
                         transactionType = pt.TransactionType,
-                        transactionDate = pt.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"), // ISO format
+                        transactionDate = pt.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
                         pointsChanged = pt.PointsChanged,
                         newTotalPoints = pt.NewTotalPoints,
                         orderId = pt.OrderId
@@ -548,7 +549,7 @@ public async Task<ActionResult<object>> CreateOrder([FromBody] Order order)
                         order.OrderId,
                         order.UserId,
                         username = order.User?.UserName,
-                        address = order.User?.Address,
+                        Address = order.Address?.address,
                         promotion = order.Promotion?.PromotionName,
                         order.OrderDate,
                         totalMoney = order.TotalMoney,
@@ -657,6 +658,7 @@ public async Task<ActionResult<object>> CreateOrder([FromBody] Order order)
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
                         .Include(o => o.User)
+                        .Include(o =>o.Address)
                         .Include(o => o.OrderFishes).ThenInclude(f => f.Fishes)
                         .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
                         .Include(o => o.Promotion)
@@ -694,7 +696,7 @@ public async Task<ActionResult<object>> CreateOrder([FromBody] Order order)
                         userName = order.User?.UserName,
                         email = order.User?.Email,
                         phoneNumber = order.User?.PhoneNumber,
-                        address = order.User?.Address,
+                        Address = order.Address?.address,
                         promotion = order.Promotion?.PromotionName,
                         orderDate = order.OrderDate.ToString(),
                         totalMoney = order.TotalMoney,

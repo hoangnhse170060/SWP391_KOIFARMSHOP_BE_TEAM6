@@ -17,6 +17,7 @@ namespace KMG.Repository.Repositories
         {
             return _context.PurchaseHistories;
         }
+
         public IQueryable<object> GetAllWithDetails()
         {
             return _context.PurchaseHistories
@@ -25,10 +26,13 @@ namespace KMG.Repository.Repositories
                 .ThenInclude(ok => ok.Koi)
                 .Include(p => p.Order.OrderFishes)
                 .ThenInclude(of => of.Fishes)
+                .Include(p => p.Order.Address)
                 .Include(p => p.User)
+
                 .Select(p => new
                 {
                     Username = p.User.UserName,
+                    Address = p.Address.address,
                     p.OrderId,
                     p.PurchaseDate,
                     p.TotalMoney,

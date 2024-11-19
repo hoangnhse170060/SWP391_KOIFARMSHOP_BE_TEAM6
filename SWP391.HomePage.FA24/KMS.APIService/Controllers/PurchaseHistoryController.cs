@@ -28,11 +28,13 @@ namespace KMS.APIService.Controllers
         [HttpGet("getPurchaseHistoryByUserID/{userID}")]
         public async Task<IActionResult> GetPurchaseHistoryByUserID(int userID)
         {
+            
             var purchaseHistory = await _unitOfWork.PurchaseHistoryRepository.GetAll()
                 .Where(p => p.UserId == userID)
                 .Select(p => new
                 {
                     UserName = p.User.UserName,
+                    Address = p.Address.address,
                     p.OrderId,
                     p.PurchaseDate,
                     p.TotalMoney,
