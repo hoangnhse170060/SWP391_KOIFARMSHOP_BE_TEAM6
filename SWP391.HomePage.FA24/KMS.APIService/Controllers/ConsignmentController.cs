@@ -463,13 +463,36 @@ namespace KMS.APIService.Controllers
                     return NotFound("Consignment order not found or could not be updated.");
                 }
 
-                return Ok("Consignment order status updated successfully.");
+                // Get consignment details to fetch the user information
+                var consignment = await _consignmentService.GetConsignmentByIdAsync(request.ConsignmentId);
+                if (consignment == null || !consignment.UserId.HasValue)
+                {
+                    return NotFound("Consignment details not found.");
+                }
+
+                // Get the user details associated with the consignment
+                var user = await _userService.GetUserByIdAsync(consignment.UserId.Value);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    // Prepare the email notification
+                    string subject = "Update on Your Consignment Order Status";
+                    string message = $"Dear {user.UserName},\n\n" +
+                                     $"The status of your consignment with ID {request.ConsignmentId} has been updated to '{request.Status}'.\n\n" +
+                                     $"If you have any questions, please contact our support team.\n\n" +
+                                     "Best regards,\nKoi Farm Team";
+
+                    // Send the email
+                    await _emailService.SendEmailAsync(user.Email, subject, message);
+                }
+
+                return Ok("Consignment order status updated successfully and the user has been notified.");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
 
 
