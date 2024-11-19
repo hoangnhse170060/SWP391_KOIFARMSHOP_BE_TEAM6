@@ -239,11 +239,18 @@ namespace KMG.Repository.Services
                 // Update the status in the Koi table based on Consignment status
                 if (status.Equals("approved", StringComparison.OrdinalIgnoreCase))
                 {
+                    // If approved, set Koi status to available
                     existingConsignment.Koi.Status = "available";
+                }
+                else if (status.Equals("canceled", StringComparison.OrdinalIgnoreCase) ||
+                         status.Equals("pending payment", StringComparison.OrdinalIgnoreCase))
+                {
+                    // If canceled or pending payment, set Koi status to unavailable
+                    existingConsignment.Koi.Status = "unavailable";
                 }
                 else
                 {
-                    // Set Koi status to unavailable if consignment is not approved
+                    // For all other statuses, set Koi status to unavailable
                     existingConsignment.Koi.Status = "unavailable";
                 }
 
@@ -256,6 +263,7 @@ namespace KMG.Repository.Services
                 throw new Exception("Failed to update consignment order status: " + ex.Message);
             }
         }
+
 
 
 
