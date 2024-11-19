@@ -155,7 +155,34 @@ namespace KMS.APIService.Controllers
                     string staffEmail = "d.anhdn2008@gmail.com";
 
                     string emailContent = GenerateOrderDetailsEmailContent(order);
+                    // Kiểm tra nếu có cá Koi thuộc loại consigned (IsConsigned = true)
+                    bool hasConsignedKoi = false;
+                    foreach (var koi in order.OrderKois)
+                    {
+                        var koiProduct = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
+                        if (koiProduct != null && koiProduct.IsConsigned == true)
+                        {
+                            hasConsignedKoi = true;
 
+                            // Lấy consignment chứa koi đó để xác định người tạo
+                            var consignment = await _unitOfWork.GetConsignmentByKoiIdAsync(koi.KoiId);
+
+                            if (consignment != null && consignment.User != null &&
+                                !string.IsNullOrWhiteSpace(consignment.User.Email))
+                            {
+                                // Gửi email thông báo cho người tạo cá Koi
+                                await SendEmailAsync(consignment.User.Email, "Consigned Koi Sold",
+                                    $"Your consigned Koi (ID: {koi.KoiId}) has been sold in Order #{orderId}.");
+                            }
+                        }
+                    }
+
+                    // Gửi email cho staff nếu có consigned Koi trong đơn hàng
+                    if (hasConsignedKoi)
+                    {
+                        await SendEmailAsync(staffEmail, "Consigned Koi Notification",
+                            $"Order #{orderId} contains consigned Koi fish. Please review the consignment details.");
+                    }
                     // Kiểm tra và gửi email đến cả người dùng và staff
                     if (!string.IsNullOrWhiteSpace(recipientEmail) || !string.IsNullOrWhiteSpace(staffEmail))
                     {
