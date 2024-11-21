@@ -220,7 +220,71 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-   
+
+        [Authorize(Roles = "customer")]
+        [HttpPut("update-consignment-title-detail/{consignmentId}")]
+        public async Task<IActionResult> UpdateConsignmentTitleAndDetail(
+   int consignmentId,
+   [FromBody] UpdateConsignmentTitleDetailRequestDto request)
+        {
+            try
+            {
+                // Get the UserId from the claims
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Call service to update consignment title and detail
+                var updated = await _consignmentService.UpdateConsignmentTitleAndDetailAsync(
+                    consignmentId, userId, request.ConsignmentTitle, request.ConsignmentDetail
+                );
+
+                if (!updated)
+                {
+                    return NotFound("Consignment not found or not authorized to update.");
+                }
+
+                return Ok("Consignment title and detail updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [Authorize(Roles = "customer")]
+        [HttpPut("update-order-consignment/{consignmentId}")]
+        public async Task<IActionResult> UpdateOrderConsignmentAsync(
+            int consignmentId,
+            [FromBody] UpdateOrderConsignmentRequestDto request)
+        {
+            try
+            {
+                // Kiểm tra tính xác thực của người dùng
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return Unauthorized("User not authenticated.");
+                }
+
+                // Gọi phương thức dịch vụ để cập nhật các trường cần thiết
+                var isUpdated = await _consignmentService.UpdateConsignmentOrderFieldsAsync(consignmentId, userId, request);
+
+                if (!isUpdated)
+                {
+                    return NotFound("Consignment order not found or could not be updated.");
+                }
+
+                return Ok("Consignment order updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
 
         [Authorize(Roles = "manager, staff")]
@@ -346,25 +410,7 @@ namespace KMS.APIService.Controllers
             }
             return Ok("Consignment deleted successfully.");
         }
-        // POST: api/consignment/notify-customer
-        [HttpPost("notify-customer")]
-        public async Task<IActionResult> NotifyCustomer(int consignmentId, string customerEmail)
-        {
-            try
-            {
-                string subject = "Consignment Status Update";
-                string message = $"Dear Customer, \n\nYour consignment with ID {consignmentId} has been updated.\n\nBest regards,\nKoi Farm Team";
-
-                await _emailService.SendEmailAsync(customerEmail, subject, message);
-
-                return Ok("Email sent successfully.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Failed to send email: {ex.Message}");
-            }
-        }
-
+        
 
     }
 }
