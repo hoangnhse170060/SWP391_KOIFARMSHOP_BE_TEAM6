@@ -170,6 +170,10 @@ namespace KMS.APIService.Controllers
                             if (consignment != null && consignment.User != null &&
                                 !string.IsNullOrWhiteSpace(consignment.User.Email))
                             {
+                                consignment.Status = "sold";
+                                _unitOfWork.OrderRepository.Update(order);
+                                _unitOfWork.OrderKoiRepository.Update(koi);
+                                await _unitOfWork.SaveAsync();
                                 // Gửi email thông báo cho người tạo cá Koi
                                 await SendEmailAsync(consignment.User.Email, "Consigned Koi Sold",
                                     $"Your consigned Koi (ID: {koi.KoiId}) has been sold in Order #{orderId}.");
