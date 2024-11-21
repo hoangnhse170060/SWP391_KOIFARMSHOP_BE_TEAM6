@@ -88,6 +88,10 @@ public partial class SwpkoiFarmShopContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("status");
+            // Thêm CHECK CONSTRAINT cho Status
+            entity.HasCheckConstraint("CK_Status",
+                "Status IN ('awaiting inspection', 'approved', 'rejected', 'available', 'pending payment', 'sold', 'completed', 'cancelled')");
+
             entity.Property(e => e.UserId).HasColumnName("userID");
             entity.Property(e => e.UserImage).HasColumnName("userImage");
             entity.Property(e => e.ConsignmentTitle).HasColumnName("consignmentTitle");

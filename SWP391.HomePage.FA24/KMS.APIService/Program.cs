@@ -7,8 +7,11 @@ using KMG.Repository.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
+using Quartz.Spi;
 using System.Text;
 using System.Text.Json.Serialization;
+using KMS.APIService.Jobs;
 
 namespace KMS.APIService
 {
@@ -36,6 +39,9 @@ namespace KMS.APIService
 
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<SwpkoiFarmShopContext>();
+            builder.Services.AddScoped<EmailService>();
+
 
             var key = Encoding.ASCII.GetBytes("xinchaocacbanminhlasang1234567890");
             builder.Services.AddAuthentication(x =>
@@ -99,6 +105,26 @@ namespace KMS.APIService
             builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddAutoMapper(typeof(MapperProfile));
+            builder.Services.AddQuartz(q =>
+            {
+                // Đăng ký sử dụng DI cho Quartz.NET
+                q.UseMicrosoftDependencyInjectionJobFactory();
+
+                // Đăng ký CheckConsignmentJob
+                q.AddJob<CheckConsignmentJob>(opts => opts.WithIdentity("CheckConsignmentJob"));
+                q.AddTrigger(opts => opts
+                    .ForJob("CheckConsignmentJob")
+                    .WithIdentity("CheckConsignmentTrigger")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x
+                        //.WithIntervalInHours(1)
+                        .WithIntervalInMinutes(1)
+                        .RepeatForever()));
+            });
+
+
+            builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {

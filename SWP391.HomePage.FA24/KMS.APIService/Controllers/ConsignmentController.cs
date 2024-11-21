@@ -98,6 +98,12 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Consignment date cannot be in the past.");
                 }
 
+                // Check if consignmentDateTo is at least 7 days from now
+                if (consignmentDateTo < DateTime.Now.AddDays(7))
+                {
+                    return BadRequest("Consignment date must be at least 7 days from today.");
+                }
+
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
                 {
@@ -202,6 +208,17 @@ namespace KMS.APIService.Controllers
         {
             try
             {
+                // Validate consignment date: cannot be in the past
+                if (request.ConsignmentDateTo < DateTime.Now)
+                {
+                    return BadRequest("Consignment date cannot be in the past.");
+                }
+
+                // Validate consignment date: must be at least 7 days from today
+                if (request.ConsignmentDateTo < DateTime.Now.AddDays(7))
+                {
+                    return BadRequest("Consignment date must be at least 7 days from today.");
+                }
                 // Get the UserId from the claims
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
@@ -221,7 +238,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        [Authorize(Roles = "customer")]
+        [Authorize(Roles = "manager, staff, customer")]
         [HttpPut("update-consignment-title-detail/{consignmentId}")]
         public async Task<IActionResult> UpdateConsignmentTitleAndDetail(
    int consignmentId,
@@ -254,7 +271,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
-        [Authorize(Roles = "customer")]
+        [Authorize(Roles = "manager, staff, customer")]
         [HttpPut("update-order-consignment/{consignmentId}")]
         public async Task<IActionResult> UpdateOrderConsignmentAsync(
             int consignmentId,

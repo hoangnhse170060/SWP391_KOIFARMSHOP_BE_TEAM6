@@ -25,7 +25,7 @@ namespace KMG.Repository.Services
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("Your Name", _fromEmail));
+            emailMessage.From.Add(new MailboxAddress("Koi Ke Shop", _fromEmail));
             emailMessage.To.Add(new MailboxAddress("", toEmail));
             emailMessage.Subject = subject;
             emailMessage.Body = new TextPart("plain")
