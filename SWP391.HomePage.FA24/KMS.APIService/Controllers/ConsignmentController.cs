@@ -279,7 +279,7 @@ namespace KMS.APIService.Controllers
         {
             try
             {
-                // Kiểm tra tính xác thực của người dùng
+                // Lấy UserId từ claim để kiểm tra người dùng
                 var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "UserId");
                 if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
                 {

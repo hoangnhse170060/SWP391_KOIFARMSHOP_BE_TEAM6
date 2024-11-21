@@ -553,7 +553,7 @@ namespace KMG.Repository.Services
         {
             var existingConsignment = await _context.Consignments
                 .Include(c => c.Koi)
-                .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId && c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.ConsignmentId == consignmentId );
 
             if (existingConsignment == null || existingConsignment.Koi == null)
             {
