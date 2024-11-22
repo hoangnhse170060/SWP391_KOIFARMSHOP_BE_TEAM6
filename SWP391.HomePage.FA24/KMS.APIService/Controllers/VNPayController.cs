@@ -9,7 +9,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Web;
 using System.Text;
-using KMG.Repository.Interfaces; 
+using KMG.Repository.Interfaces;
 
 
 namespace KMS.APIService.Controllers
@@ -23,7 +23,7 @@ namespace KMS.APIService.Controllers
         private readonly string url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         private readonly string tmnCode = "QBK46KBK";
         private readonly string hashSecret = "MFKD4UMO9TUCVYTO8WQRQ01ZZA5I1KPD";
-        private readonly IEmailService _emailService; // Inject IEmailService
+        private readonly IEmailService _emailService;
 
 
         public VNPayController(UnitOfWork unitOfWork, ILogger<OrderController> logger, IEmailService emailService)
@@ -32,6 +32,7 @@ namespace KMS.APIService.Controllers
             _logger = logger;
             _emailService = emailService;
         }
+
         [HttpPost("Payment")]
         public IActionResult CreatePayment(int orderId)
         {
@@ -154,6 +155,34 @@ namespace KMS.APIService.Controllers
                     string staffEmail = "d.anhdn2008@gmail.com";
 
                     string emailContent = GenerateOrderDetailsEmailContent(order);
+                    // Kiểm tra nếu có cá Koi thuộc loại consigned (IsConsigned = true)
+                    bool hasConsignedKoi = false;
+                    foreach (var koi in order.OrderKois)
+                    {
+                        var koiProduct = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
+                        if (koiProduct != null && koiProduct.IsConsigned == true)
+                        {
+                            hasConsignedKoi = true;
+
+                            // Lấy consignment chứa koi đó để xác định người tạo
+                            var consignment = await _unitOfWork.GetConsignmentByKoiIdAsync(koi.KoiId);
+
+                            if (consignment != null && consignment.User != null &&
+                                !string.IsNullOrWhiteSpace(consignment.User.Email))
+                            {
+                                // Gửi email thông báo cho người tạo cá Koi
+                                await SendEmailAsync(consignment.User.Email, "Consigned Koi Sold",
+                                    $"Your consigned Koi (ID: {koi.KoiId}) has been sold in Order #{orderId}.");
+                            }
+                        }
+                    }
+
+                    // Gửi email cho staff nếu có consigned Koi trong đơn hàng
+                    if (hasConsignedKoi)
+                    {
+                        await SendEmailAsync(staffEmail, "Consigned Koi Notification",
+                            $"Order #{orderId} contains consigned Koi fish. Please review the consignment details.");
+                    }
 
                     // Kiểm tra và gửi email đến cả người dùng và staff
                     if (!string.IsNullOrWhiteSpace(recipientEmail) || !string.IsNullOrWhiteSpace(staffEmail))
@@ -195,12 +224,15 @@ namespace KMS.APIService.Controllers
 
 
                     // Khôi phục số lượng sản phẩm về kho
+
                     foreach (var koi in order.OrderKois)
                     {
                         var koiProduct = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
+
                         if (koiProduct != null)
                         {
                             koiProduct.quantityInStock += koi.Quantity;
+                            koiProduct.Status = koiProduct.quantityInStock > 0 ? "available" : "unavailable";
                             _unitOfWork.KoiRepository.Update(koiProduct);
                         }
 
@@ -211,9 +243,11 @@ namespace KMS.APIService.Controllers
                     foreach (var fish in order.OrderFishes)
                     {
                         var fishProduct = await _unitOfWork.FishRepository.GetByIdAsync(fish.FishesId);
+
                         if (fishProduct != null)
                         {
                             fishProduct.quantityInStock += fish.Quantity;
+                            fishProduct.Status = fishProduct.quantityInStock > 0 ? "available" : "unavailable";
                             _unitOfWork.FishRepository.Update(fishProduct);
                         }
 
@@ -267,7 +301,8 @@ namespace KMS.APIService.Controllers
             pay.AddRequestData("vnp_Version", "2.1.0");
             pay.AddRequestData("vnp_Command", "pay");
             pay.AddRequestData("vnp_TmnCode", tmnCode);
-            pay.AddRequestData("vnp_Amount", (Convert.ToInt32(takeCareFee) * 100).ToString()); // Số tiền chuyển đổi sang VNĐ
+            pay.AddRequestData("vnp_Amount",
+                (Convert.ToInt32(takeCareFee) * 100).ToString()); // Số tiền chuyển đổi sang VNĐ
             pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
             pay.AddRequestData("vnp_CurrCode", "VND");
             pay.AddRequestData("vnp_IpAddr", clientIPAddress);
@@ -327,11 +362,13 @@ namespace KMS.APIService.Controllers
                         return Redirect("https://yourwebsite.com/payment-failed?errorCode=invalid_signature");
                     }
                 }
+
                 return Redirect("https://yourwebsite.com/payment-failed?errorCode=invalid_request");
             }
             catch (Exception ex)
             {
-                return Redirect($"https://yourwebsite.com/payment-failed?errorCode=internal_error&message={WebUtility.UrlEncode(ex.Message)}");
+                return Redirect(
+                    $"https://yourwebsite.com/payment-failed?errorCode=internal_error&message={WebUtility.UrlEncode(ex.Message)}");
             }
         }
 
@@ -339,9 +376,10 @@ namespace KMS.APIService.Controllers
         private async void SendPaymentSuccessEmailToManager(int consignmentId)
         {
             // Cấu hình thông tin email cho manager
-            string managerEmail = "chjchjamen@gmail.com"; 
+            string managerEmail = "chjchjamen@gmail.com";
             string subject = $"Consignment Payment Success - ID: {consignmentId}";
-            string message = $"Payment for consignment ID {consignmentId} has been successfully completed. The consignment is now awaiting processing.";
+            string message =
+                $"Payment for consignment ID {consignmentId} has been successfully completed. The consignment is now awaiting processing.";
 
             // Gửi email sử dụng IEmailService
             await _emailService.SendEmailAsync(managerEmail, subject, message);
@@ -362,13 +400,14 @@ namespace KMS.APIService.Controllers
             {
                 return order.User.Email;
             }
+
             return null; // Trả về null nếu không có email hợp lệ
         }
 
         private async Task SendEmailAsync(string toEmailAddress, string subject, string content)
         {
             string fromEmailAddress = "koikeshop.swp@gmail.com";
-            string fromEmailDisplayName = "[KOIKESHOP] GỬI HOÁ ĐƠN THANH TOÁN";
+            string fromEmailDisplayName = "[KOIKESHOP] PAYMENT INVOICE";
             string fromEmailPassword = "mlua qksd vbya vijt";
             string smtpHost = "smtp.gmail.com";
             int smtpPort = 587;
@@ -389,7 +428,7 @@ namespace KMS.APIService.Controllers
                 {
                     smtpClient.Credentials = new NetworkCredential(fromEmailAddress, fromEmailPassword);
                     smtpClient.EnableSsl = enabledSsl;
-                    await smtpClient.SendMailAsync(message); // Gửi email bất đồng bộ
+                    await smtpClient.SendMailAsync(message);
                 }
             }
             catch (Exception ex)
@@ -397,87 +436,124 @@ namespace KMS.APIService.Controllers
                 _logger.LogError(ex, "Error sending email.");
             }
         }
-        private string GenerateOrderDetailsEmailContent(Order order)
-        {
-            var sb = new StringBuilder();
 
-            // Hình ảnh tiêu đề
-            sb.AppendLine($@"
+
+
+ private string GenerateOrderDetailsEmailContent(Order order)
+            {
+                var sb = new StringBuilder();
+
+                // Hình ảnh tiêu đề
+                sb.AppendLine($@"
     <div style='text-align: center; margin-bottom: 20px;'>
         <img src='https://i.postimg.cc/L4cz55Xt/DALL-E-2024-10-29-16-38-43-A-clean-and-elegant-wide-illustration-featuring-a-vibrant-koi-fish-with.jpg' 
              style='width: 100%; max-width: 1350px; height: auto; display: block; margin: 0 auto;' 
              alt='Koi Image'>
     </div>");
 
-            // Bảng thông tin thanh toán
-            sb.AppendLine($@"
+                // Bảng thông tin thanh toán
+                sb.AppendLine($@"
     <div style='display: flex; justify-content: center;'>
-        <table style='border-collapse: collapse; width: 100%; max-width: 1350px; table-layout: fixed; margin: 0 auto;'>
-            <colgroup>
-                <col style='width: 50%;'>
-                <col style='width: 50%;'>
-            </colgroup>
+        <table style='border-collapse: collapse; width: 100%; max-width: 1350px; margin: 0 auto; font-family: Arial, sans-serif; border: 1px solid #ddd;'>
             <tr>
-                <th colspan='2' 
-                    style='background-color: #f2f2f2; 
+                <th colspan='3' 
+                    style='background-color: #f8f3d4; 
                            padding: 15px; 
                            font-size: 22px; 
-                           text-align: center; 
-                           vertical-align: middle;'>
+                           text-align: center;'>
                     PAYMENT INFORMATION
                 </th>
             </tr>
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order ID</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderId}</td>
+                <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Order ID</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.OrderId}</td>
             </tr>
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Order Date</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.OrderDate:yyyy-MM-dd}</td>
+                <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Order Date</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.OrderDate:yyyy-MM-dd}</td>
             </tr>
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Payment Method</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.PaymentMethod}</td>
+                <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Customer Name</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.User?.UserName ?? "N/A"}</td>
             </tr>
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Total Amount</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.TotalMoney:C}</td>
+                <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Email</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.User?.Email ?? "N/A"}</td>
             </tr>
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Final Amount (after discount)</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.FinalMoney:C}</td>
+                <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Phone Number</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.User?.PhoneNumber ?? "N/A"}</td>
             </tr>
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Customer Name</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.UserName ?? "N/A"}</td>
-            </tr>
-            <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Email</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{order.User?.Email ?? "N/A"}</td>
+                <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Address</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.User?.Address ?? "N/A"}</td>
             </tr>");
 
-            foreach (var koi in order.OrderKois)
-            {
-                sb.AppendLine($@"
+                // Koi Type Section
+                if (order.OrderKois.Any())
+                {
+                    sb.AppendLine($@"
+        <tr style='background-color: #ffff00;'>
+            <td colspan='3' style='padding: 10px; font-size: 16px; font-weight: bold; text-align: center; border: 1px solid #ddd;'>Koi Type</td>
+        </tr>
+        <tr>
+            <th style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Name</th>
+            <th style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Quantity</th>
+            <th style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Price</th>
+        </tr>");
+                    foreach (var koi in order.OrderKois)
+                    {
+                        sb.AppendLine($@"
             <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Koi Name</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Name}</td>
-            </tr>
-            <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Quantity</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Quantity}</td>
-            </tr>
-            <tr>
-                <th style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>Price</th>
-                <td style='border: 1px solid #ddd; padding: 10px; font-size: 16px; text-align: left;'>{koi.Koi.Price:C}</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;'>{koi.Koi.Name}</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;'>{koi.Quantity}</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;'>{koi.Koi.Price:C}</td>
             </tr>");
-            }
-            sb.AppendLine($@"
-        </table>
+                    }
+                }
+
+                // Fish Type Section
+                if (order.OrderFishes.Any())
+                {
+                    sb.AppendLine($@"
+        <tr style='background-color: #ffff00;'>
+            <td colspan='3' style='padding: 10px; font-size: 16px; font-weight: bold; text-align: center; border: 1px solid #ddd;'>Fish Type</td>
+        </tr>
+        <tr>
+            <th style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Name</th>
+            <th style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Quantity</th>
+            <th style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Price</th>
+        </tr>");
+                    foreach (var fish in order.OrderFishes)
+                    {
+                        sb.AppendLine($@"
+            <tr>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;'>{fish.Fishes.Name}</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;'>{fish.Quantity}</td>
+                <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;'>{fish.Fishes.Price:C}</td>
+            </tr>");
+                    }
+                }
+
+                // Tổng kết
+                sb.AppendLine($@"
+    <tr>
+        <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Total Amount</td>
+        <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.TotalMoney:C}</td>
+    </tr>
+    <tr>
+        <td style='padding: 10px; font-size: 16px; font-weight: bold; border: 1px solid #ddd;'>Promotion</td>
+        <td style='padding: 10px; font-size: 16px; border: 1px solid #ddd;' colspan='2'>{order.Promotion?.PromotionName ?? "N/A"}</td>
+    </tr>
+    <tr>
+        <td style='padding: 10px; font-size: 16px; font-weight: bold; color: red; border: 1px solid #ddd;'>Final Amount (after discount)</td>
+        <td style='padding: 10px; font-size: 16px; font-weight: bold; color: red; border: 1px solid #ddd;' colspan='2'>{order.FinalMoney:C}</td>
+    </tr>
+    </table>
     </div>");
 
-            // Phần liên hệ (Contact Info)
-            sb.AppendLine($@"
+                // Phần liên hệ (Contact Info)
+                sb.AppendLine($@"
     <div style='background-color: #f8d7da; padding: 20px; margin-top: 20px; border-radius: 8px; max-width: 1350px; margin: 0 auto;'>
         <h2 style='text-align: center; font-family: Arial, sans-serif; color: #d63384;'>CONTACT INFO</h2>
         <p style='text-align: center; font-size: 16px; color: #d63384;'>
@@ -487,17 +563,12 @@ namespace KMS.APIService.Controllers
         </p>
     </div>");
 
+                return sb.ToString();
 
-            return sb.ToString();
+
+            }
         }
-
-
-
     }
-}
-
-
-
 
 // 31/10/2024
-//PAYMENT11111
+//PAYMENTdone

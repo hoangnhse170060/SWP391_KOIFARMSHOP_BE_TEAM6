@@ -17,6 +17,7 @@ namespace KMS.APIService.Controllers
         {
             return await _unitOfWork.PromotionRepository.GetAllAsync();
         }
+        
         [HttpPost]
         public async Task<ActionResult<Promotion>> CreatePromotion([FromBody] Promotion promotion)
         {

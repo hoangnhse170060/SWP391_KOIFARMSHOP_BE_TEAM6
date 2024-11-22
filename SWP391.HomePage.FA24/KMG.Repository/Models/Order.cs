@@ -11,6 +11,7 @@ public partial class Order
     public int? UserId { get; set; }
 
     public int? PromotionId { get; set; }
+    public int? AddressId { get; set; }
 
     public DateOnly? OrderDate { get; set; }
 
@@ -49,5 +50,9 @@ public partial class Order
     [JsonIgnore]
 
     public virtual User? User { get; set; }
+    [JsonIgnore]
+    public virtual Address? Address { get; set; }
 
+    [JsonIgnore]
+    public virtual Points? Point { get; set; }
 }

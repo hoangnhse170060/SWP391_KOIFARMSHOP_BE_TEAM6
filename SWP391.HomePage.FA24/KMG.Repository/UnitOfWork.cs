@@ -1,5 +1,6 @@
 ﻿using KMG.Repository.Models;
 using KMG.Repository.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,7 @@ namespace KMG.Repository
         private PurchaseHistoryRepository _purcharHistory;
         private DashboardRepository _dashboardRepository;
         private PaymentTransactionRepository _paymentTransactionRepository;
+        private PointRepository _pointRepository;
         public UnitOfWork() => _context = new SwpkoiFarmShopContext();
         /// <summary>
         /// Test Viet ver 2 merge
@@ -36,6 +38,11 @@ namespace KMG.Repository
                 return _userRepository ??= new UserRepository(_context);
             }
         }
+
+        public UnitOfWork(SwpkoiFarmShopContext context)
+        {
+            _context = context;
+        }
         public KoiRepository KoiRepository
         {
             get
@@ -44,6 +51,12 @@ namespace KMG.Repository
             }
         }
 
+        public async Task<Consignment?> GetConsignmentByKoiIdAsync(int koiId)
+        {
+            return await _context.Consignments
+                .Include(c => c.User) // Include the User to get the creator's email !!!
+                .FirstOrDefaultAsync(c => c.KoiId == koiId);
+        }
 
         public OrderRepository OrderRepository
         {
@@ -125,6 +138,13 @@ namespace KMG.Repository
             get
             {
                 return _paymentTransactionRepository ??= new PaymentTransactionRepository(_context);
+            }
+        }
+        public PointRepository PointRepository
+        {
+            get
+            {
+                return _pointRepository ??= new PointRepository(_context);
             }
         }
 

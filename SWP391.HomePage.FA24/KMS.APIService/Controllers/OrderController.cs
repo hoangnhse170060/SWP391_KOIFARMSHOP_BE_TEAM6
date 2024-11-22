@@ -39,17 +39,26 @@ namespace KMS.APIService.Controllers
                     return NotFound($"Order with Id = {id} not found.");
                 }
 
+                var points = await _unitOfWork.PointRepository.GetPointsByOrderIdAsync(id);
                 // Chuẩn bị dữ liệu trả về
                 var result = new
                 {
                     order.OrderId,
                     order.UserId,
-                    UserName = order.User?.UserName, // Hiển thị UserName nếu có
+                    UserName = order.User?.UserName,
+                    Email = order.User?.Email,
+                    PhoneNumber = order.User?.PhoneNumber,
+                    Address = order.Address?.address,
+                    Promotion = order.Promotion?.PromotionName,
                     order.OrderDate,
                     order.TotalMoney,
+                    order.DiscountMoney,
                     order.FinalMoney,
                     order.OrderStatus,
                     order.PaymentMethod,
+                    order.EarnedPoints,
+                    order.UsedPoints,
+                    Point_transaction = points,
                     Fishes = order.OrderFishes.Select(f => new
                     {
                         f.FishesId,
@@ -79,373 +88,272 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+      [HttpPost]
+public async Task<ActionResult<object>> CreateOrder([FromBody] Order order)
+{
+    if (order == null)
+    {
+        return BadRequest("Order object is null.");
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
+    using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
+
+    try
+    {
+        decimal totalMoney = 0;
+
+        // **Pre-Validate OrderKois**
+        foreach (var orderKoi in order.OrderKois)
         {
-            // Kiểm tra nếu đối tượng Order không hợp lệ
-            if (order == null)
+            var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+            if (koiEntity == null)
             {
-                return BadRequest("Order object is null.");
+                return NotFound($"Koi with ID = {orderKoi.KoiId} not found.");
             }
 
-            // Khởi tạo các danh sách nếu chúng bị null để tránh lỗi NullReferenceException
-            order.OrderFishes ??= new List<OrderFish>();
-            order.OrderKois ??= new List<OrderKoi>();
-
-            // Kiểm tra: Ít nhất một trong hai danh sách phải có dữ liệu
-            if (!order.OrderFishes.Any() && !order.OrderKois.Any())
+            if (koiEntity.quantityInStock < 1)
             {
-                return BadRequest("You must choose at least one between Order Fishes or Order Kois.");
-            }
-
-            // Hợp nhất các mục có cùng `KoiId` trong `OrderKois`
-            order.OrderKois = order.OrderKois
-                .GroupBy(k => k.KoiId)
-                .Select(g => new OrderKoi
-                {
-                    KoiId = g.Key,
-                    Quantity = g.Sum(k => k.Quantity)
-                })
-                .ToList();
-
-            // Hợp nhất các mục có cùng `FishesId` trong `OrderFishes`
-            order.OrderFishes = order.OrderFishes
-                .GroupBy(f => f.FishesId)
-                .Select(g => new OrderFish
-                {
-                    FishesId = g.Key,
-                    Quantity = g.Sum(f => f.Quantity)
-                })
-                .ToList();
-
-            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
-
-            try
-            {
-                decimal totalMoney = 0;
-
-                // **Xử lý OrderKois**
-                foreach (var orderKoi in order.OrderKois)
-                {
-                    var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
-                    if (koiEntity == null)
-                    {
-                        return NotFound($"Koi with ID = {orderKoi.KoiId} not found.");
-                    }
-
-                    if (koiEntity.quantityInStock < orderKoi.Quantity)
-                    {
-                        return BadRequest(
-                            $"Not enough stock for Koi ID = {orderKoi.KoiId}. Requested: {orderKoi.Quantity}, Available: {koiEntity.quantityInStock}");
-                    }
-
-                    koiEntity.quantityInStock -= orderKoi.Quantity;
-                    if (koiEntity.quantityInStock == 0)
-                    {
-                        koiEntity.Status = "Unavailable";
-                    }
-                    totalMoney += koiEntity.Price.GetValueOrDefault(0) * orderKoi.Quantity.GetValueOrDefault(0);
-                    _unitOfWork.KoiRepository.Update(koiEntity);
-                }
-
-                // **Xử lý OrderFishes**
-                foreach (var orderFish in order.OrderFishes)
-                {
-                    var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
-                    if (fishEntity == null)
-                    {
-                        return NotFound($"Fish with ID = {orderFish.FishesId} not found.");
-                    }
-
-                    if (fishEntity.quantityInStock < orderFish.Quantity)
-                    {
-                        return BadRequest(
-                            $"Not enough stock for Fish ID = {orderFish.FishesId}. Requested: {orderFish.Quantity}, Available: {fishEntity.quantityInStock}");
-                    }
-
-                    fishEntity.quantityInStock -= orderFish.Quantity;
-                    
-                    if (fishEntity.quantityInStock == 0)
-                    {
-                        fishEntity.Status = "Unavailable";
-                    }
-                    totalMoney += fishEntity.Price.GetValueOrDefault(0) * orderFish.Quantity.GetValueOrDefault(0);
-                    _unitOfWork.FishRepository.Update(fishEntity);
-                }
-
-                // **Gán giá trị DiscountMoney và FinalMoney**
-                decimal discountMoney = order.DiscountMoney ?? 0; // Nếu không có discount thì mặc định là 0
-                order.DiscountMoney = discountMoney; // Gán DiscountMoney vào order
-                order.TotalMoney = totalMoney; // Gán TotalMoney
-                order.FinalMoney = totalMoney - discountMoney; // Tính FinalMoney
-
-                // Kiểm tra nếu FinalMoney bị âm
-                if (order.FinalMoney < 0)
-                {
-                    return BadRequest("Final money cannot be less than zero after applying the discount.");
-                }
-
-                // Gán thông tin ngày và trạng thái
-                order.OrderDate = DateOnly.FromDateTime(DateTime.UtcNow);
-                order.OrderStatus = "processing";
-
-                // **Lưu Order vào cơ sở dữ liệu**
-                await _unitOfWork.OrderRepository.CreateAsync(order);
-                await _unitOfWork.OrderRepository.SaveAsync();
-
-                // Commit giao dịch nếu thành công
-                await transaction.CommitAsync();
-
-                // In log để kiểm tra
-                _logger.LogInformation(
-                    $"Order {order.OrderId} - TotalMoney: {order.TotalMoney}, DiscountMoney: {order.DiscountMoney}, FinalMoney: {order.FinalMoney}");
-
-                // Trả về thông tin Order đã tạo
-                return CreatedAtAction(nameof(GetOrderById), new { id = order.OrderId }, order);
-            }
-            catch (DbUpdateException dbEx)
-            {
-                await transaction.RollbackAsync();
-                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
-                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"Internal server error: {ex.Message}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return BadRequest($"Koi with ID = {orderKoi.KoiId} is out of stock.");
             }
         }
 
+        // **Pre-Validate OrderFishes**
+        foreach (var orderFish in order.OrderFishes)
+        {
+            var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+            if (fishEntity == null)
+            {
+                return NotFound($"Fish with ID = {orderFish.FishesId} not found.");
+            }
 
+            if (fishEntity.quantityInStock < orderFish.Quantity)
+            {
+                return BadRequest(
+                    $"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fishEntity.quantityInStock}, Requested: {orderFish.Quantity}");
+            }
+        }
 
+        // **Process OrderKois**
+        foreach (var orderKoi in order.OrderKois)
+        {
+            var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
+
+            // Default Koi quantity to 1
+            orderKoi.Quantity = 1;
+
+            // Reduce stock and update status
+            koiEntity.quantityInStock -= 1;
+            if (koiEntity.quantityInStock == 0)
+            {
+                koiEntity.Status = "unavailable";
+            }
+
+            totalMoney += koiEntity.Price.GetValueOrDefault();
+            _unitOfWork.KoiRepository.Update(koiEntity);
+        }
+
+        // **Process OrderFishes**
+        foreach (var orderFish in order.OrderFishes)
+        {
+            var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
+
+            // Reduce stock
+            fishEntity.quantityInStock -= orderFish.Quantity;
+
+            // Update status if stock is depleted
+            if (fishEntity.quantityInStock == 0)
+            {
+                fishEntity.Status = "unavailable";
+            }
+
+            totalMoney += (fishEntity.Price.GetValueOrDefault() * (orderFish.Quantity ?? 0));
+            _unitOfWork.FishRepository.Update(fishEntity);
+        }
+
+        // **Calculate FinalMoney and Discount**
+        decimal discountMoney = order.DiscountMoney ?? 0;
+        order.TotalMoney = totalMoney;
+        order.FinalMoney = totalMoney - discountMoney;
+
+        if (order.FinalMoney < 0)
+        {
+            return BadRequest("Final money cannot be less than zero after applying the discount.");
+        }
+
+        order.OrderDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        order.OrderStatus = "processing";
+
+        // **Save Order to Database**
+        await _unitOfWork.OrderRepository.CreateAsync(order);
+        await _unitOfWork.OrderRepository.SaveAsync();
+        await transaction.CommitAsync();
+
+        // **Call GetOrderById to Get Detailed Data**
+        var getOrderResult = await GetOrderById(order.OrderId);
+
+        if (getOrderResult.Result is OkObjectResult okResult)
+        {
+            return Ok(okResult.Value);
+        }
+
+        return getOrderResult.Result;
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        _logger.LogError(ex, $"Error creating order: {ex.Message}");
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
 
         [HttpDelete("{orderId:int}/{itemType}/{itemId:int}")]
-
         public async Task<IActionResult> DeleteItemFromOrder(int orderId, string itemType, int itemId)
         {
-            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
             try
             {
-                // Lấy đơn hàng và kiểm tra sự tồn tại
+                // Lấy thông tin đơn hàng
                 var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
                 if (order == null)
                 {
-                    return NotFound($"Order with ID = {orderId} not found.");
+                    return NotFound(new
+                    {
+                        message = $"Order with ID = {orderId} not found."
+                    });
                 }
 
-                // Kiểm tra nếu đơn hàng đã hoàn tất hoặc bị hủy
-                if (order.OrderStatus == "completed" || order.OrderStatus == "canceled" ||
-                    order.OrderStatus == "remittance")
+                // Kiểm tra trạng thái đơn hàng
+                if (order.OrderStatus is "completed" or "canceled" or "remittance")
                 {
-                    return BadRequest($"Cannot delete items from a {order.OrderStatus} order.");
+                    return BadRequest(new
+                    {
+                        message = $"Cannot delete items from an order with status {order.OrderStatus}."
+                    });
                 }
 
                 decimal amountToDeduct = 0;
 
-                // Xử lý item là 'koi'
+                // Xử lý sản phẩm loại "koi"
                 if (itemType.ToLower() == "koi")
                 {
-                    var orderKoi = await _unitOfWork.OrderKoiRepository
-                        .FirstOrDefaultAsync(ok => ok.OrderId == orderId && ok.KoiId == itemId);
-
+                    var orderKoi = order.OrderKois.FirstOrDefault(ok => ok.KoiId == itemId);
                     if (orderKoi == null)
-                        return NotFound($"Koi with ID = {itemId} not found in the order.");
+                    {
+                        return NotFound(new
+                        {
+                            message = $"Koi with ID = {itemId} not found in the order."
+                        });
+                    }
 
                     var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
-                    koi.quantityInStock += orderKoi.Quantity;
+                    if (koi == null)
+                    {
+                        return NotFound(new
+                        {
+                            message = $"Koi with ID = {itemId} not found in the database."
+                        });
+                    }
+
+                    koi.quantityInStock += orderKoi.Quantity.GetValueOrDefault(0);
+                    koi.Status = koi.quantityInStock > 0 ? "available" : "unavailable";
                     _unitOfWork.KoiRepository.Update(koi);
 
-                    amountToDeduct = koi.Price.GetValueOrDefault(0) * (orderKoi.Quantity ?? 0);
-
+                    amountToDeduct = koi.Price.GetValueOrDefault(0) * orderKoi.Quantity.GetValueOrDefault(0);
                     _unitOfWork.OrderKoiRepository.Remove(orderKoi);
                 }
-                // Xử lý item là 'fish'
+      
                 else if (itemType.ToLower() == "fish")
                 {
-                    var orderFish = await _unitOfWork.OrderFishesRepository
-                        .FirstOrDefaultAsync(of => of.OrderId == orderId && of.FishesId == itemId);
-
+                    var orderFish = order.OrderFishes.FirstOrDefault(of => of.FishesId == itemId);
                     if (orderFish == null)
-                        return NotFound($"Fish with ID = {itemId} not found in the order.");
+                    {
+                        return NotFound(new
+                        {
+                            message = $"Fish with ID = {itemId} not found in the order."
+                        });
+                    }
 
                     var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
-                    fish.quantityInStock += orderFish.Quantity;
+                    if (fish == null)
+                    {
+                        return NotFound(new
+                        {
+                            message = $"Fish with ID = {itemId} not found in the database."
+                        });
+                    }
+
+                    fish.quantityInStock += orderFish.Quantity.GetValueOrDefault(0);
+                    fish.Status = fish.quantityInStock > 0 ? "available" : "unavailable";
                     _unitOfWork.FishRepository.Update(fish);
 
-                    amountToDeduct = fish.Price.GetValueOrDefault(0) * (orderFish.Quantity ?? 0);
-
+                    amountToDeduct = fish.Price.GetValueOrDefault(0) * orderFish.Quantity.GetValueOrDefault(0);
                     _unitOfWork.OrderFishesRepository.Remove(orderFish);
                 }
                 else
                 {
-                    return BadRequest("Invalid item type. Use 'koi' or 'fish'.");
+                    return BadRequest(new
+                    {
+                        message = "Invalid item type. Use 'koi' or 'fish'."
+                    });
                 }
 
-                // Cập nhật tổng tiền của đơn hàng
                 order.TotalMoney -= amountToDeduct;
                 order.FinalMoney = order.TotalMoney - (order.DiscountMoney ?? 0);
+
+                if (!order.OrderKois.Any() && !order.OrderFishes.Any())
+                {
+                    _unitOfWork.OrderRepository.Remove(order);
+                    await _unitOfWork.SaveAsync();
+
+                    return Ok(new
+                    {
+                        message = "All items have been removed from the order. The order has been deleted.",
+                        orderId = order.OrderId
+                    });
+                }
+
                 _unitOfWork.OrderRepository.Update(order);
-
-                // Kiểm tra nếu FinalMoney <= 0 và không còn item nào
-                if (order.FinalMoney <= 0 && !order.OrderKois.Any() && !order.OrderFishes.Any())
-                {
-                    _unitOfWork.OrderRepository.Remove(order); // Xóa đơn hàng nếu không còn sản phẩm
-                }
-
-                // Lưu thay đổi vào cơ sở dữ liệu
-                await _unitOfWork.OrderRepository.SaveAsync();
-                await transaction.CommitAsync();
-
-                return NoContent(); // Thành công
-            }
-            catch (DbUpdateException dbEx)
-            {
-                await transaction.RollbackAsync();
-                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
-                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"An error occurred: {ex.Message}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpPut("{orderId:int}/update")]
-        public async Task<IActionResult> UpdateOrder(
-            int orderId,
-            [FromQuery] string? itemType = null,
-            [FromQuery] int? itemId = null,
-            [FromQuery] int? newQuantity = null,
-            [FromQuery] string? newPaymentMethod = null)
-        {
-            using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
-            try
-            {
-                // Lấy đơn hàng cùng các chi tiết liên quan
-                var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
-                if (order == null)
-                {
-                    return NotFound($"Order with ID = {orderId} not found.");
-                }
-
-                // Kiểm tra trạng thái đơn hàng đã hoàn tất chưa
-                if (order.OrderStatus == "completed" || order.OrderStatus == "remittance")
-                {
-                    return BadRequest($"{order.OrderStatus}  cannot be updated.");
-                }
-
-                // Kiểm tra số lượng mới có hợp lệ không (phải lớn hơn 0)
-                if (newQuantity.HasValue && newQuantity <= 0)
-                {
-                    return BadRequest("Quantity must be greater than zero.");
-                }
-
-                decimal totalMoneyChange = 0;
-
-                // Xử lý cập nhật số lượng sản phẩm
-                if (!string.IsNullOrEmpty(itemType) && itemId.HasValue && newQuantity.HasValue)
-                {
-                    if (itemType.ToLower() == "koi")
-                    {
-                        var orderKoi = order.OrderKois.FirstOrDefault(ok => ok.KoiId == itemId);
-                        if (orderKoi == null)
-                            return NotFound($"Koi with ID = {itemId} not found in the order.");
-
-                        var koi = await _unitOfWork.KoiRepository.GetByIdAsync(orderKoi.KoiId);
-
-                        int quantityChange = (int)(newQuantity.Value - orderKoi.Quantity);
-
-                        if (quantityChange > 0 && koi.quantityInStock < quantityChange)
-                        {
-                            return BadRequest(
-                                $"Not enough stock for Koi ID = {orderKoi.KoiId}. Available: {koi.quantityInStock}");
-                        }
-
-                        koi.quantityInStock -= quantityChange;
-                        totalMoneyChange += koi.Price.GetValueOrDefault(0) * quantityChange;
-                        orderKoi.Quantity = newQuantity.Value;
-
-                        // Cập nhật OrderKoi và Koi trong database
-                        _unitOfWork.OrderKoiRepository.Update(orderKoi);
-                        _unitOfWork.KoiRepository.Update(koi);
-                    }
-                    else if (itemType.ToLower() == "fish")
-                    {
-                        var orderFish = order.OrderFishes.FirstOrDefault(of => of.FishesId == itemId);
-                        if (orderFish == null)
-                            return NotFound($"Fish with ID = {itemId} not found in the order.");
-
-                        var fish = await _unitOfWork.FishRepository.GetByIdAsync(orderFish.FishesId);
-
-                        int quantityChange = (int)(newQuantity.Value - orderFish.Quantity);
-
-                        if (quantityChange > 0 && fish.quantityInStock < quantityChange)
-                        {
-                            return BadRequest(
-                                $"Not enough stock for Fish ID = {orderFish.FishesId}. Available: {fish.quantityInStock}");
-                        }
-
-                        fish.quantityInStock -= quantityChange;
-                        totalMoneyChange += fish.Price.GetValueOrDefault(0) * quantityChange;
-                        orderFish.Quantity = newQuantity.Value;
-
-                        // Cập nhật OrderFish và Fish trong database
-                        _unitOfWork.OrderFishesRepository.Update(orderFish);
-                        _unitOfWork.FishRepository.Update(fish);
-                    }
-                    else
-                    {
-                        return BadRequest("Invalid item type. Use 'koi' or 'fish'.");
-                    }
-                }
-
-                // Cập nhật tổng tiền nếu có thay đổi
-                if (totalMoneyChange != 0)
-                {
-                    order.TotalMoney += totalMoneyChange;
-                    order.FinalMoney = order.TotalMoney - (order.DiscountMoney ?? 0);
-                }
-
-                // Cập nhật phương thức thanh toán nếu có
-                if (!string.IsNullOrEmpty(newPaymentMethod))
-                {
-                    order.PaymentMethod = newPaymentMethod;
-                }
-
-                // Cập nhật đơn hàng trong database
-                _unitOfWork.OrderRepository.Update(order);
-
-                // Lưu tất cả các thay đổi vào database
                 await _unitOfWork.SaveAsync();
-                await transaction.CommitAsync();
 
-                return Ok("Order updated successfully.");
+                return Ok(new
+                {
+                    message = "Item successfully removed from the order.",
+                    remainingTotal = order.FinalMoney,
+                    orderId = order.OrderId
+                });
             }
-            catch (DbUpdateException dbEx)
+            catch (DbUpdateConcurrencyException ex)
             {
-                await transaction.RollbackAsync();
-                var innerException = dbEx.InnerException != null ? dbEx.InnerException.Message : "No inner exception";
-                _logger.LogError(dbEx, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
-                return StatusCode(500, $"Database update error: {dbEx.Message}, Inner Exception: {innerException}");
+
+                var orderExists = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
+                if (orderExists == null)
+                {
+                    return Ok(new
+                    {
+                        message = "Order was deleted successfully.",
+                        orderId = orderId
+                    });
+                }
+
+                _logger.LogError(ex, $"Concurrency error occurred while deleting item from order {orderId}.");
+                return Conflict(new
+                {
+                    message =
+                        "The record you are trying to update or delete was modified or deleted by another process. Please refresh the data and try again.",
+                    orderId = orderId,
+                    itemId = itemId,
+                    itemType = itemType
+                });
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, $"An error occurred: {ex.Message}");
+                _logger.LogError(ex, $"Error deleting item from order {orderId}.");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
 
         [HttpPut("{orderId:int}/update-status-staff&manager")]
         [Authorize(Roles = "staff,manager")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId, [FromQuery] string newStatus)
+        public async Task<IActionResult> UpdateStatusDeliversing(int orderId)
         {
             try
             {
@@ -461,19 +369,14 @@ namespace KMS.APIService.Controllers
                     return BadRequest("Order has already been canceled and cannot be updated.");
                 }
 
-                if (newStatus.ToLower() == "delivering")
+                if (order.OrderStatus.ToLower() == "remittance")
                 {
-                    if (order.OrderStatus.ToLower() != "remittance")
-                    {
-                        return BadRequest("Only orders with 'Remittance' status can be marked as 'Completed'.");
-                    }
-
                     order.OrderStatus = "delivering";
                     order.ShippingDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
                 }
                 else
                 {
-                    return BadRequest("Invalid status.");
+                    return BadRequest("Only orders with 'remittance' status can be updated to 'delivering'.");
                 }
 
                 _unitOfWork.OrderRepository.Update(order);
@@ -495,78 +398,81 @@ namespace KMS.APIService.Controllers
             using var transaction = await _unitOfWork.OrderRepository.BeginTransactionAsync();
             try
             {
-                // Retrieve the order with details
                 var order = await _unitOfWork.OrderRepository.GetOrderWithDetailsAsync(orderId);
                 if (order == null)
                 {
                     return NotFound($"Order with ID = {orderId} not found.");
                 }
 
-                if (order.OrderStatus != "processing" || order.OrderStatus == "remittance")
+                if (order.OrderStatus != "processing" && order.OrderStatus != "remittance")
                 {
-                    return BadRequest("Only orders in 'processing' status can be canceled.");
+                    return BadRequest("Only orders in 'processing' or 'remittance' status can be canceled.");
                 }
 
                 decimal totalMoney = 0;
 
-                // Restock Koi items and set quantity to 0
+                // Restock Koi items and update status
                 foreach (var koi in order.OrderKois)
                 {
                     var koiEntity = await _unitOfWork.KoiRepository.GetByIdAsync(koi.KoiId);
                     if (koiEntity != null)
                     {
-                        koiEntity.quantityInStock += koi.Quantity.GetValueOrDefault(0); // Restock the item
-                        _unitOfWork.KoiRepository.Update(koiEntity); // Update koi entity
+                        // Hoàn trả số lượng tồn kho
+                        koiEntity.quantityInStock += koi.Quantity.GetValueOrDefault(0);
+
+                        // Cập nhật trạng thái mặt hàng
+                        koiEntity.Status = koiEntity.quantityInStock > 0 ? "available" : "unavailable";
+                        _unitOfWork.KoiRepository.Update(koiEntity);
                     }
 
-                    totalMoney +=
-                        koi.Quantity.GetValueOrDefault(0) * koiEntity.Price.GetValueOrDefault(0); // Add to total money
+                    totalMoney += koi.Quantity.GetValueOrDefault(0) * koiEntity.Price.GetValueOrDefault(0);
 
-                    koi.Quantity = 0; // Reset quantity
-                    _unitOfWork.OrderKoiRepository.Update(koi); // Update koi in the order
+                    // Đặt lại số lượng trong đơn hàng về 0
+                    koi.Quantity = 0;
+                    _unitOfWork.OrderKoiRepository.Update(koi);
                 }
 
-                // Restock Fish items and set quantity to 0
+                // Restock Fish items and update status
                 foreach (var fish in order.OrderFishes)
                 {
                     var fishEntity = await _unitOfWork.FishRepository.GetByIdAsync(fish.FishesId);
                     if (fishEntity != null)
                     {
-                        fishEntity.quantityInStock += fish.Quantity.GetValueOrDefault(0); // Restock fish
-                        _unitOfWork.FishRepository.Update(fishEntity); // Update fish entity
+                        // Hoàn trả số lượng tồn kho
+                        fishEntity.quantityInStock += fish.Quantity.GetValueOrDefault(0);
+
+                        // Cập nhật trạng thái mặt hàng
+                        fishEntity.Status = fishEntity.quantityInStock > 0 ? "available" : "unavailable";
+                        _unitOfWork.FishRepository.Update(fishEntity);
                     }
 
-                    totalMoney +=
-                        fish.Quantity.GetValueOrDefault(0) *
-                        fishEntity.Price.GetValueOrDefault(0); // Add to total money
+                    totalMoney += fish.Quantity.GetValueOrDefault(0) * fishEntity.Price.GetValueOrDefault(0);
 
-                    fish.Quantity = 0; // Reset quantity
-                    _unitOfWork.OrderFishesRepository.Update(fish); // Update fish in the order
+                    // Đặt lại số lượng trong đơn hàng về 0
+                    fish.Quantity = 0;
+                    _unitOfWork.OrderFishesRepository.Update(fish);
                 }
 
-                // Update order status to 'canceled'
+                // Cập nhật trạng thái đơn hàng
                 order.OrderStatus = "canceled";
-                _unitOfWork.OrderRepository.Update(order); // Save the updated order
+                _unitOfWork.OrderRepository.Update(order);
 
-                // Retrieve user and adjust points
-                var userId = order.UserId.GetValueOrDefault(); // Convert nullable int to int
+                // Điều chỉnh điểm của người dùng
+                var userId = order.UserId.GetValueOrDefault();
                 var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
                 if (user != null)
                 {
-                    user.TotalPoints -= order.EarnedPoints.GetValueOrDefault(0); // Deduct earned points
-                    if (user.TotalPoints < 0) user.TotalPoints = 0; // Prevent negative points
-
-                    _unitOfWork.UserRepository.Update(user); // Update user entity
+                    user.TotalPoints -= order.EarnedPoints.GetValueOrDefault(0);
+                    if (user.TotalPoints < 0) user.TotalPoints = 0;
+                    _unitOfWork.UserRepository.Update(user);
                 }
 
-                // Commit the changes
                 await _unitOfWork.SaveAsync();
                 await transaction.CommitAsync();
 
                 _logger.LogInformation(
                     $"Order {orderId} canceled, items restocked, quantities reset to 0, and user points adjusted.");
 
-                // Return the updated order and user information
                 return Ok(new
                 {
                     Message = $"Order with ID {orderId} has been canceled, items restocked, and values reset to 0.",
@@ -607,58 +513,85 @@ namespace KMS.APIService.Controllers
         {
             try
             {
-                // Truy vấn tất cả đơn hàng và bao gồm các thông tin liên quan
+       
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
-                        .Include(o => o.User) // Bao gồm thông tin User
-                        .Include(o => o.OrderKois)
-                        .ThenInclude(ok => ok.Koi)
-                        .Include(o => o.OrderFishes)
-                        .ThenInclude(of => of.Fishes)
+                        .Include(o => o.User)
+                        .Include(o => o.Address)
+                        .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
+                        .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
+                        .Include(o => o.Promotion)
                 );
 
-                var result = orders.Select(order => new
-                {
-                    order.OrderId,
-                    order.UserId,
-                    Username = order.User?.UserName, // Hiển thị Username nếu tồn tại
-                    order.OrderDate,
-                    order.TotalMoney,
-                    order.FinalMoney,
-                    order.DiscountMoney,
-                    order.UsedPoints,
-                    order.EarnedPoints,
-                    order.OrderStatus,
-                    order.PaymentMethod,
+                // Chuẩn bị dữ liệu trả về
+                var result = new List<object>();
 
-                    OrderKois = order.OrderKois.Select(ok => new
+                foreach (var order in orders)
+                {
+                    // Lấy điểm giao dịch của từng đơn hàng
+                    var pointTransactions = await _unitOfWork.PointRepository.GetPointsByOrderIdAsync(order.OrderId);
+
+                    // Format dữ liệu giao dịch điểm
+                    var formattedPoints = pointTransactions?.Select(pt => new
                     {
-                        ok.KoiId,
-                        ok.Quantity,
-                        KoiDetails = new
-                        {
-                            ok.Koi.KoiId,
-                            ok.Koi.Name,
-                            ok.Koi.Gender,
-                            ok.Koi.Price,
-                            ok.Koi.Size,
-                            ok.Koi.ImageKoi
-                        }
-                    }).ToList(),
-                    OrderFishes = order.OrderFishes.Select(of => new
+                        transactionId = pt.TransactionId,
+                        userId = pt.UserId,
+                        transactionType = pt.TransactionType,
+                        transactionDate = pt.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"),
+                        pointsChanged = pt.PointsChanged,
+                        newTotalPoints = pt.NewTotalPoints,
+                        orderId = pt.OrderId
+                    }).ToList();
+
+                    // Chuẩn bị dữ liệu cho từng đơn hàng
+                    var orderData = new
                     {
-                        of.FishesId,
-                        of.Quantity,
-                        FishDetails = new
+                        order.OrderId,
+                        order.UserId,
+                        username = order.User?.UserName,
+                        Address = order.Address?.address,
+                        promotion = order.Promotion?.PromotionName,
+                        order.OrderDate,
+                        totalMoney = order.TotalMoney,
+                        finalMoney = order.FinalMoney,
+                        discountMoney = order.DiscountMoney,
+                        usedPoints = order.UsedPoints,
+                        earnedPoints = order.EarnedPoints,
+                        orderStatus = order.OrderStatus,
+                        paymentMethod = order.PaymentMethod,
+                        point_transaction = formattedPoints, 
+
+                        orderKois = order.OrderKois.Select(ok => new
                         {
-                            of.Fishes.FishesId,
-                            of.Fishes.Name,
-                            of.Fishes.Status,
-                            of.Fishes.Price,
-                            of.Fishes.ImageFishes
-                        }
-                    }).ToList()
-                }).ToList();
+                            ok.KoiId,
+                            ok.Quantity,
+                            koiDetails = new
+                            {
+                                ok.Koi.KoiId,
+                                ok.Koi.Name,
+                                ok.Koi.Gender,
+                                ok.Koi.Price,
+                                ok.Koi.Size,
+                                ok.Koi.ImageKoi
+                            }
+                        }).ToList(),
+                        orderFishes = order.OrderFishes.Select(of => new
+                        {
+                            of.FishesId,
+                            of.Quantity,
+                            fishDetails = new
+                            {
+                                of.Fishes.FishesId,
+                                of.Fishes.Name,
+                                of.Fishes.Status,
+                                of.Fishes.Price,
+                                of.Fishes.ImageFishes
+                            }
+                        }).ToList()
+                    };
+
+                    result.Add(orderData);
+                }
 
                 return Ok(result);
             }
@@ -675,7 +608,6 @@ namespace KMS.APIService.Controllers
         {
             try
             {
-                // Retrieve the order from the repository
                 var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
 
                 if (order == null)
@@ -683,12 +615,10 @@ namespace KMS.APIService.Controllers
                     return NotFound($"Order with ID = {orderId} not found.");
                 }
 
-                // Check if the order status is 'in transit'
                 if (order.OrderStatus?.ToLower() == "delivering")
                 {
-                    // Update delivery status to 'delivered'
                     order.OrderStatus = "completed";
-                    // Update the order in the repository
+
                     _unitOfWork.OrderRepository.Update(order);
                     await _unitOfWork.OrderRepository.SaveAsync();
 
@@ -708,6 +638,7 @@ namespace KMS.APIService.Controllers
             }
         }
 
+
         [HttpGet("my-orders")]
         [Authorize]
         public async Task<ActionResult<IEnumerable<object>>> GetOrdersForLoggedInUser()
@@ -724,15 +655,15 @@ namespace KMS.APIService.Controllers
 
                 int userId = int.Parse(userIdClaim);
 
-                // Truy vấn đơn hàng của người dùng với thông tin liên quan
                 var orders = await _unitOfWork.OrderRepository.GetAllAsync(
                     include: query => query
-                        .Include(o => o.User) // Bao gồm thông tin User để lấy UserName
-                        .Include(o => o.OrderKois).ThenInclude(ok => ok.Koi)
-                        .Include(o => o.OrderFishes).ThenInclude(of => of.Fishes)
+                        .Include(o => o.User)
+                        .Include(o =>o.Address)
+                        .Include(o => o.OrderFishes).ThenInclude(f => f.Fishes)
+                        .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
+                        .Include(o => o.Promotion)
                 );
 
-                // Lọc các đơn hàng của người dùng
                 var userOrders = orders.Where(o => o.UserId == userId).ToList();
 
                 if (!userOrders.Any())
@@ -740,41 +671,65 @@ namespace KMS.APIService.Controllers
                     return NotFound($"No orders found for User with ID = {userId}.");
                 }
 
-                // Chuẩn bị dữ liệu trả về
-                var result = userOrders.Select(order => new
-                {
-                    order.OrderId,
-                    order.UserId,
-                    UserName = order.User?.UserName, // Hiển thị UserName nếu tồn tại
-                    order.OrderDate,
-                    order.TotalMoney,
-                    order.FinalMoney,
-                    order.DiscountMoney,
-                    order.UsedPoints,
-                    order.EarnedPoints,
-                    order.OrderStatus,
-                    order.PaymentMethod,
+                var result = new List<object>();
 
-                    OrderKois = order.OrderKois.Select(ok => new
+                foreach (var order in userOrders)
+                {
+                    
+                    var pointTransactions = await _unitOfWork.PointRepository.GetPointsByOrderIdAsync(order.OrderId);
+
+                    var formattedPoints = pointTransactions?.Select(pt => new
                     {
-                        ok.KoiId,
-                        ok.Quantity,
-                        ok.Koi.Name,
-                        ok.Koi.Gender,
-                        ok.Koi.Price,
-                        ok.Koi.Size,
-                        ok.Koi.ImageKoi
-                    }).ToList(),
-                    OrderFishes = order.OrderFishes.Select(of => new
+                        transactionId = pt.TransactionId,
+                        userId = pt.UserId,
+                        transactionType = pt.TransactionType,
+                        transactionDate = pt.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"), // ISO format
+                        pointsChanged = pt.PointsChanged,
+                        newTotalPoints = pt.NewTotalPoints,
+                        orderId = pt.OrderId
+                    }).ToList();
+
+                    var orderData = new
                     {
-                        of.FishesId,
-                        of.Quantity,
-                        of.Fishes.Name,
-                        of.Fishes.Status,
-                        of.Fishes.Price,
-                        of.Fishes.ImageFishes
-                    }).ToList()
-                }).ToList();
+                        orderId = order.OrderId,
+                        userId = order.UserId,
+                        userName = order.User?.UserName,
+                        email = order.User?.Email,
+                        phoneNumber = order.User?.PhoneNumber,
+                        Address = order.Address?.address,
+                        promotion = order.Promotion?.PromotionName,
+                        orderDate = order.OrderDate.ToString(),
+                        totalMoney = order.TotalMoney,
+                        discountMoney = order.DiscountMoney,
+                        finalMoney = order.FinalMoney,
+                        orderStatus = order.OrderStatus,
+                        paymentMethod = order.PaymentMethod,
+                        earnedPoints = order.EarnedPoints,
+                        usedPoints = order.UsedPoints,
+                        point_transaction = formattedPoints, 
+                        fishes = order.OrderFishes.Select(f => new
+                        {
+                            fishesId = f.FishesId,
+                            quantity = f.Quantity,
+                            name = f.Fishes.Name,
+                            status = f.Fishes.Status,
+                            price = f.Fishes.Price,
+                            imageFishes = f.Fishes.ImageFishes
+                        }),
+                        kois = order.OrderKois.Select(k => new
+                        {
+                            koiId = k.KoiId,
+                            quantity = k.Quantity,
+                            name = k.Koi.Name,
+                            gender = k.Koi.Gender,
+                            price = k.Koi.Price,
+                            size = k.Koi.Size,
+                            imageKoi = k.Koi.ImageKoi
+                        })
+                    };
+
+                    result.Add(orderData);
+                }
 
                 return Ok(result);
             }
@@ -784,11 +739,184 @@ namespace KMS.APIService.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+
+        [HttpGet("status/{status}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetOrdersByStatus(string status)
+        {
+            try
+            {
+                var orders = await _unitOfWork.OrderRepository.GetAllAsync(
+                    include: query => query
+                        .Include(o => o.User)
+                        .Include(o => o.OrderFishes).ThenInclude(f => f.Fishes)
+                        .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
+                        .Include(o => o.Promotion)
+                );
+
+                // Lọc đơn hàng theo trạng thái
+                var filteredOrders = orders
+                    .Where(o => o.OrderStatus.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (!filteredOrders.Any())
+                {
+                    return NotFound($"No orders found with status '{status}'.");
+                }
+
+                var result = filteredOrders.Select(order => new
+                {
+                    order.OrderId,
+                    order.UserId,
+                    UserName = order.User?.UserName,
+                    Email = order.User?.Email,
+                    PhoneNumber = order.User?.PhoneNumber,
+                    Address = order.User?.Address,
+                    Promotion = order.Promotion?.PromotionName,
+                    order.OrderDate,
+                    order.TotalMoney,
+                    order.DiscountMoney,
+                    order.FinalMoney,
+                    order.OrderStatus,
+                    order.PaymentMethod,
+                    order.EarnedPoints,
+                    order.UsedPoints,
+                    Fishes = order.OrderFishes.Select(f => new
+                    {
+                        f.FishesId,
+                        f.Quantity,
+                        f.Fishes.Name,
+                        f.Fishes.Status,
+                        f.Fishes.Price,
+                        f.Fishes.ImageFishes
+                    }),
+                    Kois = order.OrderKois.Select(k => new
+                    {
+                        k.KoiId,
+                        k.Quantity,
+                        k.Koi.Name,
+                        k.Koi.Gender,
+                        k.Koi.Price,
+                        k.Koi.Size,
+                        k.Koi.ImageKoi
+                    })
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving orders with status '{status}'.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+     [HttpGet("my-orders/status/{status}")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<object>>> GetOrdersByStatusForLoggedInUser(string status)
+        {
+            try
+            {
+                // Retrieve UserId from token
+                var userIdClaim = User.FindFirst("UserId")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized("User ID not found in token.");
+                }
+
+                int userId = int.Parse(userIdClaim);
+
+                // Query orders of the user with the related information
+                var orders = await _unitOfWork.OrderRepository.GetAllAsync(
+                    include: query => query
+                        .Include(o => o.User) // Include User information
+                        .Include(o => o.OrderFishes).ThenInclude(f => f.Fishes)
+                        .Include(o => o.OrderKois).ThenInclude(k => k.Koi)
+                        .Include(o => o.Promotion)
+                );
+
+                // Filter orders by UserId and status
+                var userOrders = orders.Where(o => o.UserId == userId && o.OrderStatus.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                if (!userOrders.Any())
+                {
+                    return NotFound($"No orders found with status '{status}' for your account.");
+                }
+
+                // Prepare response data
+                var result = new List<object>();
+
+                foreach (var order in userOrders)
+                {
+                    // Get point transactions for the order
+                    var pointTransactions = await _unitOfWork.PointRepository.GetPointsByOrderIdAsync(order.OrderId);
+
+                    // Format point transaction data
+                    var formattedPoints = pointTransactions?.Select(pt => new
+                    {
+                        transactionId = pt.TransactionId,
+                        userId = pt.UserId,
+                        transactionType = pt.TransactionType,
+                        transactionDate = pt.TransactionDate.ToString("yyyy-MM-ddTHH:mm:ss.fff"), // ISO format
+                        pointsChanged = pt.PointsChanged,
+                        newTotalPoints = pt.NewTotalPoints,
+                        orderId = pt.OrderId
+                    }).ToList();
+
+                    var orderData = new
+                    {
+                        orderId = order.OrderId,
+                        userId = order.UserId,
+                        userName = order.User?.UserName,
+                        email = order.User?.Email,
+                        phoneNumber = order.User?.PhoneNumber,
+                        address = order.User?.Address,
+                        promotion = order.Promotion?.PromotionName,
+                        orderDate = order.OrderDate.ToString(),
+                        totalMoney = order.TotalMoney,
+                        discountMoney = order.DiscountMoney,
+                        finalMoney = order.FinalMoney,
+                        orderStatus = order.OrderStatus,
+                        paymentMethod = order.PaymentMethod,
+                        earnedPoints = order.EarnedPoints,
+                        usedPoints = order.UsedPoints,
+                        point_transaction = formattedPoints,
+
+                        fishes = order.OrderFishes.Select(f => new
+                        {
+                            fishesId = f.FishesId,
+                            quantity = f.Quantity,
+                            name = f.Fishes.Name,
+                            status = f.Fishes.Status,
+                            price = f.Fishes.Price,
+                            imageFishes = f.Fishes.ImageFishes
+                        }),
+                        kois = order.OrderKois.Select(k => new
+                        {
+                            koiId = k.KoiId,
+                            quantity = k.Quantity,
+                            name = k.Koi.Name,
+                            gender = k.Koi.Gender,
+                            price = k.Koi.Price,
+                            size = k.Koi.Size,
+                            imageKoi = k.Koi.ImageKoi
+                        })
+                    };
+
+                    result.Add(orderData);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving orders with status '{status}' for the logged-in user.");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
-
 }
-
-
 
 
 

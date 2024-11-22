@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -33,7 +34,7 @@ public partial class SwpkoiFarmShopContext : DbContext
 
     public virtual DbSet<OrderKoi> OrderKois { get; set; }
 
-    public virtual DbSet<Point> Points { get; set; }
+    public virtual DbSet<Points> Points { get; set; }
 
     public virtual DbSet<Promotion> Promotions { get; set; }
 
@@ -312,20 +313,26 @@ public partial class SwpkoiFarmShopContext : DbContext
                 .HasConstraintName("FK__Order_Koi__order__25869641");
         });
 
-        modelBuilder.Entity<Point>(entity =>
+        modelBuilder.Entity<Points>(entity =>
         {
-            entity.HasKey(e => e.PointsId).HasName("PK__Points__1EA67E48B88E9AE4");
+            entity.HasKey(e => e.TransactionId).HasName("PK__Points__1EA67E48B88E9AE4"); // Sửa thành TransactionId
 
-            entity.Property(e => e.PointsId).HasColumnName("pointsID");
-            entity.Property(e => e.TotalPoints)
-                .HasDefaultValue(0)
-                .HasColumnName("totalPoints");
-            entity.Property(e => e.UserId).HasColumnName("userID");
+            entity.Property(e => e.TransactionId).HasColumnName("transactionID"); // Đặt tên cột cho TransactionId
+            entity.Property(e => e.UserId).HasColumnName("userID"); // Đặt tên cột cho UserId
+            entity.Property(e => e.TransactionType).HasColumnName("transactionType"); // Đặt tên cột cho TransactionType
+            entity.Property(e => e.TransactionDate)
+                .HasDefaultValueSql("GETDATE()") // Đặt giá trị mặc định là thời gian hiện tại
+                .HasColumnName("transactionDate"); // Đặt tên cột cho TransactionDate
+            entity.Property(e => e.PointsChanged).HasColumnName("pointsChanged"); // Đặt tên cột cho PointsChanged
+            entity.Property(e => e.NewTotalPoints).HasColumnName("newTotalPoints"); // Đặt tên cột cho NewTotalPoints
+            entity.Property(e => e.OrderId).HasColumnName("orderID"); // Đặt tên cột cho OrderId
 
-            entity.HasOne(d => d.User).WithMany(p => p.Points)
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.Points)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Points__userID__36B12243");
+                .HasConstraintName("FK__Points__userID__36B12243"); // Liên kết tới bảng User
         });
+
 
         modelBuilder.Entity<Promotion>(entity =>
         {

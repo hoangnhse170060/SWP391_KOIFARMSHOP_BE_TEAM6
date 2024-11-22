@@ -9,6 +9,7 @@ public partial class PurchaseHistory
     public int OrderId { get; set; }
 
     public int UserId { get; set; }
+    public int? AddressId { get; set; }
 
     public DateOnly? PurchaseDate { get; set; }
 
@@ -39,4 +40,6 @@ public partial class PurchaseHistory
     [JsonIgnore]
 
     public virtual User User { get; set; } = null!;
+    [JsonIgnore]
+    public virtual Address? Address { get; set; }
 }
