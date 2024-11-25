@@ -7,7 +7,7 @@
 - **Backend**: C#
 - **Database**: SQL Server
 - **GitHub Repository FE**: (https://github.com/khanhnqse/Koi-Farm-Shop-FE-Team-6)
-- **GitHub Repository BE**: (https://github.com/hoangnhse170060/SWP391_Team5)
+- **GitHub Repository BE**: (https://github.com/hoangnhse170060/SWP391_KOIFARMSHOP_BE_TEAM6)
 
 ## 👥 Contributors
 
